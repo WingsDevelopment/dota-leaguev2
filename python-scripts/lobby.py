@@ -1,24 +1,38 @@
 #!/usr/bin/env python3
 import sys
-import gevent
+import time
 import datetime
 import os
+import gevent
+
 from steam.client import SteamID, SteamClient
 from dota2.client import Dota2Client
 from steam.enums import EResult
-from discord_db import execute_function_single_row_return, execute_function_no_return, execute_function_with_return
+from discord_db import (
+    execute_function_single_row_return,
+    execute_function_no_return,
+    execute_function_with_return
+)
 
+# Logging helper
 def _log(message, level='INFO'):
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     print(f"[{timestamp}] [{level}] {message}", flush=True)
 
-# Create a SteamClient and Dota2Client.
-steam_client = SteamClient()
-dota_client = Dota2Client(steam_client)
-dota_client.socache._LOG.disabled = True
-dota_client._LOG.disabled = True
+# Helper function: wait for game args row to be present
+def wait_for_game_args(game_id: str, timeout: int = 30):
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        try:
+            game_args = execute_function_single_row_return('get_game_args', game_id)
+            _log(f"GameArgs found: {game_args}", level="DEBUG")
+            return game_args
+        except ValueError:
+            _log("GameArgs not found yet, waiting...", level="DEBUG")
+            time.sleep(1)
+    raise ValueError(f"GameArgs not found for game_id {game_id} after {timeout} seconds.")
 
-# Global variables (will be set in lobby_main)
+# Global variables (to be set in lobby_main)
 starting = False
 game_id = None
 steam_bot = None
@@ -30,12 +44,20 @@ lobby_password = None
 players = None
 players_that_checkin = {}
 
+# Create a SteamClient and Dota2Client.
+steam_client = SteamClient()
+dota_client = Dota2Client(steam_client)
+# Optionally disable extra logging:
+dota_client.socache._LOG.disabled = True
+dota_client._LOG.disabled = True
+
 @dota_client.on('lobby_changed')  # type: ignore
 def lobby_change(lobby):
     global starting
     if starting:
         return
     for lobby_player in lobby.all_members:
+        # Look for a matching player by steam_id
         player = next((p for p in players if p['steam_id'] == lobby_player.id), None)
         if player is not None:
             old_checkin = players_that_checkin.get(lobby_player.id, False)
@@ -51,7 +73,7 @@ def create_lobby():
     _log("Destroying any existing lobby...")
     dota_client.destroy_lobby()
     lobby_options = {
-        "game_mode": game_mod,  
+        "game_mode": game_mod,
         "allow_cheats": False,
         "game_name": lobby_name,
         "server_region": 3,
@@ -67,7 +89,7 @@ def create_lobby():
     except Exception as e:
         _log(f"Error or timeout waiting for 'lobby_new' event: {e}")
         abort_game()
-    current_lobby_id = dota_client.lobby.__getattribute__('lobby_id') if dota_client.lobby else None
+    current_lobby_id = getattr(dota_client.lobby, 'lobby_id', None)
     _log(f"Lobby {current_lobby_id} created successfully.")
     _log("Joining practice lobby team...")
     dota_client.join_practice_lobby_team()
@@ -83,7 +105,7 @@ def check_to_start():
     global starting
     if list(players_that_checkin.values()).count(True) == len(players) and not starting:
         starting = True
-        _log("Starting lobby")
+        _log("All players checked in. Starting lobby.")
         dota_client.launch_practice_lobby()
         gevent.sleep(10)
         _log("Disconnecting from lobby")
@@ -113,7 +135,7 @@ def timeout_game():
 def lobby_main():
     global game_id, steam_bot, league_id, game_mod, lobby_timeout, lobby_name, lobby_password, players, players_that_checkin, starting
     if len(sys.argv) < 6:
-        _log("Not enough arguments")
+        _log("Not enough arguments", level="ERROR")
         sys.exit(1)
     game_id = sys.argv[1]
     steam_bot_id = sys.argv[2]
@@ -121,7 +143,12 @@ def lobby_main():
     game_mod = int(sys.argv[4])
     lobby_timeout = int(sys.argv[5])
     steam_bot = execute_function_single_row_return('get_steam_bot', steam_bot_id)
-    game_args = execute_function_single_row_return('get_game_args', game_id)
+    # Wait for GameArgs row to be available (which holds lobby_name and lobby_password)
+    try:
+        game_args = wait_for_game_args(game_id, timeout=30)
+    except ValueError as e:
+        _log(f"Failed to get game args: {e}", level="ERROR")
+        sys.exit(1)
     lobby_name = game_args['lobby_name']
     lobby_password = game_args['lobby_password']
     players = execute_function_with_return('get_all_players_from_game', game_id)
@@ -153,4 +180,5 @@ def lobby_main():
         abort_game()
 
 if __name__ == '__main__':
+    _log("Starting lobby process (lobby.py)...")
     lobby_main()

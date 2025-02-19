@@ -13,7 +13,7 @@ def _log(message, level='INFO'):
 def login_steam(steam_client, steam_bot):
     _log(f"Logging in as {steam_bot['username']}")
     if not steam_client.logged_on:
-        result = steam_client.login(username=steam_bot['username'], password=steam_bot['password'])
+        result = steam_client.login(username=steam_bot['username'], password=steam_bot['password'], two_factor_code=os.getenv("STEAM_GUARD_CODE"))
         if result != EResult.OK:
             if result == 85:
                 _log("Steam login failed with result 85. Two-factor code required. Please enter the Steam Guard Code:")

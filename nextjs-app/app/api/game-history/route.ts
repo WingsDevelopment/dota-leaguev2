@@ -31,13 +31,12 @@ export async function GET() {
       );
     });
 
-    // Execute the leaderboard query.
-    const leaderboard: Array<Record<string, any>> = await new Promise(
+    // Execute the game query.
+    const games: Array<Record<string, any>> = await new Promise(
       (resolve, reject) => {
         db.all(
-          `SELECT discord_id, name, mmr
-           FROM Players
-           ORDER BY mmr DESC`,
+          `SELECT steam_match_id, result, status, id, type
+           FROM Game`,
           [],
           (err, rows) => {
             if (err) {
@@ -53,9 +52,9 @@ export async function GET() {
     // Close the database connection.
     db.close();
 
-    return NextResponse.json({ leaderboard });
+    return NextResponse.json({ games });
   } catch (error) {
-    console.error("Error reading leaderboard:", error);
+    console.error("Error reading games:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

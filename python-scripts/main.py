@@ -117,6 +117,11 @@ bot.sigedUpDraftPlayerPool: List[Member] = []  # type: ignore
 
 @bot.event
 async def on_ready():
+    # Clear any previously registered global slash commands.
+    # await bot.tree.clear_commands(guild=None)
+    # Sync the command tree so that your updated commands are registered.
+    await bot.tree.sync()
+
     global RENDER
 
     if not DEFAULT_CHANNEL_ID or \
@@ -127,8 +132,6 @@ async def on_ready():
     not CONSOLE_CHANNEL_ID:
         _log('You need to set all channel ids in .env file')
         exit(1)
-
-    await bot.tree.sync()
 
     bot.default_channel = bot.get_channel(int(DEFAULT_CHANNEL_ID))
     bot.leaderboard_channel = bot.get_channel(int(LEADERBOARD_CHANNEL_ID))
@@ -193,20 +196,19 @@ async def help(ctx: Context):
 
     await ctx.send(embed=embed, delete_after=60)
 
-
 @commands.has_role(ADMIN_ROLE)
 @bot.hybrid_command("vouch", description="Vouch for a player")
-async def vouch(ctx: Context, discord_id: str, steam_id: str):
-    discord_id = discord_id.replace('\\', '').replace('<', '').replace('>', '').replace(
-        '@', '').replace('!', '').replace('#', '').replace('&', '')  # <@337347092139737099>
+async def vouch(ctx: Context, discord_id: str, steam_id: str, nickname: str):
+    # Clean the discord_id string (remove extra characters)
+    discord_id = discord_id.replace('\\', '').replace('<', '').replace('>', '').replace('@', '').replace('!', '').replace('#', '').replace('&', '')
     try:
+        # Check if the player is already vouched (by discord_id)
         execute_function_single_row_return('get_player_id', discord_id)
-        await ctx.reply('Player <@{0}> has already been vouched for'.format(discord_id), delete_after=10)
+        await ctx.reply(f'Player <@{discord_id}> has already been vouched for', delete_after=10)
     except ValueError:
-        execute_function_no_return(
-            'add_player', discord_id, steam_id, STARTING_MMR)
-        await ctx.reply('<@{0}> has been vouched'.format(discord_id))
-
+        # Insert the player with the provided nickname
+        execute_function_no_return('add_player', discord_id, steam_id, nickname, STARTING_MMR)
+        await ctx.reply(f'<@{discord_id}> has been vouched for with nickname "{nickname}"', delete_after=10)
 
 @commands.has_role(ADMIN_ROLE)
 @bot.hybrid_command("score", description="Score a match")

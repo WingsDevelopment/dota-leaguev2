@@ -25,11 +25,10 @@ def main():
     time.sleep(2)
     
     try:
-        print("Starting lobby process (lobby.py)...", flush=True)
-        # Pass game_id, steam_bot_id, league_id, game_mod, lobby_timeout (adjust values as needed)
-        lobby_process = subprocess.Popen([sys.executable, "lobby.py", "3", "1", "17791", "16", "300"])
+        print("Starting orchestrator process (lobby_orchestrator.py)...", flush=True)
+        orchestrator_process = subprocess.Popen([sys.executable, "lobby_orchestrator.py"])
     except Exception as e:
-        print(f"Error starting lobby.py: {e}", flush=True)
+        print(f"Error starting lobby_orchestrator.py: {e}", flush=True)
         bot_process.terminate()
         sys.exit(1)
         
@@ -39,9 +38,9 @@ def main():
             time.sleep(1)
     except KeyboardInterrupt:
         print("Terminating processes...", flush=True)
-        lobby_process.terminate()
+        orchestrator_process.terminate()
         bot_process.terminate()
-        lobby_process.wait()
+        orchestrator_process.wait()
         bot_process.wait()
         print("All processes terminated.", flush=True)
 

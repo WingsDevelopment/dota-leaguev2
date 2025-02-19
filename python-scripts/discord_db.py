@@ -20,9 +20,9 @@ def get_all_players(cursor: Cursor) -> None:
     cursor.execute('SELECT * FROM Players')
 
 
-def add_player(cursor: Cursor, discord_id: str, steam_id: str, mmr: str) -> None:
-    cursor.execute('''INSERT INTO Players(discord_id, steam_id, mmr)
-                        VALUES(?,?,?)''', (discord_id, steam_id, mmr))
+def add_player(cursor: Cursor, discord_id: str, steam_id: str, name: str, mmr: str) -> None:
+    cursor.execute('''INSERT INTO Players(discord_id, steam_id, name, mmr)
+                      VALUES(?,?,?,?)''', (discord_id, steam_id, name, mmr))
 
 
 def get_player_id(cursor: Cursor, discord_id: str) -> None:
@@ -256,6 +256,7 @@ def create_tables(cursor: Connection) -> None:
                             (id INTEGER PRIMARY KEY,
                             discord_id INTEGER  ,
                             steam_id INTEGER,
+                            name TEXT,
                             mmr INTEGER,
                             captain INTEGER DEFAULT 0)''')
 

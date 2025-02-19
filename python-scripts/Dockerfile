@@ -7,7 +7,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of your scripts (including discord_db.py and run_all_py.py)
+# Copy the rest of your scripts (including discord_db.py and run_all.py)
 COPY . .
 
 # (Optional) If you need bash and it’s not present, install it:

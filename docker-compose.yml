@@ -1,10 +1,10 @@
 services:
   python:
     build: ./python-scripts
-    # Update the command if your file is named differently
-    command: bash -c "python discord_db.py && sleep 5 && python run_all_py.py"
+    command: bash -c "python discord_db.py && sleep 5 && python run_all.py"
     environment:
       - DATABASE_PATH=/app/db/league.db
+      - STEAM_GUARD_CODE=${STEAM_GUARD_CODE}
     env_file:
       - .env.python
     volumes:

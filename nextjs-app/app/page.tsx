@@ -1,38 +1,35 @@
+// app/dashboard/page.tsx
 import { Metadata } from "next";
-
-import { Button } from "../components/ui/button";
+import { auth } from "@/auth";
+import { MainNav } from "@/components/dashboard/main-nav";
+import { ModeToggle } from "@/components/ui/ModeToggle";
+import { Search } from "@/components/dashboard/search";
+import { SignIn } from "@/components/dashboard/signIn";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../components/ui/card";
+} from "@/components/ui/card";
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../components/ui/tabs";
-import { CalendarDateRangePicker } from "../components/dashboard/date-range-picker";
-import { MainNav } from "../components/dashboard/main-nav";
-import { Overview } from "../components/dashboard/overview";
-import { RecentSales } from "../components/dashboard/recent-sales";
-import { Search } from "../components/dashboard/search";
-import { SignIn } from "../components/dashboard/signIn";
-import { auth } from "@/auth";
-import { ModeToggle } from "@/components/ui/ModeToggle";
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHeaderCell,
+  TableCell,
+} from "@/components/ui/table";
 
 export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "Example dashboard app built using the components.",
+  title: "Dashboard Leaderboard",
+  description: "Display the leaderboard with summary cards.",
 };
 
 export default async function DashboardPage() {
   const session = await auth();
 
-  console.log({ session });
-  if (!session)
+  if (!session) {
     return (
       <>
         <div className="border-b">
@@ -45,194 +42,125 @@ export default async function DashboardPage() {
             </div>
           </div>
         </div>
-        <div
-          className="hidden md:grid place-items-center overflow-hidden"
-          style={{ height: "calc(100vh - 66px)" }}
-        >
-          <div className="space-y-4 ">
-            <div className="flex items-center justify-center">
-              <h2 className="text-3xl font-bold tracking-tight text-center">
-                Dashboard
-              </h2>
-            </div>
-            <div className="flex items-center justify-center">
-              <Card>
-                <CardHeader className="flex items-center justify-center">
-                  <CardTitle>⚠️ Protected Content</CardTitle>
-                  <CardDescription>
-                    To view your dashboard, please sign in using discord.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </div>
-          </div>
+        <div className="flex h-[calc(100vh-66px)] items-center justify-center">
+          <p>Please sign in to view the dashboard.</p>
         </div>
       </>
     );
+  }
+
+  // Provide a fallback base URL if NEXT_PUBLIC_API_URL is not defined.
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+  const res = await fetch(`${baseUrl}/api/leaderboard`, { cache: "no-store" });
+  const data = await res.json();
+  const leaderboard = data.leaderboard || [];
+
   return (
     <>
-      <div className="hidden flex-col md:flex">
-        <div className="border-b">
-          <div className="flex h-16 items-center px-4">
-            <MainNav className="mx-6" />
-            <div className="ml-auto flex items-center space-x-4">
-              <Search />
-              <ModeToggle />
-              <SignIn />
-            </div>
+      <div className="border-b">
+        <div className="flex h-16 items-center px-4">
+          <MainNav className="mx-6" />
+          <div className="ml-auto flex items-center space-x-4">
+            <Search />
+            <ModeToggle />
+            <SignIn />
           </div>
         </div>
-        <div className="flex-1 space-y-4 p-8 pt-6">
-          <div className="flex items-center justify-between space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight">
-              Welcome {session.user?.name}
-            </h2>
-            <div className="flex items-center space-x-2">
-              <CalendarDateRangePicker />
-              <Button>Download</Button>
-            </div>
-          </div>
-          <Tabs defaultValue="overview" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="analytics" disabled>
-                Analytics
-              </TabsTrigger>
-              <TabsTrigger value="reports" disabled>
-                Reports
-              </TabsTrigger>
-              <TabsTrigger value="notifications" disabled>
-                Notifications
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="overview" className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Total Revenue
-                    </CardTitle>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      className="h-4 w-4 text-muted-foreground"
-                    >
-                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                    </svg>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">$45,231.89</div>
-                    <p className="text-xs text-muted-foreground">
-                      +20.1% from last month
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Subscriptions
-                    </CardTitle>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      className="h-4 w-4 text-muted-foreground"
-                    >
-                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                      <circle cx="9" cy="7" r="4" />
-                      <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">+2350</div>
-                    <p className="text-xs text-muted-foreground">
-                      +180.1% from last month
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Sales</CardTitle>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      className="h-4 w-4 text-muted-foreground"
-                    >
-                      <rect width="20" height="14" x="2" y="5" rx="2" />
-                      <path d="M2 10h20" />
-                    </svg>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">+12,234</div>
-                    <p className="text-xs text-muted-foreground">
-                      +19% from last month
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Active Now
-                    </CardTitle>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      className="h-4 w-4 text-muted-foreground"
-                    >
-                      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                    </svg>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">+573</div>
-                    <p className="text-xs text-muted-foreground">
-                      +201 since last hour
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                <Card className="col-span-4">
-                  <CardHeader>
-                    <CardTitle>Overview</CardTitle>
-                  </CardHeader>
-                  <CardContent className="pl-2">
-                    <Overview />
-                  </CardContent>
-                </Card>
-                <Card className="col-span-3">
-                  <CardHeader>
-                    <CardTitle>Recent Sales</CardTitle>
-                    <CardDescription>
-                      You made 265 sales this month.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <RecentSales />
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-          </Tabs>
+      </div>
+      <div className="p-4">
+        {/* Welcome Header */}
+        <div className="mb-6">
+          <h2 className="text-3xl font-bold tracking-tight">
+            Welcome {session.user?.name}
+          </h2>
         </div>
+
+        {/* Summary Cards */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Total players</CardTitle>
+              <CardDescription>todo</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm">+20.1% from last month</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Radekomsa wins</CardTitle>
+              <CardDescription>todo</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm">todo</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Top heroes</CardTitle>
+              <CardDescription>todo</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm">todo</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Active Now</CardTitle>
+              <CardDescription>todo</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm">todo</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Leaderboard Table */}
+
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <h1 className="text-3xl font-bold mb-4">Leaderboard</h1>
+            </CardTitle>
+            <CardDescription>List of all players</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <tr>
+                    <TableHeaderCell>#</TableHeaderCell>
+                    <TableHeaderCell>MMR</TableHeaderCell>
+                    <TableHeaderCell>Name</TableHeaderCell>
+                    {/* <TableHeaderCell>Win</TableHeaderCell>
+                <TableHeaderCell>Loss</TableHeaderCell>
+                <TableHeaderCell>Win%</TableHeaderCell> */}
+                  </tr>
+                </TableHeader>
+                <TableBody>
+                  {leaderboard.map((player: any, index: number) => {
+                    // const wins = player.win || 0;
+                    // const losses = player.loss || 0;
+                    // const winPct =
+                    //   wins + losses > 0
+                    //     ? ((wins / (wins + losses)) * 100).toFixed(2)
+                    //     : "0.00";
+                    return (
+                      <TableRow key={player.discord_id}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>{player.mmr}</TableCell>
+                        <TableCell>{player.name || "N/A"}</TableCell>
+                        {/* <TableCell>{wins}</TableCell>
+                    <TableCell>{losses}</TableCell>
+                    <TableCell>{winPct}%</TableCell> */}
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </>
   );

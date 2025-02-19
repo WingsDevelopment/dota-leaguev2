@@ -1,3 +1,21 @@
+# Docker
+
+dev:
+`docker-compose -f docker-compose.dev.yml up --build`
+`npm run dev`
+
+prod:
+`docker-compose build`
+`docker-compose up` or `docker-compose up -d`
+`STEAM_GUARD_CODE=35344 docker-compose up --build`
+
+other docker commands
+
+delete all:
+`docker-compose down -v`
+
+db is being copied from local if exist btw.
+
 - navigate to python-scripts
 
 # discord-bot
