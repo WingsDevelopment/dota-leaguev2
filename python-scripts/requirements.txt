@@ -1,0 +1,7 @@
+discord
+steam
+dota2
+python-dotenv
+d2api
+PyYAML
+more-itertools

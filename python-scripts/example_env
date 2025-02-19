@@ -1,0 +1,13 @@
+# Steam API Key (Required for interacting with Steam services)
+STEAM_API_TOKEN=your_steam_api_key
+
+# Discord Bot Token (Required)
+TOKEN=your_discord_bot_token
+
+# Discord Channel IDs (Replace these with actual Discord channel IDs)
+DEFAULT_CHANNEL_ID=123456789012345678      # Default channel where general messages are sent
+LEADERBOARD_CHANNEL_ID=123456789012345678  # Channel for leaderboard updates
+ADMIN_CHANNEL_ID=123456789012345678        # Channel for admin notifications and commands
+DRAFT_CHANNEL_ID=123456789012345678        # Channel where draft-related messages are sent
+COMMAND_CHANNEL_ID=123456789012345678      # Channel for bot commands
+CONSOLE_CHANNEL_ID=123456789012345678      # Channel for logging and console messages

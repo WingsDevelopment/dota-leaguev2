@@ -1,0 +1,7 @@
+league_id: 17791 #Needs to be approved here https://www.dota2.com/league/0/list
+game_mod: 1 # 16 = Captains Draft, 2 = Captains Mode
+lobby_size: 2
+game_name_prefix: radekomsa
+discord_league_admin_role_name: AdminRole
+league_starting_mmr: 1000
+lobby_timeout: 300 #seconds
