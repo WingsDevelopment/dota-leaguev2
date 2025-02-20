@@ -29,26 +29,6 @@ export const metadata: Metadata = {
 export default async function DashboardPage() {
   const session = await auth();
 
-  if (!session) {
-    return (
-      <>
-        <div className="border-b">
-          <div className="flex h-16 items-center px-4">
-            <MainNav className="mx-6" />
-            <div className="ml-auto flex items-center space-x-4">
-              <Search />
-              <ModeToggle />
-              <SignIn />
-            </div>
-          </div>
-        </div>
-        <div className="flex h-[calc(100vh-66px)] items-center justify-center">
-          <p>Please sign in to view the dashboard.</p>
-        </div>
-      </>
-    );
-  }
-
   // Provide a fallback base URL if NEXT_PUBLIC_API_URL is not defined.
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
   const res = await fetch(`${baseUrl}/api/leaderboard`, { cache: "no-store" });
@@ -69,51 +49,56 @@ export default async function DashboardPage() {
       </div>
       <div className="p-4">
         {/* Welcome Header */}
-        <div className="mb-6">
-          <h2 className="text-3xl font-bold tracking-tight">
-            Welcome {session.user?.name}
-          </h2>
-        </div>
+        {session && (
+          <>
+            <div className="mb-6">
+              <h2 className="text-3xl font-bold tracking-tight">
+                Welcome {session.user?.name}
+              </h2>
+            </div>
 
-        {/* Summary Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Total players</CardTitle>
-              <CardDescription>todo</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm">+20.1% from last month</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Radekomsa wins</CardTitle>
-              <CardDescription>todo</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm">todo</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Top heroes</CardTitle>
-              <CardDescription>todo</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm">todo</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Active Now</CardTitle>
-              <CardDescription>todo</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm">todo</p>
-            </CardContent>
-          </Card>
-        </div>
+            {/* Summary Cards */}
+            <p>Some random stats in the future</p>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Total players</CardTitle>
+                  <CardDescription>todo</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm">+20.1% from last month</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Radekomsa wins</CardTitle>
+                  <CardDescription>todo</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm">todo</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Top heroes</CardTitle>
+                  <CardDescription>todo</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm">todo</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Active Now</CardTitle>
+                  <CardDescription>todo</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm">todo</p>
+                </CardContent>
+              </Card>
+            </div>
+          </>
+        )}
 
         {/* Leaderboard Table */}
 
