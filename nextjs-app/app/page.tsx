@@ -20,6 +20,7 @@ import {
   TableHeaderCell,
   TableCell,
 } from "@/components/ui/table";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Dashboard Leaderboard",
@@ -49,6 +50,14 @@ export default async function DashboardPage() {
       </div>
       <div className="p-4">
         {/* Welcome Header */}
+
+        {!session && (
+          <div className="mb-6">
+            <h2 className="text-3xl font-bold tracking-tight">
+              Welcome to Radekomsa League Leaderboard
+            </h2>
+          </div>
+        )}
         {session && (
           <>
             <div className="mb-6">
@@ -58,7 +67,7 @@ export default async function DashboardPage() {
             </div>
 
             {/* Summary Cards */}
-            <p>Some random stats in the future</p>
+            <p className="my-2">Some random stats in the future</p>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
               <Card>
                 <CardHeader>
@@ -99,6 +108,17 @@ export default async function DashboardPage() {
             </div>
           </>
         )}
+
+        <div className="w-full flex flex-row gap-1 my-4">
+          <p className="font-bold">Donations:</p>
+          <div className="flex flex-row gap-2">
+            <Image src="/eth.svg" alt="ETH" width={24} height={24} />
+            <p className="font-bold text-cyan-500">
+              0x410A11ed53a9a59094F24D2ae4ACbeF7f84955a1
+            </p>
+            <Image src="/eth.svg" alt="ETH" width={24} height={24} />
+          </div>
+        </div>
 
         {/* Leaderboard Table */}
 
