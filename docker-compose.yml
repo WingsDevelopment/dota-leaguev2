@@ -1,4 +1,23 @@
+version: "3"
+
 services:
+  traefik:
+    image: traefik:v2.9
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=bans.cowboy@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+
   python:
     build: ./python-scripts
     command: bash -c "python discord_db.py && sleep 5 && python run_all.py"
@@ -13,8 +32,12 @@ services:
 
   nextjs:
     build: ./nextjs-app
-    ports:
-      - "3000:3000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nextjs.rule=Host(`yourdomain.com`)"
+      - "traefik.http.routers.nextjs.entrypoints=web,websecure"
+      - "traefik.http.routers.nextjs.tls.certresolver=myresolver"
+      - "traefik.http.services.nextjs.loadbalancer.server.port=3000"
     environment:
       - DATABASE_PATH=/app/db/league.db
       - NEXTAUTH_URL=http://164.90.228.218:3000
@@ -25,4 +48,5 @@ services:
       - ./db:/app/db
     depends_on:
       - python
+      - traefik
     restart: always
