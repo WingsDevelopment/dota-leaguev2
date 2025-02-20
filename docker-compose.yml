@@ -20,8 +20,6 @@ services:
 
   python:
     build: ./python-scripts
-    labels:
-      - "traefik.enable=false"
     command: bash -c "python discord_db.py && sleep 5 && python run_all.py"
     environment:
       - DATABASE_PATH=/app/db/league.db

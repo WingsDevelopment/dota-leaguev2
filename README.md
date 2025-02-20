@@ -1,13 +1,20 @@
 # Docker
 
 dev:
-`docker-compose -f docker-compose.dev.yml up --build`
-`npm run dev`
+
+- `docker-compose -f docker-compose.dev.yml up --build`
+- `npm run dev`
 
 prod:
-`docker-compose build`
-`docker-compose up` or `docker-compose up -d`
-`STEAM_GUARD_CODE=35344 docker-compose up --build`
+
+- `docker-compose build`
+- `docker-compose up` or `docker-compose up -d`
+- `STEAM_GUARD_CODE=35344 docker-compose up --build`
+
+ssl sertificate hack:
+after generating pulling on server run:
+`chmod 600 ./letsencrypt/acme.json`
+from project root.
 
 other docker commands
 
