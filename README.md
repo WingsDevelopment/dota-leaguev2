@@ -1,15 +1,33 @@
-# Docker
+# Docker start system
 
 dev:
 
-- `docker-compose -f docker-compose.dev.yml up --build`
-- `npm run dev`
+todo
 
 prod:
 
-- `docker-compose build`
-- `docker-compose up` or `docker-compose up -d`
-- `STEAM_GUARD_CODE=35344 docker-compose up --build`
+- `STEAM_GUARD_CODE=xxxxx docker-compose up --build`
+
+# FE dev
+
+make sure you have node installed
+
+- go to /nextjs-app
+
+- `npm i`
+- `npm run dev`
+
+# Scripts
+
+make sure you have python installed
+
+- go to /python-scripts
+- `pip install -r requirements.txt`
+- deps check: `pip list`
+- `python3 run_all.py`
+- or `python run_all.py`
+
+# Deploying docs
 
 ssl sertificate hack:
 after generating pulling on server run:
@@ -21,27 +39,13 @@ other docker commands
 delete all:
 `docker-compose down -v`
 
-db is being copied from local if exist btw.
+use prune to free up memory.
 
-- navigate to python-scripts
+db is being copied from local if exist btw.
 
 # discord-bot
 
 DiscordBot for hosting a dota 2 league
-
-### How to start the project
-
-Ignore if you have python already setup
-`python -m venv venv`
-`venv\Scripts\activate`
-
-# Install dependencies
-
-`pip install -r requirements.txt`
-
-# Check installed dependencies
-
-`pip list`
 
 # How to setup discord bot
 
@@ -68,6 +72,8 @@ Copy the Generated URL and Open it in Your Browser
 Select Your Server and Click "Authorize"
 Your bot should now appear in the server (offline for now).
 
+update your oauth2 urls.
+
 # How to get channel ids
 
 How to Get the Correct Discord Channel IDs?
@@ -81,10 +87,6 @@ Step 2: Get Channel IDs
 Right-click on the channel (e.g., leaderboard, admin, default, etc.).
 Click "Copy ID".
 Paste the ID into your .env file.
-
-# Ping pong, Check if discord bot is configured properly
-
-`python bot.py`
 
 first enable this:
 Fixing the !ping Command Not Responding
@@ -100,10 +102,6 @@ And now when you send !ping bot should reply with pong!
 # Initialize your DB
 
 `python3 discord_db.py`
-
-# Start bot
-
-`python3 main.py`
 
 # Create role on dc
 
