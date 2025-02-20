@@ -109,11 +109,11 @@ export default async function DashboardPage() {
           </>
         )}
 
-        <div className="w-full flex flex-row gap-1 my-4">
+        <div className="w-full flex flex-col md:flex-row gap-1 my-4">
           <p className="font-bold">Donations:</p>
-          <div className="flex flex-row gap-2">
+          <div className="flex flex-col md:flex-row gap-2">
             <Image src="/eth.svg" alt="ETH" width={24} height={24} />
-            <p className="font-bold text-cyan-500">
+            <p className="md:font-bold text-cyan-500">
               0x410A11ed53a9a59094F24D2ae4ACbeF7f84955a1
             </p>
             <Image src="/eth.svg" alt="ETH" width={24} height={24} />
