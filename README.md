@@ -73,6 +73,18 @@ Select Your Server and Click "Authorize"
 Your bot should now appear in the server (offline for now).
 
 update your oauth2 urls.
+add redirect urls in oauth2:
+https://radekomsa.site/api/auth/callback/discord/callback/discord
+https://radekomsa.site/api/auth/callback/discord
+
+go to bot tab:
+store secret key (TOKEN)
+
+enable this also in bot tab:
+
+Enable these: ✅ Presence Intent
+✅ Server Members Intent
+✅ Message Content Intent
 
 # How to get channel ids
 
@@ -88,17 +100,6 @@ Right-click on the channel (e.g., leaderboard, admin, default, etc.).
 Click "Copy ID".
 Paste the ID into your .env file.
 
-first enable this:
-Fixing the !ping Command Not Responding
-Your bot is online, but it isn't responding to commands.
-This is because message content intent is disabled by default.
-
-Enable these: ✅ Presence Intent
-✅ Server Members Intent
-✅ Message Content Intent
-
-And now when you send !ping bot should reply with pong!
-
 # Initialize your DB
 
 `python3 discord_db.py`
@@ -106,3 +107,40 @@ And now when you send !ping bot should reply with pong!
 # Create role on dc
 
 Create role to dc, assign yourself to that role and set rolename in league_settings.yaml
+
+# DISCORD OAUTH SETTINGS
+
+You can find the values for:
+
+AUTH_SECRET
+AUTH_DISCORD_ID
+AUTH_DISCORD_SECRET
+
+1. Generating AUTH_SECRET
+   Run the following command in your terminal inside the project directory:
+
+npx auth secret
+This will generate a secret key, which you should add to your .env.local file like this:
+
+AUTH_SECRET=your_generated_secret_here 2. Finding AUTH_DISCORD_ID and AUTH_DISCORD_SECRET
+These come from your Discord Developer Portal:
+
+Go to Discord Developer Portal.
+Log in and select your application (or create one if you haven't).
+In the "OAuth2" section, copy:
+Client ID → This is your AUTH_DISCORD_ID
+Client Secret → This is your AUTH_DISCORD_SECRET
+Paste them into your .env.local file:
+sh
+Копирај
+Измени
+AUTH_DISCORD_ID=your_discord_client_id_here
+AUTH_DISCORD_SECRET=your_discord_client_secret_here 3. Setting Up the .env.local File
+Now your .env.local file should look like this:
+
+sh
+Копирај
+Измени
+AUTH_SECRET=your_generated_secret_here
+AUTH_DISCORD_ID=your_discord_client_id_here
+AUTH_DISCORD_SECRET=your_discord_client_secret_here
