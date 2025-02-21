@@ -31,15 +31,19 @@ make sure you have python installed
 
 ssl sertificate hack:
 after generating pulling on server run:
-`chmod 600 ./letsencrypt/acme.json`
-from project root.
+
+- `chmod 600 ./letsencrypt/acme.json`
+  from project root.
 
 other docker commands
 
 delete all:
-`docker-compose down -v`
+
+- `docker-compose down -v`
 
 use prune to free up memory.
+
+- `docker system prune -a --volumes`
 
 db is being copied from local if exist btw.
 

@@ -1,6 +1,7 @@
 import sqlite3
 
-DB_PATH = 'db/league.db'
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+DB_PATH = os.getenv("DATABASE_PATH", os.path.join(BASE_DIR, "db", "league.db"))
 
 conn = sqlite3.connect(DB_PATH, uri=True)
 cursor = conn.cursor()
