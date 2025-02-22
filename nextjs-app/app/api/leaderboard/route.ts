@@ -6,15 +6,12 @@ import sqlite3 from "sqlite3";
 export async function GET() {
   try {
     // Use the environment variable if set.
+    // global export
     const dbPath =
       process.env.DATABASE_PATH || path.join(process.cwd(), "db", "league.db");
 
     // Ensure the directory exists.
-    const dbDir = path.dirname(dbPath);
-    if (!fs.existsSync(dbDir)) {
-      fs.mkdirSync(dbDir, { recursive: true });
-      console.log("Created directory:", dbDir);
-    }
+    // global export
 
     // Open the SQLite database.
     const db = await new Promise<sqlite3.Database>((resolve, reject) => {

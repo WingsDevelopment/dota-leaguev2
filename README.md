@@ -24,6 +24,7 @@ make sure you have python installed
 - go to /python-scripts
 - `pip install -r requirements.txt`
 - deps check: `pip list`
+- if first time run: `discord_db.py`
 - `python3 run_all.py`
 - or `python run_all.py`
 
