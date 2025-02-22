@@ -2,8 +2,15 @@ import { NextResponse } from "next/server";
 import path from "path";
 import sqlite3 from "sqlite3";
 
+// export const ADMIN_IDS = [1, 2];
+
+// TODO DELETE ASAP/ OR MAKE ADMIN ACTION
 export async function POST() {
   try {
+    // const session = await auth();
+
+    // if (!ADMIN_IDS.some(session.user.id)) throw new Error("Unauthorized");
+
     const dbPath =
       process.env.DATABASE_PATH || path.join(process.cwd(), "db", "league.db");
 
