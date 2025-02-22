@@ -6,7 +6,7 @@ todo
 
 prod:
 
-- `STEAM_GUARD_CODE=xxxxx docker-compose up --build`
+- `docker-compose up --build`
 
 # FE dev
 
@@ -76,10 +76,12 @@ Copy the Generated URL and Open it in Your Browser
 Select Your Server and Click "Authorize"
 Your bot should now appear in the server (offline for now).
 
-update your oauth2 urls.
-add redirect urls in oauth2:
-https://radekomsa.site/api/auth/callback/discord/callback/discord
-https://radekomsa.site/api/auth/callback/discord
+- ignore if you dont have website
+  update your oauth2 urls.
+  add redirect urls in oauth2:
+  https://radekomsa.site/api/auth/callback/discord/callback/discord
+  https://radekomsa.site/api/auth/callback/discord
+- end of ignore
 
 go to bot tab:
 store secret key (TOKEN)
@@ -135,16 +137,6 @@ In the "OAuth2" section, copy:
 Client ID → This is your AUTH_DISCORD_ID
 Client Secret → This is your AUTH_DISCORD_SECRET
 Paste them into your .env.local file:
-sh
-Копирај
-Измени
 AUTH_DISCORD_ID=your_discord_client_id_here
 AUTH_DISCORD_SECRET=your_discord_client_secret_here 3. Setting Up the .env.local File
 Now your .env.local file should look like this:
-
-sh
-Копирај
-Измени
-AUTH_SECRET=your_generated_secret_here
-AUTH_DISCORD_ID=your_discord_client_id_here
-AUTH_DISCORD_SECRET=your_discord_client_secret_here

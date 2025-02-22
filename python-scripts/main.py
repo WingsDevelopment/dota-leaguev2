@@ -415,24 +415,16 @@ async def autoscore(ctx: Context):
                 await ctx.reply(f'Could not get game with steam_match_id: {steam_match_id}', delete_after=10)
                 continue
 
-            if len(matching_games) > 1:
-                await ctx.reply(f'More than one game found for steam_match_id: {steam_match_id}', delete_after=10)
-                for g_id in matching_games:
-                    active_game_players_dict.pop(g_id, None)
-                continue
-
-            # Exactly one matching game
-            game_id_matched = matching_games[0]
-            active_game_players_dict.pop(game_id_matched, None)
-            _log(f"Processing game ID {game_id_matched} for match {steam_match_id}")
-
-            _log(f"Test..")
+            # Instead of rejecting multiple matches, process them all:
             winner = get_match_winner(steam_match_id)
             _log(f"Winner for match {steam_match_id}: {winner}")
+            for game_id_matched in matching_games:
+                active_game_players_dict.pop(game_id_matched, None)
+                _log(f"Processing game ID {game_id_matched} for match {steam_match_id}")
+                await score(ctx, game_id_matched, winner, steam_match_id)
+                _log(f"Scored game {game_id_matched} with winner {winner}")
+                await asyncio.sleep(5)
 
-            await score(ctx, game_id_matched, winner, steam_match_id)
-            _log(f"Scored game {game_id_matched} with winner {winner}")
-            await asyncio.sleep(5)
 
         AUTO_SCORING_IN_PROGRESS = False
 

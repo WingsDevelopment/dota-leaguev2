@@ -11,15 +11,6 @@ def main():
     except Exception as e:
         print(f"Error starting main.py: {e}", flush=True)
         sys.exit(1)
-        
-    try:
-        print("Starting login process (login.py)...", flush=True)
-        # Pass steam_bot_id as argument; adjust as needed.
-        login_process = subprocess.run([sys.executable, "login.py", "1"], check=True)
-    except Exception as e:
-        print(f"Error in login process: {e}", flush=True)
-        bot_process.terminate()
-        sys.exit(1)
     
     # Wait a moment after login to ensure state is maintained
     time.sleep(2)
