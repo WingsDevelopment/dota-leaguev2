@@ -146,10 +146,8 @@ export default function RulesPage() {
           </h1>
           <p>
             Non grif bans are tied to time rather than seasons.{" "}
-            <strong>
-              The minimum ban period is calculated as days per year and a half
-            </strong>
-            , with a <strong>maximum of 3.5 years</strong>.
+            <strong>The minimum ban period is year and a half</strong>, with a{" "}
+            <strong>maximum of 3.5 years</strong>.
           </p>
         </section>
       </main>
