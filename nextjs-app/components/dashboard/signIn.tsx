@@ -15,7 +15,7 @@ export function SignIn() {
 
   return (
     <div>
-      <Button onClick={() => signIn("discord", { callbackUrl: "/dashboard" })}>
+      <Button onClick={() => signIn("discord", { callbackUrl: "/" })}>
         <DiscordLogoIcon className="mr-2 h-4 w-4" /> Login with Discord
       </Button>
     </div>

@@ -4,5 +4,5 @@
 import { signIn } from "@/auth";
 
 export async function signInDiscord() {
-  await signIn("discord", { redirectTo: "/dashboard" });
+  await signIn("discord", { redirectTo: "/" });
 }

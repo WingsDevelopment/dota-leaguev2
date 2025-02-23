@@ -17,6 +17,7 @@ import { SignOut } from "@/components/dashboard/signOut";
 export function UserNav() {
   const { data: session, status } = useSession();
 
+  // Optionally, you can render a loading state while session is loading.
   if (status === "loading") {
     return null;
   }
