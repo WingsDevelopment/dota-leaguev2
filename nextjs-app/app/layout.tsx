@@ -3,7 +3,6 @@ import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
 
 import { cn } from "@/lib/utils";
-import DashboardPage from "./page";
 import { ThemeProvider } from "@/components/theme-provider";
 import { MainNav } from "../components/dashboard/main-nav";
 import { Search } from "../components/dashboard/search";
@@ -42,13 +41,13 @@ export default function RootLayout({
           <div className="border-b">
             <div className="flex h-16 items-center px-4">
               <MainNav className="mx-6" />
-              <div className="ml-auto flex items-center space-x-4">
+              <div className="ml-auto md:flex items-center space-x-4  hidden">
                 <ModeToggle />
                 <SignIn />
               </div>
             </div>
           </div>
-          <div className="p-20">{children}</div>
+          <div className="p-2 md:p-20">{children}</div>
         </ThemeProvider>
       </body>
     </html>
