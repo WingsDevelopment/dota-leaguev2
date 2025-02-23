@@ -193,6 +193,7 @@ async def help(ctx: Context):
                         value="Clear the queue", inline=False)
         embed.add_field(name="/cancelgame MatchNumber", value="Cancel a game", inline=False)
         embed.add_field(name="/markcaptain @DiscordUser", value="Mark a player as captain", inline=False)
+        embed.add_field(name="/unmarkcaptain @DiscordUser", value="Remove captain role from a player", inline=False)
 
     await ctx.send(embed=embed, delete_after=60)
 
@@ -333,7 +334,33 @@ async def cancel_game(ctx: Context, discord_id: str):
         await ctx.reply('Player needs to be vouched before becoming a captain.', mention_author=True, delete_after=10)
     execute_function_no_return('set_player_captain', player_id)
     await ctx.reply('Player <@{}> marked as captain'.format(discord_id))
-    
+
+@commands.has_role(ADMIN_ROLE)
+@bot.hybrid_command("unmarkcaptain", description="Remove captain role from a player")
+async def unmark_captain(ctx: Context, discord_id: str):
+    # Clean the discord_id string (remove extra characters)
+    discord_id = (
+        discord_id.replace('\\', '')
+        .replace('<', '')
+        .replace('>', '')
+        .replace('@', '')
+        .replace('!', '')
+        .replace('#', '')
+        .replace('&', '')
+    )
+    try:
+        # Try to retrieve the player's internal id (they must be vouched first)
+        player_id = execute_function_single_row_return('get_player_id', discord_id)['id']
+    except ValueError:
+        await ctx.reply(
+            'Player needs to be vouched before unmarking as captain.',
+            mention_author=True,
+            delete_after=10,
+        )
+        return
+    # Remove the captain role by calling the new database function
+    execute_function_no_return('unset_player_captain', player_id)
+    await ctx.reply(f'Player <@{discord_id}> unmarked as captain')
 
 
 @bot.hybrid_command("autoscore", description="Attempt to score a game")

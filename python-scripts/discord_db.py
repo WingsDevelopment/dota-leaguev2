@@ -82,6 +82,11 @@ def set_player_captain(cursor: Cursor, id: str) -> None:
     cursor.execute(
         f'''UPDATE Players SET captain = 1 WHERE id = ?''', (id, ))
 
+def unset_player_captain(cursor: Cursor, id: str) -> None:
+    cursor.execute(
+        '''UPDATE Players SET captain = 0 WHERE id = ?''', (id,)
+    )
+
 # Game
 
 

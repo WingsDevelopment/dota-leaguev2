@@ -13,20 +13,19 @@ export function MainNav({
     >
       <div className="flex h-[60px] items-center px-6">
         <Link
-          href="#"
+          href="/"
           className="flex items-center gap-2 font-semibold"
           prefetch={false}
         >
           <span className="">RADEKOMSA LEAGUE</span>
         </Link>
       </div>
-      {/* 
       <Link
-        href="/examples/dashboard"
+        href="/rules"
         className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
       >
-        Settings
-      </Link> */}
+        Rules
+      </Link>
     </nav>
   );
 }
