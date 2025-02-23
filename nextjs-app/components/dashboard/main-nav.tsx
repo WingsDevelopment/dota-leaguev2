@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SignIn } from "./signIn";
 import { ModeToggle } from "@/components/ui/ModeToggle";
-import { UserNav } from "./user-nav";
 
 export function MainNav({
   className,
@@ -26,7 +25,6 @@ export function MainNav({
       )}
       {...props}
     >
-      <UserNav />
       <div className="flex items-center">
         <Link
           href="/"
