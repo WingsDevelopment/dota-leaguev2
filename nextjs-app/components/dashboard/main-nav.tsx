@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -5,9 +7,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SignIn } from "./signIn";
+import { ModeToggle } from "@/components/ui/ModeToggle";
 
 export function MainNav({
   className,
@@ -31,7 +35,7 @@ export function MainNav({
         </Link>
       </div>
       {/* Desktop Navigation */}
-      <div className="hidden lg:flex space-x-4">
+      <div className="hidden lg:flex items-center space-x-4">
         <Link
           href="/info"
           className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
@@ -44,6 +48,8 @@ export function MainNav({
         >
           Rules
         </Link>
+        <ModeToggle />
+        <SignIn />
       </div>
       {/* Mobile Navigation */}
       <div className="lg:hidden">
@@ -74,7 +80,14 @@ export function MainNav({
               <Link href="/info">Info</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <div>sign in logic is missing and light/dark missing.</div>
+              <Link href="/rules">Rules</Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <ModeToggle />
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <SignIn />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

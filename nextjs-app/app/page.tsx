@@ -1,10 +1,6 @@
 // app/dashboard/page.tsx
 import { Metadata } from "next";
 import { auth } from "@/auth";
-import { MainNav } from "@/components/dashboard/main-nav";
-import { ModeToggle } from "@/components/ui/ModeToggle";
-import { Search } from "@/components/dashboard/search";
-import { SignIn } from "@/components/dashboard/signIn";
 import {
   Card,
   CardContent,
