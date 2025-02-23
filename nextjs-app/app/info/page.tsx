@@ -54,7 +54,7 @@ export default function Page() {
           </p>
           <p>
             If there are exactly two players flagged as captain, they will be
-            captain, MMR sorting is ignored in this case.
+            captain, (league)MMR sorting is ignored in this case.
           </p>
           <p className="mt-2">
             <strong>Extra Flagged Captains Ignored:</strong> If more than two
@@ -62,9 +62,9 @@ export default function Page() {
             the others remain available for drafting.
           </p>
           <p className="mt-2">
-            <strong>Fallback on MMR:</strong> When there aren’t enough flagged
-            players (one or none), it uses the highest MMR from the remaining
-            players to fill in the gap.
+            <strong>Fallback on (league)MMR:</strong> When there aren’t enough
+            flagged players (one or none), it uses the highest (league)MMR from
+            the remaining players to fill in the gap.
           </p>
         </section>
 
@@ -74,9 +74,9 @@ export default function Page() {
           </h1>
           <p>
             The balanced shuffle algorithm examines all possible ways to split
-            the list of players into two teams. It calculates the total MMR for
-            each possible division and selects the combination with the smallest
-            difference between teams.
+            the list of players into two teams. It calculates the total
+            (league)MMR for each possible division and selects the combination
+            with the smallest difference between teams.
           </p>
           <p className="mt-2">
             If multiple nearly balanced combinations are found (i.e. with a
@@ -98,8 +98,8 @@ export default function Page() {
               descriptions.
             </li>
             <li>
-              <strong>/stats:</strong> Shows your personal stats, including MMR,
-              wins, losses, and rank.
+              <strong>/stats:</strong> Shows your personal stats, including
+              (league)MMR, wins, losses, and rank.
             </li>
             <li>
               <strong>/signup:</strong> Registers you for a game.
@@ -117,6 +117,10 @@ export default function Page() {
             <li>
               <strong>/preferredrole:</strong> Sets your preferred role(s) for
               gameplay.
+              <br />
+              Example usage: <strong>/preferredrole 123</strong> or{" "}
+              <strong>/preferredrole 1</strong> if you want to play any core, or
+              just a carry.
             </li>
             <li>
               <strong>Admin Commands:</strong> For users with admin privileges,
