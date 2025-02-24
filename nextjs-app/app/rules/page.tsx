@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
 
-export default function Page() {
+export default function RulesPage() {
   useEffect(() => {
     // If there's a hash in the URL, scroll smoothly to that element
     if (window.location.hash) {
@@ -21,23 +21,47 @@ export default function Page() {
         <nav className="sticky top-4 p-4 border-l border-gray-200">
           <ul className="space-y-2">
             <li>
-              <Link href="#draft-queue">
+              <Link href="#points">
                 <span className="text-blue-600 hover:underline">
-                  How Draft Queue Works
+                  Points System
                 </span>
               </Link>
             </li>
             <li>
-              <Link href="#balanced-shuffle">
+              <Link href="#captain">
                 <span className="text-blue-600 hover:underline">
-                  How Balanced Shuffle Works
+                  Captain Rules
                 </span>
               </Link>
             </li>
             <li>
-              <Link href="#user-actions">
+              <Link href="#league-mode">
                 <span className="text-blue-600 hover:underline">
-                  User Actions
+                  League Modes
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link href="#leave-ban">
+                <span className="text-blue-600 hover:underline">Leave Ban</span>
+              </Link>
+            </li>
+            <li>
+              <Link href="#grif-ban">
+                <span className="text-blue-600 hover:underline">Grif Ban</span>
+              </Link>
+            </li>
+            <li>
+              <Link href="#misconduct">
+                <span className="text-blue-600 hover:underline">
+                  Misconduct & Sanctions
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link href="#ban-durations">
+                <span className="text-blue-600 hover:underline">
+                  Bad Behavior Ban(BBB)
                 </span>
               </Link>
             </li>
@@ -47,109 +71,84 @@ export default function Page() {
 
       {/* Main Content */}
       <main className="flex-1 max-w-prose px-4">
-        <section id="draft-queue" className="mb-12">
-          <h1 className="text-2xl font-bold mb-4">HOW DRAFT QUEUE WORKS</h1>
+        <section id="points" className="mb-12">
+          <h1 className="text-2xl font-bold mb-4">Points System</h1>
           <p>
-            <strong>Admin can select a player to be a captain.</strong>
-          </p>
-          <p>
-            If there are exactly two players flagged as captain, they will be
-            captain, MMR sorting is ignored in this case.
-          </p>
-          <p className="mt-2">
-            <strong>Extra Flagged Captains Ignored:</strong> If more than two
-            players are flagged as captains, only the top two (by MMR) are used;
-            the others remain available for drafting.
-          </p>
-          <p className="mt-2">
-            <strong>Fallback on MMR:</strong> When there aren’t enough flagged
-            players (one or none), it uses the highest MMR from the remaining
-            players to fill in the gap.
+            Winning a game awards you +25 points, while a loss deducts 25
+            points.
           </p>
         </section>
 
-        <section id="balanced-shuffle" className="mb-12">
-          <h1 className="text-2xl font-bold mb-4">
-            HOW BALANCED SHUFFLE WORKS
-          </h1>
+        <section id="captain" className="mb-12">
+          <h1 className="text-2xl font-bold mb-4">Captain Rules</h1>
           <p>
-            The balanced shuffle algorithm examines all possible ways to split
-            the list of players into two teams. It calculates the total MMR for
-            each possible division and selects the combination with the smallest
-            difference between teams.
-          </p>
-          <p className="mt-2">
-            If multiple nearly balanced combinations are found (i.e. with a
-            difference below a set threshold), the algorithm randomly selects
-            one to ensure fairness. This process helps create teams that are as
-            evenly matched as possible.
+            Rules about captain selection and responsibilities are in effect.
+            For more details, please{" "}
+            <Link href="/info">
+              <span className="text-blue-600 hover:underline">
+                Read more here
+              </span>
+            </Link>
+            .
           </p>
         </section>
 
-        <section id="user-actions" className="mb-12">
-          <h1 className="text-2xl font-bold mb-4">USER ACTIONS</h1>
+        <section id="league-mode" className="mb-12">
+          <h1 className="text-2xl font-bold mb-4">League Modes</h1>
           <p>
-            The bot offers a variety of commands to interact with the league
-            system. Here are the main commands:
+            League mode supports <strong>CM</strong> with queue options
+            including <strong>balanced shuffle</strong> or{" "}
+            <strong>draft</strong> formats.{" "}
+            <Link href="/info">
+              <span className="text-blue-600 hover:underline">
+                Read more here
+              </span>
+            </Link>
+            .
           </p>
+        </section>
+
+        <section id="leave-ban" className="mb-12">
+          <h1 className="text-2xl font-bold mb-4">Leave Ban</h1>
+          <p>
+            Leaving the game prematurely results in penalties.{" "}
+            <strong>2 leaves ban 30 days!</strong>
+          </p>
+        </section>
+
+        <section id="grif-ban" className="mb-12">
+          <h1 className="text-2xl font-bold mb-4">Grif Ban</h1>
+          <p>The following ban durations apply for grif actions:</p>
           <ul className="list-disc ml-6 mt-2 space-y-1">
             <li>
-              <strong>/help:</strong> Displays all available commands and their
-              descriptions.
+              <strong>1 grif:</strong> 4 days ban
             </li>
             <li>
-              <strong>/stats:</strong> Shows your personal stats, including MMR,
-              wins, losses, and rank.
+              <strong>2 grif:</strong> 10 days ban
             </li>
             <li>
-              <strong>/signup:</strong> Registers you for a game.
-            </li>
-            <li>
-              <strong>/signupdraft:</strong> Registers you for a draft game.
-            </li>
-            <li>
-              <strong>/leave:</strong> Removes you from the game queue.
-            </li>
-            <li>
-              <strong>/autoscore:</strong> Attempts to score a game via the
-              Steam API (use sparingly).
-            </li>
-            <li>
-              <strong>/preferredrole:</strong> Sets your preferred role(s) for
-              gameplay.
-            </li>
-            <li>
-              <strong>Admin Commands:</strong> For users with admin privileges,
-              additional commands are available:
-              <ul className="list-disc ml-6 mt-1">
-                <li>
-                  <strong>/vouch:</strong> Vouches for a player.
-                </li>
-                <li>
-                  <strong>/score:</strong> Scores a match.
-                </li>
-                <li>
-                  <strong>/rehost:</strong> Rehosts a game.
-                </li>
-                <li>
-                  <strong>/clearqueue:</strong> Clears the game queue.
-                </li>
-                <li>
-                  <strong>/cleardraftqueue:</strong> Clears the draft queue.
-                </li>
-                <li>
-                  <strong>/cancelgame:</strong> Cancels a game.
-                </li>
-                <li>
-                  <strong>/markcaptain:</strong> Marks a player as captain.
-                </li>
-                <li>
-                  <strong>/unmarkcaptain:</strong> Remove captain role from a
-                  player.
-                </li>
-              </ul>
+              <strong>3 grif:</strong> Year and a half.
             </li>
           </ul>
+        </section>
+
+        <section id="misconduct" className="mb-12">
+          <h1 className="text-2xl font-bold mb-4">Misconduct & Sanctions</h1>
+          <p>
+            INAPPROPRIATENESS, deliberate pausing, and insolence result in bans.
+            Additionally, threats lead to an instant BBB (Bad Behavior Ban).
+          </p>
+        </section>
+
+        <section id="ban-durations" className="mb-12">
+          <h1 className="text-2xl font-bold mb-4">
+            Bad Behavior Ban(BBB) durations
+          </h1>
+          <p>
+            Non grif bans are tied to time rather than seasons.{" "}
+            <strong>The minimum ban period is year and a half</strong>, with a{" "}
+            <strong>maximum of 3.5 years</strong>.
+          </p>
         </section>
       </main>
     </div>

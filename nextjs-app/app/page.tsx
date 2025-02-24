@@ -1,10 +1,6 @@
 // app/dashboard/page.tsx
 import { Metadata } from "next";
 import { auth } from "@/auth";
-import { MainNav } from "@/components/dashboard/main-nav";
-import { ModeToggle } from "@/components/ui/ModeToggle";
-import { Search } from "@/components/dashboard/search";
-import { SignIn } from "@/components/dashboard/signIn";
 import {
   Card,
   CardContent,
@@ -103,9 +99,10 @@ export default async function DashboardPage() {
           <p className="font-bold">Donations:</p>
           <div className="flex flex-col md:flex-row gap-2">
             <Image src="/eth.svg" alt="ETH" width={24} height={24} />
-            <p className="md:font-bold text-cyan-500">
+            <p className="text-xs md:text-base md:font-bold text-cyan-500">
               0x410A11ed53a9a59094F24D2ae4ACbeF7f84955a1
             </p>
+
             <Image src="/eth.svg" alt="ETH" width={24} height={24} />
           </div>
         </div>
