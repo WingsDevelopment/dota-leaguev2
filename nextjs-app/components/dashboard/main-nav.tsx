@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
-
+//TO DO dodati conditional rendering za admina
 export function MainNav({
   className,
   ...props
@@ -25,6 +25,12 @@ export function MainNav({
         className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
       >
         Rules
+      </Link>
+      <Link
+        href="/admin"
+        className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+      >
+        Admin console
       </Link>
     </nav>
   );
