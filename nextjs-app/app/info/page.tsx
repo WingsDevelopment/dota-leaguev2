@@ -66,6 +66,14 @@ export default function Page() {
             flagged players (one or none), it uses the highest (league)MMR from
             the remaining players to fill in the gap.
           </p>
+          <p className="mt-2">
+            <strong>Dynamic Captain Management:</strong> Our system draft queue
+            enables admins to maintain perfect team balance. Captains can be
+            easily added or removed—if a new high-performing player joins the
+            league, admins can quickly reassign the captain role by removing it
+            from a player who is no longer among the strongest and assigning it
+            to the newcomer.
+          </p>
         </section>
 
         <section id="balanced-shuffle" className="mb-12">

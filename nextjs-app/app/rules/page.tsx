@@ -48,7 +48,7 @@ export default function RulesPage() {
             </li>
             <li>
               <Link href="#grif-ban">
-                <span className="text-blue-600 hover:underline">Grif Ban</span>
+                <span className="text-blue-600 hover:underline">Grief Ban</span>
               </Link>
             </li>
             <li>
@@ -117,7 +117,14 @@ export default function RulesPage() {
         </section>
 
         <section id="grif-ban" className="mb-12">
-          <h1 className="text-2xl font-bold mb-4">Grif Ban</h1>
+          <h1 className="text-2xl font-bold mb-4">Grief Ban</h1>
+          <p>
+            Griefing refers to the act of intentionally disrupting or annoying
+            other players such as going out of your way to ruin the experience
+            for others by trolling, team-killing, blocking progress, spamming,
+            or otherwise being disruptive... It doesn't include mistakes coming
+            from skill difference between players.
+          </p>
           <p>The following ban durations apply for grif actions:</p>
           <ul className="list-disc ml-6 mt-2 space-y-1">
             <li>
@@ -127,7 +134,7 @@ export default function RulesPage() {
               <strong>2 grif:</strong> 10 days ban
             </li>
             <li>
-              <strong>3 grif:</strong> Year and a half.
+              <strong>3 grif:</strong> Season ban.
             </li>
           </ul>
         </section>
