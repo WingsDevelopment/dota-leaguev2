@@ -4,12 +4,15 @@ import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } f
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 
+type GameStatus= "PREGAME" | "HOSTED" | "STARTED" | "OVER" | "ABORTED" | "CANCEL" | "REHOST"
+type GameType = "DRAFT" | "NORMAL"
+
 interface game {
     id: number,
-    status: string,
+    status: GameStatus,
     result: number,
     steam_match_id: number,
-    type: string
+    type: GameType
 }
 
 export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
