@@ -33,7 +33,7 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
     const handleDelete = async (e: React.MouseEvent<HTMLButtonElement>) => {
         const gameId = e.currentTarget.value
         try {
-            const res = await fetch("/api/games-crud", {
+            const res = await fetch("/api/games-crud/games-crud-delete", {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ id: gameId })
