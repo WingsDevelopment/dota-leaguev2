@@ -1,5 +1,2 @@
 node_modules/
 .next/
-db/league.db
-/db
-./db
