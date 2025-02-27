@@ -32,7 +32,7 @@ export async function GET() {
     const leaderboard: Array<Record<string, any>> = await new Promise(
       (resolve, reject) => {
         db.all(
-          `SELECT discord_id, name, mmr
+          `SELECT discord_id, name, mmr, steam_id
            FROM Players
            ORDER BY mmr DESC`,
           [],
