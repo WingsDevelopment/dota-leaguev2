@@ -4,9 +4,11 @@ import path from "path";
 import fs from "fs";
 import sqlite3 from "sqlite3";
 import { getDbInstance } from "@/db/utils";
+import { isUserAdmin } from "@/app/common/constraints";
 
 
 export async function GET() {
+  isUserAdmin()
 
   const db = await getDbInstance()
 
@@ -44,11 +46,5 @@ export async function GET() {
       { error: "Internal Server Error" },
       { status: 500 }
     );
-  }
-}
-
-export async function isUserAdmin(sessionId: string) {
-  if (process.env.ADMIN_ID_1 === sessionId) {
-    return true
   }
 }

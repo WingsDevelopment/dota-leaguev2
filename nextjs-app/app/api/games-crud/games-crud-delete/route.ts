@@ -3,6 +3,8 @@ import { getDbInstance } from "@/db/utils";
 
 
 export async function DELETE(req: NextRequest) {
+  isUserAdmin()
+  
   const { id } = await req.json()
 
   if (!id) {
@@ -46,8 +48,7 @@ export async function DELETE(req: NextRequest) {
   }
 
 }
-export async function isUserAdmin(sessionId: string) {
-  if (process.env.ADMIN_ID_1 === sessionId) {
-    return true
-  }
+
+function isUserAdmin() {
+  throw new Error("Function not implemented.");
 }
