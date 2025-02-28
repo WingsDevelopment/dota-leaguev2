@@ -115,7 +115,7 @@ if __name__ == '__main__':
     players  = execute_function_with_return('get_all_players_from_game', game_id)
     players_that_checkin = {}
     for player in players:
-        players_that_checkin[lobby_player.id] = player['team'] == lobby_player.team
+        players_that_checkin[player['steam_id']] = False
 
     _log('Logging in as {}'.format(steam_bot['username']))
     result = steam_client.login(username=steam_bot['username'], password= steam_bot['password'])
