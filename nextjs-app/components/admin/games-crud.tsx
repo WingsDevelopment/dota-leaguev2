@@ -38,7 +38,7 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                 pervGames.map((game) =>
                     game.id === Number(gameId) ? { ...game, status: "OVER" } : game))
         } catch (error) {
-
+            console.error(error)
         }
     }
 

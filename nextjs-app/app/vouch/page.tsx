@@ -1,23 +1,41 @@
 'use client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { useForm } from "react-hook-form"
+import { useSession } from "next-auth/react";
+
 interface registerLeague {
     steam_id: number,
     mmr: number
 }
 export default function VouchRequest() {
+    const { data: session } = useSession()
     const { handleSubmit, register, reset, formState: { errors } } = useForm<registerLeague>({
         defaultValues: {
             mmr: 1000,
         }
     });
 
-    const onSubmit = (steam_id: number, mmr: number) => {
+    const onSubmit = async (data: registerLeague) => {
+        try {
+            const res = await fetch("api/register-players/register-players-update", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    steam_id: data.steam_id, 
+                    mmr: data.mmr,
+                    name:session?.user?.name,
+                    discord_id:session?.user?.id })
+            })
+            if (!res.ok) {
+                throw new Error("Could not register the player")
+            }
+            reset()
+        } catch (error) {
 
+        }
     }
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-
             <Card>
                 <CardHeader>
                     <CardTitle>Steam ID</CardTitle>
