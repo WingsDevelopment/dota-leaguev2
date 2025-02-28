@@ -43,6 +43,12 @@ export function MainNav({
           Admin Console
         </Link>
         <Link
+          href="/vouch"
+          className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+        >
+          Register for League
+        </Link>
+        <Link
           href="/info"
           className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
         >
