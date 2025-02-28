@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } f
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 
-type GameStatus= "PREGAME" | "HOSTED" | "STARTED" | "OVER" | "ABORTED" | "CANCEL" | "REHOST"
+type GameStatus = "PREGAME" | "HOSTED" | "STARTED" | "OVER" | "ABORTED" | "CANCEL" | "REHOST"
 type GameType = "DRAFT" | "NORMAL"
 
 interface game {
@@ -16,14 +16,12 @@ interface game {
 }
 
 export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
-    const [edit, setEdit] = useState(false)
+    const [editMode, setEditMode] = useState<number | null>(null)
     const [games, setGames] = useState(gamesList);
     const [saveGame, setSaveGame] = useState({})
 
     const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
-        console.log(e.currentTarget.value)
-        setEdit(true)
-
+        setEditMode(Number(e.currentTarget.value))
     }
 
     const handleSave = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -74,18 +72,28 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                                 return (
                                     <>
                                         <TableRow key={game.id}>
-                                            <TableCell >{game.id}</TableCell>
-                                            <TableCell >{game.status}</TableCell>
-                                            <TableCell >{game.result || "N/A"}</TableCell>
-                                            <TableCell >{game.steam_match_id}</TableCell>
-                                            <TableCell >{game.type}</TableCell>
-                                            <TableCell >
-                                                {edit ? (
+                                            {editMode===game.id ? (<>
+                                                <TableCell >{game.id}</TableCell>
+                                                <TableCell >{game.status}</TableCell>
+                                                <TableCell >{game.result || "N/A"}</TableCell>
+                                                <TableCell >{game.steam_match_id}</TableCell>
+                                                <TableCell >{game.type}</TableCell>
+                                                <TableCell >
                                                     <button value={game.id} onClick={handleSave}>Save</button>
-                                                ) : (
-                                                    <button value={game.id} onClick={handleEdit}>Edit</button>
-                                                )}
-                                            </TableCell>
+                                                </TableCell>
+                                            </>
+                                            ) : (
+                                                <>
+                                                    <TableCell >{game.id}</TableCell>
+                                                    <TableCell >{game.status}</TableCell>
+                                                    <TableCell >{game.result || "N/A"}</TableCell>
+                                                    <TableCell >{game.steam_match_id}</TableCell>
+                                                    <TableCell >{game.type}</TableCell>
+                                                    <TableCell >
+                                                        <button value={game.id} onClick={handleEdit}>Edit</button>
+                                                    </TableCell>
+                                                </>
+                                            )}
                                             <TableCell ><button value={game.id} onClick={handleDelete}>Delete</button></TableCell>
                                         </TableRow>
                                     </>

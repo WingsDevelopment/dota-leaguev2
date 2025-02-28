@@ -2,33 +2,13 @@ import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
 import sqlite3 from "sqlite3";
+import { getDbInstance } from "@/db/utils";
 
 export async function GET() {
   try {
-    // Use the environment variable if set.
-    // global export
-    const dbPath =
-      process.env.DATABASE_PATH || path.join(process.cwd(), "db", "league.db");
 
-    // Ensure the directory exists.
-    // global export
+     const db = await getDbInstance()
 
-    // Open the SQLite database.
-    const db = await new Promise<sqlite3.Database>((resolve, reject) => {
-      const instance = new sqlite3.Database(
-        dbPath,
-        sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
-        (err) => {
-          if (err) {
-            console.error("Error opening database:", err);
-            return reject(err);
-          }
-          resolve(instance);
-        }
-      );
-    });
-
-    // Execute the leaderboard query.
     const leaderboard: Array<Record<string, any>> = await new Promise(
       (resolve, reject) => {
         db.all(
