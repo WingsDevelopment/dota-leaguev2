@@ -8,7 +8,7 @@ import { isUserAdmin } from "@/app/common/constraints";
 
 
 export async function GET() {
-  isUserAdmin()
+  await isUserAdmin()
 
   const db = await getDbInstance()
 
@@ -19,8 +19,7 @@ export async function GET() {
     const games: Array<Record<string, any>> = await new Promise(
       (resolve, reject) => {
         db.all(
-          `SELECT *
-           FROM Game`,
+          `SELECT * FROM Game`,
           [],
           (err, rows) => {
             if (err) {

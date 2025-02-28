@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDbInstance } from "@/db/utils";
+import { isUserAdmin } from "@/app/common/constraints";
 
 
 export async function DELETE(req: NextRequest) {
-  isUserAdmin()
+  await isUserAdmin()
   
   const { id } = await req.json()
 
@@ -47,8 +48,4 @@ export async function DELETE(req: NextRequest) {
     );
   }
 
-}
-
-function isUserAdmin() {
-  throw new Error("Function not implemented.");
 }
