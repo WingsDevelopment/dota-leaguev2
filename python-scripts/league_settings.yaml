@@ -1,6 +1,6 @@
 league_id: 17791 #Needs to be approved here https://www.dota2.com/league/0/list
 game_mod: 2 # 16 = Captains Draft, 2 = Captains Mode
-lobby_size: 2
+lobby_size: 10
 game_name_prefix: radekomsaLeague
 discord_league_admin_role_name: ADMINS
 league_starting_mmr: 1000
