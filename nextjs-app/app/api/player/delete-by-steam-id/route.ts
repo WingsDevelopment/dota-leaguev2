@@ -38,7 +38,7 @@ export async function DELETE(request: Request) {
     const changes: number = await new Promise((resolve, reject) => {
       db.run(
         "DELETE FROM Players WHERE steam_id = ?",
-        [Number(steamId)],
+        [steamId],
         function (err: Error | null) {
           if (err) {
             console.error("Error deleting player:", err);

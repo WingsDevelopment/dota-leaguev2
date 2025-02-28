@@ -21,7 +21,7 @@ def lobby_change(lobby):
     if starting:
         return
     for lobby_player in lobby.all_members:
-        player = next((p for p in players if p['steam_id'] == lobby_player.id), None)
+        player = next((p for p in players if p['steam_id'] == str(lobby_player.id)), None)
         if player is not None:
             old_checkin = players_that_checkin[lobby_player.id]
             players_that_checkin[lobby_player.id] =  player['team'] == lobby_player.team
@@ -50,7 +50,7 @@ def create_lobby():
     gevent.spawn_later(lobby_timeout, timeout_game) #abort game in 5 minutes if not started
 
 def invite_players():
-    for player in (SteamID(p['steam_id']) for p in players):
+    for player in (SteamID(int(p['steam_id'])) for p in players):
         dota_client.invite_to_lobby(player)
     _log('Invited playes')
 
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     players  = execute_function_with_return('get_all_players_from_game', game_id)
     players_that_checkin = {}
     for player in players:
-        players_that_checkin[player['steam_id']] = False
+        players_that_checkin[lobby_player.id] = player['team'] == lobby_player.team
 
     _log('Logging in as {}'.format(steam_bot['username']))
     result = steam_client.login(username=steam_bot['username'], password= steam_bot['password'])
