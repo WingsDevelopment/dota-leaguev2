@@ -75,7 +75,7 @@ export async function PUT(req: NextRequest) {
     db.close();
     console.error("Error processing request:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: `Internal Server Error ${error}` },
       { status: 500 }
     );
   }
