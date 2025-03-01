@@ -46,6 +46,15 @@ export default function VouchRequest() {
       reset();
     } catch (error) {}
   };
+
+  if (!session) {
+    return (
+      <div>
+        <h1>You must log in with Discord to request a vouch</h1>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Card>
