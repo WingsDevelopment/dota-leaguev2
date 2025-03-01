@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDbInstance } from "@/db/utils";
 import { isUserAdmin } from "@/app/common/constraints";
 
-
 export async function GET() {
-  await isUserAdmin()
+  if (!(await isUserAdmin())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-  const db = await getDbInstance()
+  const db = await getDbInstance();
 
   try {
     // Use the environment variable if set.
@@ -14,17 +15,13 @@ export async function GET() {
     // Execute the game query.
     const registerPlayers: Array<Record<string, any>> = await new Promise(
       (resolve, reject) => {
-        db.all(
-          `SELECT * FROM registerPlayers`,
-          [],
-          (err, rows) => {
-            if (err) {
-              console.error("Error executing query:", err);
-              return reject(err);
-            }
-            resolve(rows as any);
+        db.all(`SELECT * FROM registerPlayers`, [], (err, rows) => {
+          if (err) {
+            console.error("Error executing query:", err);
+            return reject(err);
           }
-        );
+          resolve(rows as any);
+        });
       }
     );
 

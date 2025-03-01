@@ -2,20 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDbInstance } from "@/db/utils";
 import { isUserAdmin } from "@/app/common/constraints";
 
-
 export async function DELETE(req: NextRequest) {
-  await isUserAdmin()
-  
-  const { id } = await req.json()
-
-  if (!id) {
-    return NextResponse.json({ error: "There is no game id" }, { status: 400 })
+  if (!(await isUserAdmin())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const db= await getDbInstance()
-  
-  try {
+  const { id } = await req.json();
 
+  if (!id) {
+    return NextResponse.json({ error: "There is no game id" }, { status: 400 });
+  }
+
+  const db = await getDbInstance();
+
+  try {
     const games: Array<Record<string, any>> = await new Promise(
       (resolve, reject) => {
         db.all(
@@ -47,5 +47,4 @@ export async function DELETE(req: NextRequest) {
       { status: 500 }
     );
   }
-
 }
