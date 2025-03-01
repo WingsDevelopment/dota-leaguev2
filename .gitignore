@@ -1,5 +1,10 @@
 node_modules/
 .next/
 db/league.db
+db/league.db-shm
+db/mysqlite.sql
+db/league.db-wal
+python-scripts/__pycache__/utility.cpython-313.pyc
+.env.local
 /db
 ./db

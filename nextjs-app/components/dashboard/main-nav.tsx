@@ -37,6 +37,18 @@ export function MainNav({
       {/* Desktop Navigation */}
       <div className="hidden lg:flex items-center space-x-4">
         <Link
+          href="/admin"
+          className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+        >
+          Admin Console
+        </Link>
+        <Link
+          href="/vouch"
+          className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+        >
+          Vouch
+        </Link>
+        <Link
           href="/info"
           className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
         >
@@ -77,7 +89,10 @@ export function MainNav({
               <Link href="/">Home</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/info">Info</Link>
+              <Link href="/rules">Rules</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/vouch">Vouch</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/rules">Rules</Link>

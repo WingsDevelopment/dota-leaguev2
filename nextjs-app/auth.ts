@@ -1,5 +1,9 @@
-import NextAuth from "next-auth";
+import NextAuth, { User } from "next-auth";
 import Discord from "next-auth/providers/discord";
+
+export interface ExtendedUser extends User {
+  discordId?: string;
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [Discord],
@@ -21,7 +25,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         user: {
           ...session.user,
           discordId: token.discordId,
-        },
+        } as ExtendedUser,
       };
     },
   },
