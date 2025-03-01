@@ -1,9 +1,7 @@
 version: "3"
 
 networks:
-  default:
-    name: wings-net
-    driver: bridge
+  dota-league-net:
 
 services:
   traefik:
@@ -26,7 +24,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./letsencrypt:/letsencrypt:rw
     networks:
-      - wings-net
+      - dota-league-net
 
   nextjs:
     build: ./nextjs-app
@@ -49,5 +47,5 @@ services:
     depends_on:
       - traefik
     networks:
-      - wings-net
+      - dota-league-net
     restart: always
