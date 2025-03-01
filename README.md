@@ -141,3 +141,10 @@ Paste them into your .env.local file:
 AUTH_DISCORD_ID=your_discord_client_id_here
 AUTH_DISCORD_SECRET=your_discord_client_secret_here 3. Setting Up the .env.local File
 Now your .env.local file should look like this:
+
+# Certificate for (HTTPS) commands
+
+mkdir -p letsencrypt
+chmod 600 letsencrypt/acme.json
+touch letsencrypt/acme.json
+chmod 600 letsencrypt/acme.json
