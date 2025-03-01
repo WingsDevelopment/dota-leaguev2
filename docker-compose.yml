@@ -8,6 +8,8 @@ services:
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=bans.cowboy@gmail.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
@@ -38,6 +40,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.nextjs.rule=Host(`radekomsa.site`)"
       - "traefik.http.routers.nextjs.entrypoints=web,websecure"
+      - "traefik.http.routers.nextjs.tls=true"
       - "traefik.http.routers.nextjs.tls.certresolver=myresolver"
       - "traefik.http.services.nextjs.loadbalancer.server.port=3000"
     environment:
