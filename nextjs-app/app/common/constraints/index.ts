@@ -1,3 +1,4 @@
+import { ExtendedUser } from "./../../../auth";
 import { auth } from "@/auth";
 import path from "path";
 
@@ -16,5 +17,5 @@ export async function isUserAdmin() {
   console.log("adminIds", adminIds);
   console.log("session", session);
   console.log("includes", adminIds.includes(String(session?.user?.id)));
-  return adminIds.includes(String(session?.user?.id));
+  return adminIds.includes(String((session?.user as ExtendedUser)?.discordId));
 }
