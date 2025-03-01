@@ -19,6 +19,23 @@ export async function PUT(req: NextRequest) {
 
   const db = await getDbInstance();
   try {
+    await new Promise<void>((resolve, reject) => {
+      db.run(
+        `CREATE TABLE IF NOT EXISTS RegisterPlayers (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          status TEXT NOT NULL,
+          steam_id TEXT NOT NULL UNIQUE,
+          discord_id TEXT NOT NULL,
+          name TEXT NOT NULL,
+          mmr INTEGER NOT NULL
+        )`,
+        function (err) {
+          if (err) return reject(err);
+          resolve();
+        }
+      );
+    });
+
     // 1️⃣ Check if steam_id exists in Players table
     const playerExists = await new Promise((resolve, reject) => {
       db.get(
@@ -42,7 +59,7 @@ export async function PUT(req: NextRequest) {
     await new Promise((resolve, reject) => {
       db.run(
         `INSERT INTO RegisterPlayers (status, steam_id, discord_id, name, mmr) VALUES (?, ?, ?, ?, ?)`,
-        ["PENDING", steam_id, discordId, name, mmr],
+        ["PENDING", steam_id, discordId, name, 1000],
         function (err) {
           if (err) return reject(err);
           resolve(this.lastID);

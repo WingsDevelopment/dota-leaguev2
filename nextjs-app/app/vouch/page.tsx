@@ -64,10 +64,6 @@ export default function VouchRequest() {
             <Input
               {...register("steam_id", {
                 required: "Steam ID is required!",
-                pattern: {
-                  value: /^[0-9]+$/,
-                  message: "Steam ID must contain only numbers!",
-                },
                 maxLength: {
                   value: 17,
                   message: "Steam ID cannot exceed 17 characters!",
