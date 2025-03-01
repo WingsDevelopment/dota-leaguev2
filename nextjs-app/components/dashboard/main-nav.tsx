@@ -37,12 +37,6 @@ export function MainNav({
       {/* Desktop Navigation */}
       <div className="hidden lg:flex items-center space-x-4">
         <Link
-          href="/admin"
-          className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-        >
-          Admin Console
-        </Link>
-        <Link
           href="/vouch"
           className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
         >

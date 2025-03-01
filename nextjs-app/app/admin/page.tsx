@@ -1,8 +1,17 @@
 import GamesCrud from "@/components/admin/games-crud";
-import { baseUrl } from "../common/constraints";
+import { baseUrl, isUserAdmin } from "../common/constraints";
 import RegisterCrud from "@/components/admin/register-crud";
 
 export default async function Page() {
+  const isAdmin = await isUserAdmin();
+  if (!isAdmin) {
+    return (
+      <div>
+        <h1>Unauthorized</h1>
+      </div>
+    );
+  }
+
   // Provide a fallback base URL if NEXT_PUBLIC_API_URL is not defined.
   const [gamesRes, registerPlayersRes] = await Promise.all([
     fetch(`${baseUrl}/api/games-crud/games-crud-read`, { cache: "no-store" }),
