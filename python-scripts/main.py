@@ -395,7 +395,7 @@ async def autoscore(ctx: Context):
         for game in active_games:
             players_in_game = execute_function_with_return('get_all_players_from_game', game['id'])
             active_game_players_dict[game['id']] = [
-                (player['steam_id'], player['team']) for player in players_in_game
+                (int(player['steam_id']), player['team']) for player in players_in_game
             ]
             _log(f"Game ID {game['id']} has players: {active_game_players_dict[game['id']]}")
 

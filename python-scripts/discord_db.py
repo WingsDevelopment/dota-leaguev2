@@ -259,8 +259,8 @@ def get_leaderboards(cursor: Cursor) -> None:
 def create_tables(cursor: Connection) -> None:
     cursor.execute('''CREATE TABLE IF NOT EXISTS Players
                             (id INTEGER PRIMARY KEY,
-                            discord_id INTEGER  ,
-                            steam_id INTEGER,
+                            discord_id TEXT  ,
+                            steam_id TEXT,
                             name TEXT,
                             mmr INTEGER,
                             captain INTEGER DEFAULT 0)''')
