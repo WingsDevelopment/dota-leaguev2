@@ -39,12 +39,13 @@ services:
     ports:
       - "3000:3000"
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.nextjs.rule=Host(`radekomsa.site`)"
-      - "traefik.http.routers.nextjs.entrypoints=web,websecure"
-      - "traefik.http.routers.nextjs.tls=true"
-      - "traefik.http.routers.nextjs.tls.certresolver=myresolver"
-      - "traefik.http.services.nextjs.loadbalancer.server.port=3000"
+      - traefik.enable=true
+      - traefik.http.routers.nextjs.rule=Host(`radekomsa.site`)
+      - traefik.http.routers.nextjs.entrypoints=http,https
+      - traefik.http.routers.nextjs.tls=true
+      - traefik.http.routers.nextjs.tls.certresolver=letsencrypt
+      - traefik.http.services.nextjs.loadbalancer.server.port=3000
+      - traefik.http.middlewares.nextjs.compress=true
     environment:
       - DATABASE_PATH=/app/db/league.db
       - NEXTAUTH_URL=https://radekomsa.site
