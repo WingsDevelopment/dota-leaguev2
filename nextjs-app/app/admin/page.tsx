@@ -25,7 +25,6 @@ export default async function Page() {
   ]);
   const gamesList = (await gamesData.games) || [];
   const registerList = (await registerPlayersData.registerPlayers) || [];
-  console.log(registerList);
   return (
     <div className="flex flex-col gap-4">
       <RegisterCrud registerList={registerList} />

@@ -8,3 +8,4 @@ python-scripts/__pycache__/utility.cpython-313.pyc
 .env.local
 /db
 ./db
+nextjs-app/db/league.db

@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
-import { Button } from "react-day-picker";
+import { Button } from "@/components/ui/button";
 
 type GameStatus =
   | "PREGAME"
@@ -38,7 +38,9 @@ interface game {
 
 export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
   const [games, setGames] = useState(gamesList);
-
+  const [filterStatus, setFilterStatus] = useState<GameStatus | "ALL">(
+    "ALL"
+  );
   const handleTeamWin = async (e: React.MouseEvent<HTMLButtonElement>) => {
     const confirmation = confirm("Are you sure ?");
     if (!confirmation) return;
@@ -75,11 +77,13 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
     if (!confirmation) return;
 
     const gameId = e.currentTarget.value;
+    const status = games[Number(gameId) - 1].status
+    const result = games[Number(gameId) - 1].result
     try {
       const res = await fetch("/api/games-crud/games-crud-delete", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: gameId }),
+        body: JSON.stringify({ id: gameId, status: status, result: result }),
       });
 
       if (!res.ok) {
@@ -92,16 +96,45 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
       console.error("Failed to delete the game", error);
     }
   };
+
+  const filteredRegisterList =
+    filterStatus === "ALL"
+      ? games
+      : games.filter((game) => game.status === filterStatus);
+
   return (
     <div>
       <Card>
         <CardHeader>
           <CardTitle>
-            <h1 className="text-3xl font-bold mb-4">Admin Page</h1>
+            <h1 className="text-3xl font-bold mb-4">Games</h1>
           </CardTitle>
           <CardDescription>Edit games</CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Filter Controls */}
+          <div className="mb-4">
+            <label htmlFor="status-filter" className="mr-2">
+              Filter by Status:
+            </label>
+            <select
+              id="status-filter"
+              value={filterStatus}
+              onChange={(e) =>
+                setFilterStatus(e.target.value as GameStatus | "ALL")
+              }
+              className="p-2 border rounded"
+            >
+              <option value="ALL">All</option>
+              <option value="PREGAME">Pregame</option>
+              <option value="HOSTED">Hosted</option>
+              <option value="STARTED">Started</option>
+              <option value="OVER">Over</option>
+              <option value="ABORTED">Aborted</option>
+              <option value="CANCEL">Cancel</option>
+              <option value="REHOST">Rehost</option>
+            </select>
+          </div>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -117,7 +150,7 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                 </tr>
               </TableHeader>
               <TableBody>
-                {games.map((game: game) => {
+                {filteredRegisterList.map((game: game) => {
                   return (
                     <>
                       <TableRow key={game.id}>
@@ -127,22 +160,27 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                         <TableCell>{game.steam_match_id}</TableCell>
                         <TableCell>{game.type}</TableCell>
                         <TableCell>
-                          <Button
-                            value={game.id}
-                            name="0"
-                            onClick={handleTeamWin}
-                          >
-                            Radiant Won
-                          </Button>
+                          {game.status !== "OVER" && (
+                            <Button
+                              value={game.id}
+                              name="0"
+                              onClick={handleTeamWin}
+                            >
+                              Radiant Won
+                            </Button>
+                          )}
+
                         </TableCell>
                         <TableCell>
-                          <Button
-                            value={game.id}
-                            name="1"
-                            onClick={handleTeamWin}
-                          >
-                            Dire Won
-                          </Button>
+                          {game.status !== "OVER" && (
+                            <Button
+                              value={game.id}
+                              name="1"
+                              onClick={handleTeamWin}
+                            >
+                              Dire Won
+                            </Button>
+                          )}
                         </TableCell>
                         <TableCell>
                           <Button value={game.id} onClick={handleDelete}>
