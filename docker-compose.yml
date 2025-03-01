@@ -36,6 +36,8 @@ services:
 
   nextjs:
     build: ./nextjs-app
+    ports:
+      - "3000:3000"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.nextjs.rule=Host(`radekomsa.site`)"
