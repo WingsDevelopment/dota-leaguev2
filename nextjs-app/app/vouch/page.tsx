@@ -44,6 +44,8 @@ export default function VouchRequest() {
         throw new Error("Could not register the player");
       }
       reset();
+
+      alert("Success, ping admins for approval");
     } catch (error) {}
   };
 

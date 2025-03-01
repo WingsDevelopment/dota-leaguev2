@@ -19,8 +19,8 @@ import {
 import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: "Dashboard Leaderboard",
-  description: "Display the leaderboard with summary cards.",
+  title: "RADEKOMSA LEADERBOARD",
+  description: "RADEKOMSA LEADERBOARD.",
 };
 
 export default async function DashboardPage() {
