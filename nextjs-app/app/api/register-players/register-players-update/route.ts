@@ -4,9 +4,6 @@ import { isUserAdmin } from "@/app/common/constraints";
 import { auth, ExtendedUser } from "../../../../auth";
 
 export async function PUT(req: NextRequest) {
-  if (!(await isUserAdmin())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
   const { steam_id, mmr } = await req.json();
   const session = await auth();
   const { discordId, name } = (session?.user || {}) as ExtendedUser;

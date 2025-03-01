@@ -3,10 +3,6 @@ import { getDbInstance } from "@/db/utils";
 import { isUserAdmin } from "@/app/common/constraints";
 
 export async function GET() {
-  if (!(await isUserAdmin())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   const db = await getDbInstance();
 
   try {
