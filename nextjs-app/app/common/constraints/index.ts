@@ -13,5 +13,8 @@ export async function isUserAdmin() {
   }
   const session = await auth();
   const adminIds = (process.env.ADMIN_IDS || "").split(",");
+  console.log("adminIds", adminIds);
+  console.log("session", session);
+  console.log("includes", adminIds.includes(String(session?.user?.id)));
   return adminIds.includes(String(session?.user?.id));
 }
