@@ -55,9 +55,10 @@ services:
     labels:
       - "traefik.enable=false"
 
-    command: bash -c "python discord_db.py && sleep 5 && python run_all.py"
+    command: bash -c "python -u discord_db.py && sleep 5 && python -u run_all.py"
     environment:
       - DATABASE_PATH=/app/db/league.db
+      - PYTHONUNBUFFERED=1
     env_file:
       - .env.python
     volumes:

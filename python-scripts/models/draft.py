@@ -66,7 +66,7 @@ class DraftView(View):
                 index_original_drafter = self.drafters.index(self.current_drafter)
                 # Use next with a default of None to avoid StopIteration.
                 new_drafter = next(
-                    filter(lambda player: str(player['id']) == interaction.data['custom_id'], self.teams[team]),
+                    filter(lambda player: str(player['id']) == str(interaction.data['custom_id']), self.teams[team]),
                     None
                 )
                 if new_drafter is None:
@@ -97,7 +97,7 @@ class DraftView(View):
             # We are swapping who the current drafter is
             self.giving_up_draft = False
             index_original_drafter = self.drafters.index(self.current_drafter)
-            new_drafter = next(filter(lambda player: str(player['id']) == interaction.data['custom_id'], self.teams[drafter_team]))
+            new_drafter = next(filter(lambda player: str(player['id']) == str(interaction.data['custom_id']), self.teams[drafter_team]))
             self.current_drafter = new_drafter
             self.drafters[index_original_drafter] = new_drafter
             self.clear_items()
@@ -109,7 +109,7 @@ class DraftView(View):
             return
 
         # Normal pick flow
-        drafted_player = next(filter(lambda player: str(player['id']) == interaction.data['custom_id'], self.players))
+        drafted_player = next(filter(lambda player: str(player['id']) == str(interaction.data['custom_id']), self.players))
         print(f"[DEBUG] Drafter {self.current_drafter['discord_id']} picked {drafted_player['discord_id']}")
 
         # Remove from the pool
