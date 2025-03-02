@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useState } from "react";
 
 type RegisterStatus = "PENDING" | "APPROVED" | "DECLINED";
@@ -124,7 +125,15 @@ export default function RegisterCrud({
                     <TableRow key={register.id}>
                       <TableCell>{register.id}</TableCell>
                       <TableCell>{register.status}</TableCell>
-                      <TableCell>{register.steam_id}</TableCell>
+                      <TableCell>
+                        <Link
+                          href={`https://steamcommunity.com/profiles/${register.steam_id}`}
+                          className="text-blue-500 hover:underline"
+                          target="_blank"
+                        >
+                          {register.steam_id}
+                        </Link>
+                      </TableCell>
                       <TableCell>{register.name}</TableCell>
                       <TableCell>{register.discord_id}</TableCell>
                       <TableCell>{register.mmr}</TableCell>
