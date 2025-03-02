@@ -17,6 +17,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import Image from "next/image";
+import { Tooltip } from "../components/ui/tooltip";
 
 export const metadata: Metadata = {
   title: "RADEKOMSA LEADERBOARD",
@@ -31,6 +32,7 @@ export default async function DashboardPage() {
   const res = await fetch(`${baseUrl}/api/leaderboard`, { cache: "no-store" });
   const data = await res.json();
   const leaderboard = data.leaderboard || [];
+  console.log({ leaderboard });
 
   return (
     <>
@@ -141,7 +143,21 @@ export default async function DashboardPage() {
                       <TableRow key={player.discord_id}>
                         <TableCell>{index + 1}</TableCell>
                         <TableCell>{player.mmr}</TableCell>
-                        <TableCell>{player.name || "N/A"}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            {player.captain === 1 && (
+                              <Tooltip tooltip="Captain">
+                                <Image
+                                  src="/captain.svg"
+                                  alt="captain"
+                                  width={24}
+                                  height={24}
+                                />
+                              </Tooltip>
+                            )}
+                            <span>{player.name}</span>
+                          </div>
+                        </TableCell>
                         {/* <TableCell>{wins}</TableCell>
                     <TableCell>{losses}</TableCell>
                     <TableCell>{winPct}%</TableCell> */}
