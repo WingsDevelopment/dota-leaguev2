@@ -8,7 +8,6 @@ from steam.client import SteamClient
 from dota2.client import Dota2Client
 from steam.steamid import SteamID
 
-
 from discord_db import (
     execute_function_single_row_return,
     execute_function_no_return,
@@ -72,7 +71,7 @@ def create_lobby():
 def invite_players():
     for player in players:
         steam_id_str = player["steam_id"]
-        steam_id = SteamID.from_text(steam_id_str)  # Parse ANY format
+        steam_id = SteamID.from_text(steam_id_str)
         
         if not steam_id.is_valid():
             _log(f"Invalid Steam ID '{steam_id_str}' for player {player['id']}")
