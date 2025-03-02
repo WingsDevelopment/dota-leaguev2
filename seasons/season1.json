@@ -1,10 +1,10 @@
 {
   "leaderboard": [
     {
-      "discord_id": "215181774014119936",
+      "discord_id": 215181774014119936,
       "name": "Cvoja",
       "mmr": "1000",
-      "steam_id": "76561198148976230"
+      "steam_id": 76561198148976230
     },
     {
       "discord_id": "259444469370191874",
@@ -23,12 +23,6 @@
       "name": "instagram-radekomsa-tiktok",
       "mmr": 1000,
       "steam_id": 76561198073832118
-    },
-    {
-      "discord_id": 296781769875652608,
-      "name": "lengebaka",
-      "mmr": 1000,
-      "steam_id": "lengebaka"
     },
     {
       "discord_id": "620335344721723403",
@@ -107,12 +101,6 @@
       "name": "Vidjen",
       "mmr": 1000,
       "steam_id": 76561198040679981
-    },
-    {
-      "discord_id": 328855745187807233,
-      "name": "MINIPANI",
-      "mmr": 1000,
-      "steam_id": "jnasdjnapsdm"
     },
     {
       "discord_id": 359130003536871426,
@@ -205,12 +193,6 @@
       "steam_id": 76561199135245931
     },
     {
-      "discord_id": 137644110809923584,
-      "name": "Tiodor",
-      "mmr": 1000,
-      "steam_id": "ethernion"
-    },
-    {
       "discord_id": 408670568661909514,
       "name": "sotonski narkoman",
       "mmr": 1000,
@@ -229,10 +211,22 @@
       "steam_id": 76561198066888235
     },
     {
-      "discord_id": "511679583242813451",
+      "discord_id": 511679583242813451,
       "name": "YR",
       "mmr": "1000",
-      "steam_id": "76561198998514543"
+      "steam_id": 76561198998514543
+    },
+    {
+      "discord_id": 137644110809923584,
+      "name": "Tiodor",
+      "mmr": "1000",
+      "steam_id": 76561198078171710
+    },
+    {
+      "discord_id": 328855745187807233,
+      "name": "MINIPANI",
+      "mmr": "1000",
+      "steam_id": 76561198272207056
     }
   ]
 }

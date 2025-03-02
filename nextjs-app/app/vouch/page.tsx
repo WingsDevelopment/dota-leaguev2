@@ -31,7 +31,7 @@ export default function VouchRequest() {
 
   const onSubmit = async (data: registerLeague) => {
     try {
-      const res = await fetch("api/register-players/register-players-approve", {
+      const res = await fetch("api/register-players/register-players-create", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
