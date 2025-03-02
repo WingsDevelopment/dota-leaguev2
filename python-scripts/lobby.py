@@ -6,6 +6,8 @@ from steam.enums import EResult
 from steam.client import SteamID
 from steam.client import SteamClient
 from dota2.client import Dota2Client
+from steam.steamid import SteamID
+
 
 from discord_db import (
     execute_function_single_row_return,
@@ -66,12 +68,19 @@ def create_lobby():
     dota_client.join_practice_lobby_team()
     gevent.spawn_later(lobby_timeout, timeout_game)
 
+
 def invite_players():
-    # Convert each DB steam_id to int for SteamID(), if stored as text
     for player in players:
-        steam_id_int = int(player["steam_id"])
-        dota_client.invite_to_lobby(SteamID(steam_id_int))
-    _log("Invited players")
+        steam_id_str = player["steam_id"]
+        steam_id = SteamID.from_text(steam_id_str)  # Parse ANY format
+        
+        if not steam_id.is_valid():
+            _log(f"Invalid Steam ID '{steam_id_str}' for player {player['id']}")
+            continue  # Skip invalid IDs
+        
+        dota_client.invite_to_lobby(steam_id)
+    
+    _log("Invited valid players")
 
 def check_to_start():
     global starting
