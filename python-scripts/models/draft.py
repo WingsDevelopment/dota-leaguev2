@@ -44,7 +44,8 @@ class DraftView(View):
         drafter = interaction.user.id
         print(f"[DEBUG] button_callback invoked by user {drafter}")
 
-        if drafter != self.current_drafter['discord_id']:
+        # Compare as strings to avoid type mismatches
+        if str(drafter) != self.current_drafter['discord_id']:
             await self.txt_channel.send(f"It's <@{self.current_drafter['discord_id']}> turn to pick", delete_after=3)
             print("[DEBUG] Wrong drafter clicked the button.")
             return
@@ -140,7 +141,8 @@ class DraftView(View):
             print("[DEBUG] error editing message after pick:", e)
 
     def _get_drafters_team(self, drafter):
-        return RADIANT if drafter['discord_id'] == self.teams[RADIANT][0]['discord_id'] else DIRE
+        # Ensure both IDs are compared as strings
+        return RADIANT if str(drafter['discord_id']) == str(self.teams[RADIANT][0]['discord_id']) else DIRE
 
     def _select_captains(self):
         potential_captains = []
@@ -317,20 +319,20 @@ class DraftView(View):
 def _add_stats_to_player(player):
     # Check if the player ever played a game
     print(f"[DEBUG] _add_stats_to_player => Checking if {player['discord_id']} has played games")
-    games_played = discord_db.execute_function_single_row_return('get_if_player_played_game', player['id'])
+    games_played = discord_db.execute_function_single_row_return('get_if_player_played_game', str(player['id']))
     if games_played['played'] == 0:
         player['wins'] = 0
         player['losses'] = 0
         player['rank'] = None
     else:
-        rank_data = discord_db.execute_function_single_row_return('get_player_rank', player['id'])
+        rank_data = discord_db.execute_function_single_row_return('get_player_rank', str(player['id']))
         player['rank'] = rank_data['rank']
-        wins_and_losses = discord_db.execute_function_single_row_return('get_players_wins_and_losses', player['id'])
+        wins_and_losses = discord_db.execute_function_single_row_return('get_players_wins_and_losses', str(player['id']))
         player['wins'] = wins_and_losses['wins']
         player['losses'] = wins_and_losses['losses']
 
     try:
-        roles = discord_db.execute_function_with_return('get_player_role', player['id'])
+        roles = discord_db.execute_function_with_return('get_player_role', str(player['id']))
         player['roles'] = [role['role'] for role in roles]
     except ValueError:
         player['roles'] = []
