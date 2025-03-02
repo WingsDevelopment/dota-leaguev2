@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { useSession } from "next-auth/react";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
+import Image from "next/image";
 
 interface registerLeague {
   steam_id: number;
@@ -30,7 +31,7 @@ export default function VouchRequest() {
 
   const onSubmit = async (data: registerLeague) => {
     try {
-      const res = await fetch("api/register-players/register-players-update", {
+      const res = await fetch("api/register-players/register-players-approve", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -71,7 +72,7 @@ export default function VouchRequest() {
                   message: "Steam ID cannot exceed 17 characters!",
                 },
               })}
-              type="text"
+              type="number"
             />
           </CardDescription>
           {errors.steam_id && (
@@ -102,7 +103,21 @@ export default function VouchRequest() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm">Register for the Rade Komsa League</p>
+          <p className="text-sm">How do i find my steamd ID? (see image)</p>
+          <ul className="mt-4">
+            <li>Open your steam client</li>
+            <li>Click on the "Account details".</li>
+            <li>Copy your steam ID, below the username</li>
+          </ul>
+
+          <div className="mt-4">
+            <Image
+              src="/how-to-find-steam-id.png"
+              alt="how to find steam id"
+              width={700}
+              height={600}
+            />
+          </div>
         </CardContent>
       </Card>
     </form>
