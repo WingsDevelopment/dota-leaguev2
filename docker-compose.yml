@@ -25,12 +25,7 @@ services:
       - ./letsencrypt:/letsencrypt:rw
     networks:
       - dota-league-net
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/dashboard/"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
+    # Removed healthcheck to avoid the 'ContainerConfig' error
 
   nextjs:
     build: ./nextjs-app
@@ -56,7 +51,6 @@ services:
       - dota-league-net
     restart: always
     healthcheck:
-      # Adjust the endpoint if your app provides a custom health route
       test: ["CMD", "curl", "-f", "http://localhost:3000/"]
       interval: 10s
       timeout: 10s
