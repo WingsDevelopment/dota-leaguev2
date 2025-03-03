@@ -25,6 +25,11 @@ services:
       - ./letsencrypt:/letsencrypt:rw
     networks:
       - dota-league-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/dashboard/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   nextjs:
     build: ./nextjs-app
@@ -45,10 +50,16 @@ services:
     volumes:
       - ./db:/app/db
     depends_on:
-      - traefik
+      traefik:
+        condition: service_healthy
     networks:
       - dota-league-net
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   python:
     build: ./python-scripts
