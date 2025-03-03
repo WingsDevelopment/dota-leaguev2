@@ -45,7 +45,7 @@ services:
   nextjs:
     build: ./nextjs-app
     # Startup delay to allow the build to finish, but ensure your Dockerfile does a fresh build!
-    command: bash -c "sleep 20 && npm run start"
+    command: bash -c "sleep 5 && npm run start"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.nextjs.rule=Host(`radekomsa.site`)"
