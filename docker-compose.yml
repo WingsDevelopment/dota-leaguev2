@@ -25,6 +25,15 @@ services:
       - ./letsencrypt:/letsencrypt:rw
     networks:
       - dota-league-net
+<<<<<<< Updated upstream
+=======
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/dashboard/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+>>>>>>> Stashed changes
 
   nextjs:
     build: ./nextjs-app
@@ -49,12 +58,20 @@ services:
     networks:
       - dota-league-net
     restart: always
+<<<<<<< Updated upstream
+=======
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+>>>>>>> Stashed changes
 
   python:
     build: ./python-scripts
     labels:
       - "traefik.enable=false"
-
     command: bash -c "python -u discord_db.py && sleep 5 && python -u run_all.py"
     environment:
       - DATABASE_PATH=/app/db/league.db
