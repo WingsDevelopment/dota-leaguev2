@@ -26,6 +26,22 @@ services:
     networks:
       - dota-league-net
 
+  python:
+    build: ./python-scripts
+    labels:
+      - "traefik.enable=false"
+    command: bash -c "python -u discord_db.py && sleep 5 && python -u run_all.py"
+    environment:
+      - DATABASE_PATH=/app/db/league.db
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env.python
+    volumes:
+      - ./db:/app/db
+    restart: "no"
+    networks:
+      - dota-league-net
+
   nextjs:
     build: ./nextjs-app
     # Startup delay to allow the build to finish, but ensure your Dockerfile does a fresh build!
@@ -51,19 +67,3 @@ services:
     networks:
       - dota-league-net
     restart: always
-
-  python:
-    build: ./python-scripts
-    labels:
-      - "traefik.enable=false"
-    command: bash -c "python -u discord_db.py && sleep 5 && python -u run_all.py"
-    environment:
-      - DATABASE_PATH=/app/db/league.db
-      - PYTHONUNBUFFERED=1
-    env_file:
-      - .env.python
-    volumes:
-      - ./db:/app/db
-    restart: "no"
-    networks:
-      - dota-league-net
