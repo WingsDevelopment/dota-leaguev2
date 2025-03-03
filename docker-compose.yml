@@ -28,7 +28,7 @@ services:
 
   nextjs:
     build: ./nextjs-app
-    # Adding a startup delay before running the app (adjust duration as needed)
+    # Startup delay to allow the build to finish, but ensure your Dockerfile does a fresh build!
     command: bash -c "sleep 20 && npm run start"
     labels:
       - "traefik.enable=true"
@@ -51,12 +51,6 @@ services:
     networks:
       - dota-league-net
     restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
-      interval: 10s
-      timeout: 10s
-      retries: 10
-      start_period: 60s
 
   python:
     build: ./python-scripts
