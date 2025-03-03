@@ -6,13 +6,12 @@ import { getDbInstance } from "@/db/utils";
 
 export async function GET() {
   try {
-
-     const db = await getDbInstance()
+    const db = await getDbInstance();
 
     const leaderboard: Array<Record<string, any>> = await new Promise(
       (resolve, reject) => {
         db.all(
-          `SELECT discord_id, name, mmr, steam_id
+          `SELECT discord_id, name, mmr, steam_id, captain
            FROM Players
            ORDER BY mmr DESC`,
           [],
