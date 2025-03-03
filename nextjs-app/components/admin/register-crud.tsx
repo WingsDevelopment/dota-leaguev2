@@ -33,15 +33,20 @@ export default function RegisterCrud({
 }: {
   registerList: register[];
 }) {
+  const [registerItems, setRegisterItems] = useState(registerList)
   const [filterStatus, setFilterStatus] = useState<RegisterStatus | "ALL">(
     "ALL"
   );
+  const [loading, setLoading] = useState(false)
 
-  const handleApprove = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    const confirmed = confirm("Are you sure you want to approve this player?");
+  const handleRequest = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    setLoading(true)
+    const requestType = event.currentTarget.name;
+    const confirmed = confirm(`Are you sure you want to ${requestType} this player?`);
     if (!confirmed) return;
 
     const registrationId = event.currentTarget.value;
+    console.log(requestType, "REQUEST TYPE")
     try {
       const response = await fetch(
         "/api/register-players/register-players-approve",
@@ -50,29 +55,37 @@ export default function RegisterCrud({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ registrationId }),
+          body: JSON.stringify({ registrationId, requestType }),
         }
       );
       const data = await response.json();
       if (!response.ok) {
+        setLoading(false)
         throw new Error(data.error || "Failed to approve");
       }
 
-      alert("Player approved successfully");
-      window.location.reload(); // TODO improve this, refetch (change state) instead of reload
+      alert(`Player ${requestType}ed successfully`);
+      setLoading(false)
+      setRegisterItems((prevRegisterItems) =>
+        prevRegisterItems.map((item) =>
+          item.id === Number(registrationId)
+            ? { ...item, status: requestType.toUpperCase()+'D' as RegisterStatus }
+            : item
+        )
+      );
     } catch (error) {
+      setLoading(false)
       console.error("Error approving player:", error);
       alert("Error approving player");
     }
   };
 
-  const handleDecline = () => {};
 
   // Filter the registerList based on the selected status
   const filteredRegisterList =
     filterStatus === "ALL"
-      ? registerList
-      : registerList.filter((register) => register.status === filterStatus);
+      ? registerItems
+      : registerItems.filter((register) => register.status === filterStatus);
 
   return (
     <div>
@@ -119,21 +132,22 @@ export default function RegisterCrud({
                 </tr>
               </TableHeader>
               <TableBody>
-                {filteredRegisterList.map((register: register) => {
+                {filteredRegisterList.map((registerItems: register) => {
                   return (
-                    <TableRow key={register.id}>
-                      <TableCell>{register.id}</TableCell>
-                      <TableCell>{register.status}</TableCell>
-                      <TableCell>{register.steam_id}</TableCell>
-                      <TableCell>{register.name}</TableCell>
-                      <TableCell>{register.discord_id}</TableCell>
-                      <TableCell>{register.mmr}</TableCell>
+                    <TableRow key={registerItems.id}>
+                      <TableCell>{registerItems.id}</TableCell>
+                      <TableCell>{registerItems.status}</TableCell>
+                      <TableCell>{registerItems.steam_id}</TableCell>
+                      <TableCell>{registerItems.name}</TableCell>
+                      <TableCell>{registerItems.discord_id}</TableCell>
+                      <TableCell>{registerItems.mmr}</TableCell>
                       <TableCell>
-                        {register.status === "PENDING" && (
+                        {registerItems.status === "PENDING" && (
                           <button
-                            value={register.id}
+                            disabled={loading}
+                            value={registerItems.id}
                             name="approve"
-                            onClick={handleApprove}
+                            onClick={handleRequest}
                             className="bg-green-500 text-white px-2 py-1 rounded"
                           >
                             Approve
@@ -141,11 +155,12 @@ export default function RegisterCrud({
                         )}
                       </TableCell>
                       <TableCell>
-                        {register.status === "PENDING" && (
+                        {registerItems.status === "PENDING" && (
                           <button
-                            value={register.id}
+                            disabled={loading}
+                            value={registerItems.id}
                             name="decline"
-                            onClick={handleDecline}
+                            onClick={handleRequest}
                             className="bg-red-500 text-white px-2 py-1 rounded"
                           >
                             Decline

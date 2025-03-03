@@ -41,13 +41,16 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
   const [filterStatus, setFilterStatus] = useState<GameStatus | "ALL">(
     "ALL"
   );
+  const [loading, setLoading] = useState(false);
+
   const handleTeamWin = async (e: React.MouseEvent<HTMLButtonElement>) => {
     const confirmation = confirm("Are you sure ?");
     if (!confirmation) return;
-
-    const gameId = e.currentTarget.value;
+    const arrayNum = Number(e.currentTarget.value);
+    const gameId= games[arrayNum].id
     const team = Number(e.currentTarget.name);
-    const status = games[Number(gameId) - 1].status;
+    const status = games[arrayNum].status
+
     if (status !== "STARTED") {
       return alert(
         games[Number(gameId) - 1].status + " IS NOT A VALID GAME STATUS!!!"
@@ -67,7 +70,9 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
           game.id === Number(gameId) ? { ...game, status: "OVER" } : game
         )
       );
+      setLoading(false)
     } catch (error) {
+      setLoading(false)
       console.error(error);
     }
   };
@@ -75,10 +80,11 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
   const handleDelete = async (e: React.MouseEvent<HTMLButtonElement>) => {
     const confirmation = confirm("Are you sure ?");
     if (!confirmation) return;
-
-    const gameId = e.currentTarget.value;
-    const status = games[Number(gameId) - 1].status
-    const result = games[Number(gameId) - 1].result
+    setLoading(true);
+    const arrayNum = Number(e.currentTarget.value);
+    const gameId= games[arrayNum].id
+    const status = games[arrayNum].status
+    const result = games[arrayNum].result
     try {
       const res = await fetch("/api/games-crud/games-crud-delete", {
         method: "DELETE",
@@ -87,11 +93,13 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
       });
 
       if (!res.ok) {
+        setLoading(false)
         throw new Error("Failed to delete game");
       }
       setGames((prevGames) =>
         prevGames.filter((game) => game.id !== Number(gameId))
       );
+      setLoading(false)
     } catch (error) {
       console.error("Failed to delete the game", error);
     }
@@ -150,7 +158,7 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                 </tr>
               </TableHeader>
               <TableBody>
-                {filteredRegisterList.map((game: game) => {
+                {filteredRegisterList.map((game: game, i: number) => {
                   return (
                     <>
                       <TableRow key={game.id}>
@@ -162,7 +170,8 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                         <TableCell>
                           {game.status !== "OVER" && (
                             <Button
-                              value={game.id}
+                              disabled={loading}
+                              value={i}
                               name="0"
                               onClick={handleTeamWin}
                             >
@@ -174,7 +183,8 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                         <TableCell>
                           {game.status !== "OVER" && (
                             <Button
-                              value={game.id}
+                              disabled={loading}
+                              value={i}
                               name="1"
                               onClick={handleTeamWin}
                             >
@@ -183,7 +193,7 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                           )}
                         </TableCell>
                         <TableCell>
-                          <Button value={game.id} onClick={handleDelete}>
+                          <Button disabled={loading} value={i} onClick={handleDelete}>
                             Delete
                           </Button>
                         </TableCell>

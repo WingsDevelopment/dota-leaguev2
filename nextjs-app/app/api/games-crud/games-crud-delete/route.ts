@@ -16,6 +16,22 @@ export async function DELETE(req: NextRequest) {
   const db = await getDbInstance();
 
   try {
+
+    await new Promise((resolve, reject) =>
+      db.run("BEGIN TRANSACTION", (err) =>
+        (err ? reject(err) : resolve(null))));
+
+    const gameExists = await new Promise((resolve, reject) => {
+      db.get(`SELECT id FROM Game WHERE id = ?`, [id], (err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      });
+    });
+
+    if (!gameExists) {
+      await new Promise((resolve, reject) => db.run("ROLLBACK", (err) => (err ? reject(err) : resolve(null))));
+      return NextResponse.json({ message: "Game already deleted" }, { status: 200 });
+    }
     if (status === "OVER") {
       // Fetch players and their teams from GamePlayers table
       const players = await new Promise((resolve, reject) => {
@@ -66,9 +82,12 @@ export async function DELETE(req: NextRequest) {
       );
     });
 
+    await new Promise((resolve, reject) => db.run("COMMIT", (err) => (err ? reject(err) : resolve(null))))
+
     db.close();
     return NextResponse.json({ success: true });
   } catch (error) {
+    await new Promise((resolve, reject) => db.run("ROLLBACK", (err) => (err ? reject(err) : resolve(null))))
     db.close();
     console.error("Error processing request:", error);
     return NextResponse.json(

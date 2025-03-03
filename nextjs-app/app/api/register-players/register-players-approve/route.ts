@@ -8,48 +8,92 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
-  const { registrationId } = await req.json();
-  if (!registrationId) {
+  const { registrationId, requestType } = await req.json();
+  if (!registrationId || !requestType) {
     return NextResponse.json(
-      { error: "Missing registrationId" },
+      { error: "Missing registrationId or requestType" },
       { status: 400 }
     );
   }
 
   const db = await getDbInstance();
   try {
-    // Check if the registration exists and is pending
-    const registration: any = await new Promise((resolve, reject) => {
-      db.get(
-        "SELECT * FROM RegisterPlayers WHERE id = ? AND status = 'PENDING'",
-        [registrationId],
-        (err, row) => {
-          if (err) reject(err);
-          resolve(row);
-        }
-      );
-    });
-
-    if (!registration) {
-      return NextResponse.json(
-        { error: "Registration not found or already processed" },
-        { status: 404 }
-      );
+    if (requestType === "decline") {
+      await new Promise((resolve, reject) => {
+        db.run(
+          "UPDATE RegisterPlayers SET status = 'DECLINED' WHERE id = ?",
+          [registrationId],
+          function (err) {
+            if (err) reject(err);
+            resolve(this.changes);
+          }
+        );
+      });
+      db.close();
+      return NextResponse.json({ message: "Registration declined." });
     }
 
-    // Check if the player already exists in Players
-    const playerExists: any = await new Promise((resolve, reject) => {
-      db.get(
-        "SELECT id FROM Players WHERE steam_id = ?",
-        [registration.steam_id],
-        (err, row) => {
-          if (err) reject(err);
-          resolve(row);
-        }
-      );
-    });
+    if (requestType === "approve") {
+      // Check if the registration exists and is pending
+      const registration: any = await new Promise((resolve, reject) => {
+        db.get(
+          "SELECT * FROM RegisterPlayers WHERE id = ? AND status = 'PENDING'",
+          [registrationId],
+          (err, row) => {
+            if (err) reject(err);
+            resolve(row);
+          }
+        );
+      });
 
-    if (playerExists) {
+      if (!registration) {
+        return NextResponse.json(
+          { error: "Registration not found or already processed" },
+          { status: 404 }
+        );
+      }
+
+      // Check if the player already exists in Players
+      const playerExists: any = await new Promise((resolve, reject) => {
+        db.get(
+          "SELECT id FROM Players WHERE steam_id = ?",
+          [registration.steam_id],
+          (err, row) => {
+            if (err) reject(err);
+            resolve(row);
+          }
+        );
+      });
+
+      if (playerExists) {
+        // Update the registration status to APPROVED
+        await new Promise((resolve, reject) => {
+          db.run(
+            "UPDATE RegisterPlayers SET status = 'APPROVED' WHERE id = ?",
+            [registrationId],
+            function (err) {
+              if (err) reject(err);
+              resolve(this.changes);
+            }
+          );
+        });
+        return NextResponse.json({
+          message: "Player already exists in Players, registration approved.",
+        });
+      }
+
+      // Insert into Players with mmr 1000
+      await new Promise((resolve, reject) => {
+        db.run(
+          "INSERT INTO Players (discord_id, steam_id, name, mmr) VALUES (?, ?, ?, 1000)",
+          [registration.discord_id, registration.steam_id, registration.name],
+          function (err) {
+            if (err) reject(err);
+            resolve(this.lastID);
+          }
+        );
+      });
+
       // Update the registration status to APPROVED
       await new Promise((resolve, reject) => {
         db.run(
@@ -61,42 +105,20 @@ export async function POST(req: NextRequest) {
           }
         );
       });
+
+      db.close();
       return NextResponse.json({
-        message: "Player already exists in Players, registration approved.",
+        message: "Player approved and added to Players.",
       });
     }
 
-    // Insert into Players with mmr 1000
-    await new Promise((resolve, reject) => {
-      db.run(
-        "INSERT INTO Players (discord_id, steam_id, name, mmr) VALUES (?, ?, ?, 1000)",
-        [registration.discord_id, registration.steam_id, registration.name],
-        function (err) {
-          if (err) reject(err);
-          resolve(this.lastID);
-        }
-      );
-    });
-
-    // Update the registration status to APPROVED
-    await new Promise((resolve, reject) => {
-      db.run(
-        "UPDATE RegisterPlayers SET status = 'APPROVED' WHERE id = ?",
-        [registrationId],
-        function (err) {
-          if (err) reject(err);
-          resolve(this.changes);
-        }
-      );
-    });
-
-    db.close();
-    return NextResponse.json({
-      message: "Player approved and added to Players.",
-    });
+    return NextResponse.json(
+      { error: "Invalid requestType" },
+      { status: 400 }
+    );
   } catch (error) {
     db.close();
-    console.error("Error approving player:", error);
+    console.error("Error processing registration:", error);
     return NextResponse.json(
       { error: `Internal Server Error ${error}` },
       { status: 500 }
