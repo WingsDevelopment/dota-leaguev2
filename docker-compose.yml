@@ -25,10 +25,11 @@ services:
       - ./letsencrypt:/letsencrypt:rw
     networks:
       - dota-league-net
-    # Removed healthcheck to avoid the 'ContainerConfig' error
 
   nextjs:
     build: ./nextjs-app
+    # Adding a startup delay before running the app (adjust duration as needed)
+    command: bash -c "sleep 20 && npm run start"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.nextjs.rule=Host(`radekomsa.site`)"
