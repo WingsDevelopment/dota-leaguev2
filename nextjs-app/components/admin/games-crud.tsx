@@ -43,12 +43,24 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
   );
   const [loading, setLoading] = useState(false);
 
-  const handleTeamWin = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const fetchGames = async () => {
+    try {
+      const res = await fetch("api/games-crud/games-crud-read");
+      if (!res.ok) throw new Error("Failed to fetch games");
+      const updatedGames = await res.json();
+      setGames(updatedGames.games)
+    } catch (error) {
+      console.error("Error fetching games", error)
+    }
+  }
+  
+  const handleTeamWin = async (i:number,teamNum:number) => {
     const confirmation = confirm("Are you sure ?");
     if (!confirmation) return;
-    const arrayNum = Number(e.currentTarget.value);
-    const gameId= games[arrayNum].id
-    const team = Number(e.currentTarget.name);
+    setLoading(true)
+    const arrayNum = i;
+    const gameId = games[arrayNum].id
+    const team = teamNum;
     const status = games[arrayNum].status
 
     if (status !== "STARTED") {
@@ -65,15 +77,11 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
       if (!res.ok) {
         throw new Error("Failed to update MMR based on winning team");
       }
-      setGames((pervGames) =>
-        pervGames.map((game) =>
-          game.id === Number(gameId) ? { ...game, status: "OVER" } : game
-        )
-      );
-      setLoading(false)
+      fetchGames()
     } catch (error) {
+      console.error("Could not resolve a winner/looser",error);
+    }finally{
       setLoading(false)
-      console.error(error);
     }
   };
 
@@ -82,7 +90,7 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
     if (!confirmation) return;
     setLoading(true);
     const arrayNum = Number(e.currentTarget.value);
-    const gameId= games[arrayNum].id
+    const gameId = games[arrayNum].id
     const status = games[arrayNum].status
     const result = games[arrayNum].result
     try {
@@ -96,15 +104,15 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
         setLoading(false)
         throw new Error("Failed to delete game");
       }
-      setGames((prevGames) =>
-        prevGames.filter((game) => game.id !== Number(gameId))
-      );
+      fetchGames()
       setLoading(false)
     } catch (error) {
       console.error("Failed to delete the game", error);
     }
   };
+  const handleCancel=()=>{
 
+  }
   const filteredRegisterList =
     filterStatus === "ALL"
       ? games
@@ -155,12 +163,13 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                   <TableHeaderCell>Radiant Team</TableHeaderCell>
                   <TableHeaderCell>Dire Team</TableHeaderCell>
                   <TableHeaderCell>Delete Game</TableHeaderCell>
+                  <TableHeaderCell>Cancel Game</TableHeaderCell>
                 </tr>
               </TableHeader>
               <TableBody>
                 {filteredRegisterList.map((game: game, i: number) => {
                   return (
-                    <>
+                    
                       <TableRow key={game.id}>
                         <TableCell>{game.id}</TableCell>
                         <TableCell>{game.status}</TableCell>
@@ -171,9 +180,7 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                           {game.status !== "OVER" && (
                             <Button
                               disabled={loading}
-                              value={i}
-                              name="0"
-                              onClick={handleTeamWin}
+                              onClick={()=>handleTeamWin(i,0)}
                             >
                               Radiant Won
                             </Button>
@@ -184,9 +191,7 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                           {game.status !== "OVER" && (
                             <Button
                               disabled={loading}
-                              value={i}
-                              name="1"
-                              onClick={handleTeamWin}
+                              onClick={()=>handleTeamWin(i,1)}
                             >
                               Dire Won
                             </Button>
@@ -197,8 +202,18 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                             Delete
                           </Button>
                         </TableCell>
+                        <TableCell>
+                        {["PREGAME","HOSTED"].includes(game.status) && (
+                            <Button
+                              disabled={loading}
+                              onClick={()=>handleTeamWin(i,1)}
+                            >
+                              Cancel
+                            </Button>
+                          )}
+                        </TableCell>
                       </TableRow>
-                    </>
+                    
                   );
                 })}
               </TableBody>

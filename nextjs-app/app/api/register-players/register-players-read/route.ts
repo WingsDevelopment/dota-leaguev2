@@ -4,6 +4,10 @@ import { isUserAdmin } from "@/app/common/constraints";
 
 export async function GET() {
   const db = await getDbInstance();
+  
+  if (!(await isUserAdmin())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   try {
     // Use the environment variable if set.

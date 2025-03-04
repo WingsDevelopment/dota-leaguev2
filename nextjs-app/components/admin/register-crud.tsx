@@ -17,11 +17,11 @@ import {
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 
-type RegisterStatus = "PENDING" | "APPROVED" | "DECLINED";
+type VouchStatus = "PENDING" | "APPROVED" | "DECLINED";
 
-interface register {
+interface vouch {
   id: number;
-  status: RegisterStatus;
+  status: VouchStatus;
   steam_id: number;
   name: string;
   discord_id: number;
@@ -31,22 +31,31 @@ interface register {
 export default function RegisterCrud({
   registerList,
 }: {
-  registerList: register[];
+  registerList: vouch[];
 }) {
-  const [registerItems, setRegisterItems] = useState(registerList)
-  const [filterStatus, setFilterStatus] = useState<RegisterStatus | "ALL">(
+  const [vouchItems, setVouchItems] = useState(registerList)
+  const [filterStatus, setFilterStatus] = useState<VouchStatus | "ALL">(
     "ALL"
   );
   const [loading, setLoading] = useState(false)
 
-  const handleRequest = async (event: React.MouseEvent<HTMLButtonElement>) => {
+  const fetchVouch = async () => {
+    try {
+      const res = await fetch("api/register-players/register-players-read");
+      if (!res.ok) throw new Error("Failed to fetch vouch list");
+      const updatedVouchList = await res.json();
+
+      setVouchItems(updatedVouchList.registerPlayers);
+    } catch (error) {
+
+    }
+  }
+  const handleRequest = async (id:number,approveOrDecline:string) => {
     setLoading(true)
-    const requestType = event.currentTarget.name;
+    const requestType = approveOrDecline;
     const confirmed = confirm(`Are you sure you want to ${requestType} this player?`);
     if (!confirmed) return;
-
-    const registrationId = event.currentTarget.value;
-    console.log(requestType, "REQUEST TYPE")
+    const registrationId = id;
     try {
       const response = await fetch(
         "/api/register-players/register-players-approve",
@@ -60,32 +69,26 @@ export default function RegisterCrud({
       );
       const data = await response.json();
       if (!response.ok) {
-        setLoading(false)
         throw new Error(data.error || "Failed to approve");
       }
 
       alert(`Player ${requestType}ed successfully`);
-      setLoading(false)
-      setRegisterItems((prevRegisterItems) =>
-        prevRegisterItems.map((item) =>
-          item.id === Number(registrationId)
-            ? { ...item, status: requestType.toUpperCase()+'D' as RegisterStatus }
-            : item
-        )
-      );
+      fetchVouch()
     } catch (error) {
-      setLoading(false)
+      
       console.error("Error approving player:", error);
       alert("Error approving player");
+    }finally{
+      setLoading(false)
     }
   };
 
 
   // Filter the registerList based on the selected status
-  const filteredRegisterList =
+  const filteredVouchList =
     filterStatus === "ALL"
-      ? registerItems
-      : registerItems.filter((register) => register.status === filterStatus);
+      ? vouchItems
+      : vouchItems.filter((vouch) => vouch.status === filterStatus);
 
   return (
     <div>
@@ -106,7 +109,7 @@ export default function RegisterCrud({
               id="status-filter"
               value={filterStatus}
               onChange={(e) =>
-                setFilterStatus(e.target.value as RegisterStatus | "ALL")
+                setFilterStatus(e.target.value as VouchStatus | "ALL")
               }
               className="p-2 border rounded"
             >
@@ -132,22 +135,21 @@ export default function RegisterCrud({
                 </tr>
               </TableHeader>
               <TableBody>
-                {filteredRegisterList.map((registerItems: register) => {
+                {filteredVouchList.map((vouchItem: vouch) => {
                   return (
-                    <TableRow key={registerItems.id}>
-                      <TableCell>{registerItems.id}</TableCell>
-                      <TableCell>{registerItems.status}</TableCell>
-                      <TableCell>{registerItems.steam_id}</TableCell>
-                      <TableCell>{registerItems.name}</TableCell>
-                      <TableCell>{registerItems.discord_id}</TableCell>
-                      <TableCell>{registerItems.mmr}</TableCell>
+                    <TableRow key={vouchItem.id}>
+                      <TableCell>{vouchItem.id}</TableCell>
+                      <TableCell>{vouchItem.status}</TableCell>
+                      <TableCell>{vouchItem.steam_id}</TableCell>
+                      <TableCell>{vouchItem.name}</TableCell>
+                      <TableCell>{vouchItem.discord_id}</TableCell>
+                      <TableCell>{vouchItem.mmr}</TableCell>
                       <TableCell>
-                        {registerItems.status === "PENDING" && (
+                        {vouchItem.status === "PENDING" && (
                           <button
                             disabled={loading}
-                            value={registerItems.id}
-                            name="approve"
-                            onClick={handleRequest}
+                            
+                            onClick={()=>handleRequest(vouchItem.id,"approve")}
                             className="bg-green-500 text-white px-2 py-1 rounded"
                           >
                             Approve
@@ -155,12 +157,11 @@ export default function RegisterCrud({
                         )}
                       </TableCell>
                       <TableCell>
-                        {registerItems.status === "PENDING" && (
+                        {vouchItem.status === "PENDING" && (
                           <button
                             disabled={loading}
-                            value={registerItems.id}
-                            name="decline"
-                            onClick={handleRequest}
+                            
+                            onClick={()=>handleRequest(vouchItem.id,"decline")}
                             className="bg-red-500 text-white px-2 py-1 rounded"
                           >
                             Decline

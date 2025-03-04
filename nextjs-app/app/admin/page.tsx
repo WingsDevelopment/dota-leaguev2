@@ -23,6 +23,7 @@ export default async function Page() {
     gamesRes.json(),
     registerPlayersRes.json(),
   ]);
+  
   const gamesList = (await gamesData.games) || [];
   const registerList = (await registerPlayersData.registerPlayers) || [];
   return (
