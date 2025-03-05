@@ -34,6 +34,13 @@ export async function POST(req: NextRequest) {
     }
 
     if (requestType === "approve") {
+
+      await new Promise((resolve, reject) => {
+        db.run("BEGIN TRANSACTION", (err) => {
+          if (err) return reject(err);
+          resolve(null);
+        });
+      });
       // Check if the registration exists and is pending
       const registration: any = await new Promise((resolve, reject) => {
         db.get(
@@ -47,6 +54,7 @@ export async function POST(req: NextRequest) {
       });
 
       if (!registration) {
+        await new Promise((resolve, reject) => db.run("ROLLBACK", () => resolve(null)));
         return NextResponse.json(
           { error: "Registration not found or already processed" },
           { status: 404 }
@@ -77,6 +85,8 @@ export async function POST(req: NextRequest) {
             }
           );
         });
+
+        await new Promise((resolve, reject) => db.run("COMMIT", () => resolve(null)));
         return NextResponse.json({
           message: "Player already exists in Players, registration approved.",
         });
@@ -106,7 +116,8 @@ export async function POST(req: NextRequest) {
         );
       });
 
-      db.close();
+      await new Promise((resolve, reject) => db.run("COMMIT", () => resolve(null)));
+
       return NextResponse.json({
         message: "Player approved and added to Players.",
       });
@@ -117,11 +128,13 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   } catch (error) {
-    db.close();
     console.error("Error processing registration:", error);
+    await new Promise((resolve, reject) => db.run("ROLLBACK", () => resolve(null)));
     return NextResponse.json(
       { error: `Internal Server Error ${error}` },
       { status: 500 }
     );
+  }finally{
+    db.close();
   }
 }

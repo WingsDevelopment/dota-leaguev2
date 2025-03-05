@@ -17,6 +17,7 @@ import {
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { METHODS } from "http";
 
 type GameStatus =
   | "PREGAME"
@@ -34,6 +35,8 @@ interface game {
   result: number;
   steam_match_id: number;
   type: GameType;
+  game_started_at: string;
+  game_created_at: string;
 }
 
 export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
@@ -53,8 +56,8 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
       console.error("Error fetching games", error)
     }
   }
-  
-  const handleTeamWin = async (i:number,teamNum:number) => {
+
+  const handleTeamWin = async (i: number, teamNum: number) => {
     const confirmation = confirm("Are you sure ?");
     if (!confirmation) return;
     setLoading(true)
@@ -64,12 +67,13 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
     const status = games[arrayNum].status
 
     if (status !== "STARTED") {
+      setLoading(false)
       return alert(
         games[Number(gameId) - 1].status + " IS NOT A VALID GAME STATUS!!!"
       );
     }
     try {
-      const res = await fetch("api/games-crud/games-crud-update", {
+      const res = await fetch("api/games-crud/games-crud-update-winner-looser", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: gameId, team_won: team, status: status }),
@@ -79,20 +83,20 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
       }
       fetchGames()
     } catch (error) {
-      console.error("Could not resolve a winner/looser",error);
-    }finally{
+      console.error("Could not resolve a winner/looser", error);
+    } finally {
       setLoading(false)
     }
   };
 
-  const handleDelete = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleDelete = async (i: number) => {
     const confirmation = confirm("Are you sure ?");
     if (!confirmation) return;
     setLoading(true);
-    const arrayNum = Number(e.currentTarget.value);
-    const gameId = games[arrayNum].id
-    const status = games[arrayNum].status
-    const result = games[arrayNum].result
+
+    const gameId = games[i].id
+    const status = games[i].status
+    const result = games[i].result
     try {
       const res = await fetch("/api/games-crud/games-crud-delete", {
         method: "DELETE",
@@ -101,17 +105,44 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
       });
 
       if (!res.ok) {
-        setLoading(false)
         throw new Error("Failed to delete game");
       }
       fetchGames()
-      setLoading(false)
     } catch (error) {
       console.error("Failed to delete the game", error);
+    } finally {
+      setLoading(false)
     }
   };
-  const handleCancel=()=>{
 
+  const handleCancel = async (i: number) => {
+    const confirmation = confirm("Are you sure ?");
+    if (!confirmation) return;
+    setLoading(true)
+    const gameId = games[i].id
+    const status = games[i].status
+    if (status !== "PREGAME" && status !== "HOSTED") {
+      setLoading(false)
+      return alert(
+        games[i].status + " IS NOT A VALID GAME STATUS!!!"
+      );
+    }
+    try {
+      const res = await fetch("api/games-crud/games-crud-update-cancel", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: gameId, status: status })
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to Cancel the game!");
+      }
+      fetchGames()
+    } catch (error) {
+      console.error("Failed to Cancel the game!")
+    } finally {
+      setLoading(false)
+    }
   }
   const filteredRegisterList =
     filterStatus === "ALL"
@@ -160,6 +191,8 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                   <TableHeaderCell>Result</TableHeaderCell>
                   <TableHeaderCell>Steam Match Id</TableHeaderCell>
                   <TableHeaderCell>Type</TableHeaderCell>
+                  <TableHeaderCell>Game Created At</TableHeaderCell>
+                  <TableHeaderCell>Game Started At</TableHeaderCell>
                   <TableHeaderCell>Radiant Team</TableHeaderCell>
                   <TableHeaderCell>Dire Team</TableHeaderCell>
                   <TableHeaderCell>Delete Game</TableHeaderCell>
@@ -169,51 +202,53 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
               <TableBody>
                 {filteredRegisterList.map((game: game, i: number) => {
                   return (
-                    
-                      <TableRow key={game.id}>
-                        <TableCell>{game.id}</TableCell>
-                        <TableCell>{game.status}</TableCell>
-                        <TableCell>{game.result || "N/A"}</TableCell>
-                        <TableCell>{game.steam_match_id}</TableCell>
-                        <TableCell>{game.type}</TableCell>
-                        <TableCell>
-                          {game.status !== "OVER" && (
-                            <Button
-                              disabled={loading}
-                              onClick={()=>handleTeamWin(i,0)}
-                            >
-                              Radiant Won
-                            </Button>
-                          )}
 
-                        </TableCell>
-                        <TableCell>
-                          {game.status !== "OVER" && (
-                            <Button
-                              disabled={loading}
-                              onClick={()=>handleTeamWin(i,1)}
-                            >
-                              Dire Won
-                            </Button>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Button disabled={loading} value={i} onClick={handleDelete}>
-                            Delete
+                    <TableRow key={game.id}>
+                      <TableCell>{game.id}</TableCell>
+                      <TableCell>{game.status}</TableCell>
+                      <TableCell>{game.result || "N/A"}</TableCell>
+                      <TableCell>{game.steam_match_id}</TableCell>
+                      <TableCell>{game.type}</TableCell>
+                      <TableCell>{game.game_started_at}</TableCell>
+                      <TableCell>{game.game_created_at}</TableCell>
+                      <TableCell>
+                        {game.status !== "OVER" && (
+                          <Button
+                            disabled={loading}
+                            onClick={() => handleTeamWin(i, 0)}
+                          >
+                            Radiant Won
                           </Button>
-                        </TableCell>
-                        <TableCell>
-                        {["PREGAME","HOSTED"].includes(game.status) && (
-                            <Button
-                              disabled={loading}
-                              onClick={()=>handleTeamWin(i,1)}
-                            >
-                              Cancel
-                            </Button>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    
+                        )}
+
+                      </TableCell>
+                      <TableCell>
+                        {game.status !== "OVER" && (
+                          <Button
+                            disabled={loading}
+                            onClick={() => handleTeamWin(i, 1)}
+                          >
+                            Dire Won
+                          </Button>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Button disabled={loading} onClick={() => handleDelete(i)}>
+                          Delete
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        {["PREGAME", "HOSTED"].includes(game.status) && (
+                          <Button
+                            disabled={loading}
+                            onClick={() => handleCancel(i)}
+                          >
+                            Cancel
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+
                   );
                 })}
               </TableBody>
