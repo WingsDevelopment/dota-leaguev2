@@ -35,7 +35,7 @@ export default function RegisterCrud({
   registerList: register[];
 }) {
   const [filterStatus, setFilterStatus] = useState<RegisterStatus | "ALL">(
-    "ALL"
+    "PENDING"
   );
 
   const handleApprove = async (event: React.MouseEvent<HTMLButtonElement>) => {
