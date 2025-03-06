@@ -37,10 +37,16 @@ def add_game_created_at_migration(cursor):
     cursor.execute("PRAGMA table_info(Game)")
     columns = [col[1] for col in cursor.fetchall()]
     if 'game_created_at' not in columns:
-        cursor.execute("ALTER TABLE Game ADD COLUMN game_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-        print("Migration applied: Added 'game_created_at' column.")
+        # Add column without a default, as SQLite doesn't allow non-constant defaults in ALTER TABLE.
+        cursor.execute("ALTER TABLE Game ADD COLUMN game_created_at TIMESTAMP")
+        print("Migration applied: Added 'game_created_at' column without default.")
+        
+        # Optionally, update existing rows to set the current timestamp.
+        cursor.execute("UPDATE Game SET game_created_at = CURRENT_TIMESTAMP WHERE game_created_at IS NULL")
+        print("Existing rows updated with CURRENT_TIMESTAMP for 'game_created_at'.")
     else:
         print("No migration needed: 'game_created_at' column already exists.")
+
 
 
 def run_migrations(db_path):
