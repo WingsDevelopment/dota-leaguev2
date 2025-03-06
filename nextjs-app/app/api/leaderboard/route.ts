@@ -1,7 +1,4 @@
 import { NextResponse } from "next/server";
-import path from "path";
-import fs from "fs";
-import sqlite3 from "sqlite3";
 import { getDbInstance } from "@/db/utils";
 
 export async function GET() {

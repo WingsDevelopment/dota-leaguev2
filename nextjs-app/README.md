@@ -71,3 +71,7 @@ Open your browser and navigate to `http://localhost:3000`.
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
+
+# TDD
+
+- `npx jest --watch`
