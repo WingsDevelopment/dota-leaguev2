@@ -35,7 +35,9 @@ export default function RegisterCrud({
   registerList: vouch[];
 }) {
   const [vouchItems, setVouchItems] = useState(registerList);
-  const [filterStatus, setFilterStatus] = useState<VouchStatus | "ALL">("ALL");
+  const [filterStatus, setFilterStatus] = useState<VouchStatus | "ALL">(
+    "PENDING"
+  );
   const [loading, setLoading] = useState(false);
 
   const fetchVouch = async () => {
@@ -137,7 +139,15 @@ export default function RegisterCrud({
                     <TableRow key={vouchItem.id}>
                       <TableCell>{vouchItem.id}</TableCell>
                       <TableCell>{vouchItem.status}</TableCell>
-                      <TableCell>{vouchItem.steam_id}</TableCell>
+                      <TableCell>
+                        <Link
+                          href={`https://steamcommunity.com/profiles/${vouchItem.steam_id}`}
+                          className="text-blue-500 hover:underline"
+                          target="_blank"
+                        >
+                          {vouchItem.steam_id}
+                        </Link>
+                      </TableCell>
                       <TableCell>{vouchItem.name}</TableCell>
                       <TableCell>{vouchItem.discord_id}</TableCell>
                       <TableCell>{vouchItem.mmr}</TableCell>
