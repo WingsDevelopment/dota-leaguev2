@@ -96,7 +96,7 @@ def get_game(cursor: Cursor, id: str) -> None:
 
 def add_game(cursor: Cursor, type: str) -> None:
     cursor.execute(
-        '''INSERT INTO Game(status, result, steam_match_id, type) VALUES(?, ?, ?, ?)''', ('PREGAME', None, None, type))
+        '''INSERT INTO Game(status, result, steam_match_id, type, game_created_at) VALUES(?, ?, ?, ?)''', ('PREGAME', None, None, type))
 
 
 def set_game_status_aborted(cursor: Cursor, id: str) -> None:
@@ -131,7 +131,7 @@ def score_game(cursor: Cursor, game_id: str, result: int, steam_match_id) -> Non
 
 def set_game_status_started(cursor: Cursor, game_id: str) -> None:
     cursor.execute(
-        '''UPDATE Game SET status = 'STARTED' WHERE id = ?''', (game_id,))
+        '''UPDATE Game SET status = 'STARTED', game_started_at = CURRENT_TIMESTAMP WHERE id = ?''', (game_id,))
 
 
 def get_game_id_where_status_rehost(cursor: Cursor) -> None:
@@ -278,7 +278,9 @@ def create_tables(cursor: Connection) -> None:
                             status TEXT  , 
                             result INTEGER,
                             steam_match_id INTEGER,
-                            type TEXT)''')
+                            type TEXT,
+                            game_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            game_started_at TIMESTAMP)''')
 
     cursor.execute('''CREATE TABLE IF NOT EXISTS GamePlayers
                     (id INTEGER PRIMARY KEY,

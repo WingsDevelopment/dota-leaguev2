@@ -18,11 +18,11 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
 
-type RegisterStatus = "PENDING" | "APPROVED" | "DECLINED";
+type VouchStatus = "PENDING" | "APPROVED" | "DECLINED";
 
-interface register {
+interface vouch {
   id: number;
-  status: RegisterStatus;
+  status: VouchStatus;
   steam_id: number;
   name: string;
   discord_id: number;
@@ -32,17 +32,31 @@ interface register {
 export default function RegisterCrud({
   registerList,
 }: {
-  registerList: register[];
+  registerList: vouch[];
 }) {
-  const [filterStatus, setFilterStatus] = useState<RegisterStatus | "ALL">(
+  const [vouchItems, setVouchItems] = useState(registerList);
+  const [filterStatus, setFilterStatus] = useState<VouchStatus | "ALL">(
     "PENDING"
   );
+  const [loading, setLoading] = useState(false);
 
-  const handleApprove = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    const confirmed = confirm("Are you sure you want to approve this player?");
+  const fetchVouch = async () => {
+    try {
+      const res = await fetch("api/register-players/register-players-read");
+      if (!res.ok) throw new Error("Failed to fetch vouch list");
+      const updatedVouchList = await res.json();
+
+      setVouchItems(updatedVouchList.registerPlayers);
+    } catch (error) {}
+  };
+  const handleRequest = async (id: number, approveOrDecline: string) => {
+    setLoading(true);
+    const requestType = approveOrDecline;
+    const confirmed = confirm(
+      `Are you sure you want to ${requestType} this player?`
+    );
     if (!confirmed) return;
-
-    const registrationId = event.currentTarget.value;
+    const registrationId = id;
     try {
       const response = await fetch(
         "/api/register-players/register-players-approve",
@@ -51,7 +65,7 @@ export default function RegisterCrud({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ registrationId }),
+          body: JSON.stringify({ registrationId, requestType }),
         }
       );
       const data = await response.json();
@@ -59,21 +73,21 @@ export default function RegisterCrud({
         throw new Error(data.error || "Failed to approve");
       }
 
-      alert("Player approved successfully");
-      window.location.reload(); // TODO improve this, refetch (change state) instead of reload
+      alert(`Player ${requestType}ed successfully`);
+      fetchVouch();
     } catch (error) {
       console.error("Error approving player:", error);
       alert("Error approving player");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDecline = () => {};
-
   // Filter the registerList based on the selected status
-  const filteredRegisterList =
+  const filteredVouchList =
     filterStatus === "ALL"
-      ? registerList
-      : registerList.filter((register) => register.status === filterStatus);
+      ? vouchItems
+      : vouchItems.filter((vouch) => vouch.status === filterStatus);
 
   return (
     <div>
@@ -94,7 +108,7 @@ export default function RegisterCrud({
               id="status-filter"
               value={filterStatus}
               onChange={(e) =>
-                setFilterStatus(e.target.value as RegisterStatus | "ALL")
+                setFilterStatus(e.target.value as VouchStatus | "ALL")
               }
               className="p-2 border rounded"
             >
@@ -120,29 +134,30 @@ export default function RegisterCrud({
                 </tr>
               </TableHeader>
               <TableBody>
-                {filteredRegisterList.map((register: register) => {
+                {filteredVouchList.map((vouchItem: vouch) => {
                   return (
-                    <TableRow key={register.id}>
-                      <TableCell>{register.id}</TableCell>
-                      <TableCell>{register.status}</TableCell>
+                    <TableRow key={vouchItem.id}>
+                      <TableCell>{vouchItem.id}</TableCell>
+                      <TableCell>{vouchItem.status}</TableCell>
                       <TableCell>
                         <Link
-                          href={`https://steamcommunity.com/profiles/${register.steam_id}`}
+                          href={`https://steamcommunity.com/profiles/${vouchItem.steam_id}`}
                           className="text-blue-500 hover:underline"
                           target="_blank"
                         >
-                          {register.steam_id}
+                          {vouchItem.steam_id}
                         </Link>
                       </TableCell>
-                      <TableCell>{register.name}</TableCell>
-                      <TableCell>{register.discord_id}</TableCell>
-                      <TableCell>{register.mmr}</TableCell>
+                      <TableCell>{vouchItem.name}</TableCell>
+                      <TableCell>{vouchItem.discord_id}</TableCell>
+                      <TableCell>{vouchItem.mmr}</TableCell>
                       <TableCell>
-                        {register.status === "PENDING" && (
+                        {vouchItem.status === "PENDING" && (
                           <button
-                            value={register.id}
-                            name="approve"
-                            onClick={handleApprove}
+                            disabled={loading}
+                            onClick={() =>
+                              handleRequest(vouchItem.id, "approve")
+                            }
                             className="bg-green-500 text-white px-2 py-1 rounded"
                           >
                             Approve
@@ -150,11 +165,12 @@ export default function RegisterCrud({
                         )}
                       </TableCell>
                       <TableCell>
-                        {register.status === "PENDING" && (
+                        {vouchItem.status === "PENDING" && (
                           <button
-                            value={register.id}
-                            name="decline"
-                            onClick={handleDecline}
+                            disabled={loading}
+                            onClick={() =>
+                              handleRequest(vouchItem.id, "decline")
+                            }
                             className="bg-red-500 text-white px-2 py-1 rounded"
                           >
                             Decline
