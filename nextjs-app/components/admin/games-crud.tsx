@@ -17,7 +17,6 @@ import {
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { METHODS } from "http";
 import { DIRE, RADIANT } from "../../app/common/constraints";
 
 type GameStatus =
@@ -30,7 +29,7 @@ type GameStatus =
   | "REHOST";
 type GameType = "DRAFT" | "NORMAL";
 
-interface game {
+interface Game {
   id: number;
   status: GameStatus;
   result: number;
@@ -38,9 +37,15 @@ interface game {
   type: GameType;
   game_started_at: string;
   game_created_at: string;
+  // Optional players property containing arrays for each team.
+  players?: {
+    radiant: string[];
+    dire: string[];
+  };
 }
 
-export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
+export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
+  console.log({ gamesList });
   const [games, setGames] = useState(gamesList);
   const [filterStatus, setFilterStatus] = useState<GameStatus | "ALL">(
     "STARTED"
@@ -62,10 +67,8 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
     const confirmation = confirm("Are you sure ?");
     if (!confirmation) return;
     setLoading(true);
-    const arrayNum = i;
-    const gameId = games[arrayNum].id;
-    const team = teamNum;
-    const status = games[arrayNum].status;
+    const gameId = games[i].id;
+    const status = games[i].status;
 
     if (status !== "STARTED") {
       setLoading(false);
@@ -79,7 +82,7 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: gameId, team_won: team, status: status }),
+          body: JSON.stringify({ id: gameId, team_won: teamNum, status }),
         }
       );
       if (!res.ok) {
@@ -105,7 +108,7 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
       const res = await fetch("/api/games-crud/games-crud-delete", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: gameId, status: status, result: result }),
+        body: JSON.stringify({ id: gameId, status, result }),
       });
 
       if (!res.ok) {
@@ -133,7 +136,7 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
       const res = await fetch("api/games-crud/games-crud-update-cancel", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: gameId, status: status }),
+        body: JSON.stringify({ id: gameId, status }),
       });
 
       if (!res.ok) {
@@ -141,11 +144,12 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
       }
       fetchGames();
     } catch (error) {
-      console.error("Failed to Cancel the game!");
+      console.error("Failed to Cancel the game!", error);
     } finally {
       setLoading(false);
     }
   };
+
   const filteredRegisterList =
     filterStatus === "ALL"
       ? games
@@ -202,7 +206,7 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                 </tr>
               </TableHeader>
               <TableBody>
-                {filteredRegisterList.map((game: game, i: number) => {
+                {filteredRegisterList.map((game: Game, i: number) => {
                   return (
                     <TableRow key={game.id}>
                       <TableCell>{game.id}</TableCell>
@@ -212,27 +216,13 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                       </TableCell>
                       <TableCell>{game.steam_match_id}</TableCell>
                       <TableCell>{game.type}</TableCell>
-                      <TableCell>{game.game_started_at}</TableCell>
                       <TableCell>{game.game_created_at}</TableCell>
+                      <TableCell>{game.game_started_at}</TableCell>
                       <TableCell>
-                        {game.status !== "OVER" && (
-                          <Button
-                            disabled={loading}
-                            onClick={() => handleTeamWin(i, RADIANT)}
-                          >
-                            Radiant Won
-                          </Button>
-                        )}
+                        {game.players ? game.players.radiant.join(", ") : "N/A"}
                       </TableCell>
                       <TableCell>
-                        {game.status !== "OVER" && (
-                          <Button
-                            disabled={loading}
-                            onClick={() => handleTeamWin(i, DIRE)}
-                          >
-                            Dire Won
-                          </Button>
-                        )}
+                        {game.players ? game.players.dire.join(", ") : "N/A"}
                       </TableCell>
                       <TableCell>
                         <Button
@@ -250,6 +240,30 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                           >
                             Cancel
                           </Button>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {game.status !== "OVER" && (
+                          <>
+                            <Button
+                              disabled={loading}
+                              onClick={() => handleTeamWin(i, DIRE)}
+                            >
+                              Dire Won
+                            </Button>
+                          </>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {game.status !== "OVER" && (
+                          <>
+                            <Button
+                              disabled={loading}
+                              onClick={() => handleTeamWin(i, RADIANT)}
+                            >
+                              Radiant Won
+                            </Button>
+                          </>
                         )}
                       </TableCell>
                     </TableRow>
