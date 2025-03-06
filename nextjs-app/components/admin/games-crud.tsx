@@ -207,7 +207,9 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                     <TableRow key={game.id}>
                       <TableCell>{game.id}</TableCell>
                       <TableCell>{game.status}</TableCell>
-                      <TableCell>{game.result || "N/A"}</TableCell>
+                      <TableCell>
+                        {game.result == null ? "N/A" : game.result}
+                      </TableCell>
                       <TableCell>{game.steam_match_id}</TableCell>
                       <TableCell>{game.type}</TableCell>
                       <TableCell>{game.game_started_at}</TableCell>
