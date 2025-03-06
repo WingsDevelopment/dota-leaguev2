@@ -67,10 +67,15 @@ def create_lobby():
     gevent.spawn_later(lobby_timeout, timeout_game)
 
 def invite_players():
-    # Convert each DB steam_id to int for SteamID(), if stored as text
+    # Convert each DB steam_id to int for SteamID(), handling invalid entries
     for player in players:
-        steam_id_int = int(player["steam_id"])
-        dota_client.invite_to_lobby(SteamID(steam_id_int))
+        steam_id_str = player["steam_id"]
+        try:
+            steam_id_int = int(steam_id_str)
+            dota_client.invite_to_lobby(SteamID(steam_id_int))
+        except ValueError:
+            dota_client.invite_to_lobby(SteamID(steam_id_str))
+            _log(f"Invalid Steam ID '{steam_id_str}' for player {player['id']}, skipping invite.")
     _log("Invited players")
 
 def check_to_start():

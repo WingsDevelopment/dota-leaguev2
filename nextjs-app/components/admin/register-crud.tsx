@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useState } from "react";
 
 type VouchStatus = "PENDING" | "APPROVED" | "DECLINED";
@@ -33,11 +34,9 @@ export default function RegisterCrud({
 }: {
   registerList: vouch[];
 }) {
-  const [vouchItems, setVouchItems] = useState(registerList)
-  const [filterStatus, setFilterStatus] = useState<VouchStatus | "ALL">(
-    "ALL"
-  );
-  const [loading, setLoading] = useState(false)
+  const [vouchItems, setVouchItems] = useState(registerList);
+  const [filterStatus, setFilterStatus] = useState<VouchStatus | "ALL">("ALL");
+  const [loading, setLoading] = useState(false);
 
   const fetchVouch = async () => {
     try {
@@ -46,14 +45,14 @@ export default function RegisterCrud({
       const updatedVouchList = await res.json();
 
       setVouchItems(updatedVouchList.registerPlayers);
-    } catch (error) {
-
-    }
-  }
-  const handleRequest = async (id:number,approveOrDecline:string) => {
-    setLoading(true)
+    } catch (error) {}
+  };
+  const handleRequest = async (id: number, approveOrDecline: string) => {
+    setLoading(true);
     const requestType = approveOrDecline;
-    const confirmed = confirm(`Are you sure you want to ${requestType} this player?`);
+    const confirmed = confirm(
+      `Are you sure you want to ${requestType} this player?`
+    );
     if (!confirmed) return;
     const registrationId = id;
     try {
@@ -73,16 +72,14 @@ export default function RegisterCrud({
       }
 
       alert(`Player ${requestType}ed successfully`);
-      fetchVouch()
+      fetchVouch();
     } catch (error) {
-      
       console.error("Error approving player:", error);
       alert("Error approving player");
-    }finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
-
 
   // Filter the registerList based on the selected status
   const filteredVouchList =
@@ -148,8 +145,9 @@ export default function RegisterCrud({
                         {vouchItem.status === "PENDING" && (
                           <button
                             disabled={loading}
-                            
-                            onClick={()=>handleRequest(vouchItem.id,"approve")}
+                            onClick={() =>
+                              handleRequest(vouchItem.id, "approve")
+                            }
                             className="bg-green-500 text-white px-2 py-1 rounded"
                           >
                             Approve
@@ -160,8 +158,9 @@ export default function RegisterCrud({
                         {vouchItem.status === "PENDING" && (
                           <button
                             disabled={loading}
-                            
-                            onClick={()=>handleRequest(vouchItem.id,"decline")}
+                            onClick={() =>
+                              handleRequest(vouchItem.id, "decline")
+                            }
                             className="bg-red-500 text-white px-2 py-1 rounded"
                           >
                             Decline

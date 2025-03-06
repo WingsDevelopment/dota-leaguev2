@@ -22,6 +22,13 @@ def dict_factory(cursor, row):
 
 
 def balanced_shuffle(players) -> None:
+    # Ensure even number of players
+    if len(players) % 2 != 0:
+        raise ValueError("Number of players must be even. Found {} players.".format(len(players)))
+    # Ensure no duplicate players exist
+    if len(set(player['id'] for player in players)) != len(players):
+        raise ValueError("Duplicate players are not allowed.")
+
     min_diff = float('inf')
     team_size = len(players) // 2
     result = ()
@@ -33,25 +40,24 @@ def balanced_shuffle(players) -> None:
         set1 = set(comb)
         set2 = set(player_ids) - set1
 
-        sum1 = sum(player[MMR] for player in set1)
-        sum2 = sum(player[MMR] for player in set2)
+        sum1 = sum(p[1] for p in set1)
+        sum2 = sum(p[1] for p in set2)
         diff = abs(sum1 - sum2)
 
         # Update minimum difference and result if necessary
         if diff < min_diff:
             min_diff = diff
-            result = set1, set2
+            result = (set1, set2)
 
         if diff < 25:
             result_list.append((set1, set2))
             if len(result_list) == SUFFICIENT_NUMBER_OF_RESULTS_FOUND:
-                break # We have enough results, no need to continue
+                break  # We have enough results, no need to continue
 
     team = random.randint(RADINANT, DIRE)
     shuffle_mod = len(result_list) < SUFFICIENT_NUMBER_OF_RESULTS_FOUND
     result = result if shuffle_mod else random.choice(result_list)
-    player_ids_radiant = [p[ID] for p in result[RADINANT]]
-    #player_ids_dire = [p[ID] for p in result[DIRE]]
+    player_ids_radiant = [p[0] for p in result[RADINANT]]
 
     for player in players:
         if player['id'] in player_ids_radiant:
