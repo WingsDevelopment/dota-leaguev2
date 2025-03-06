@@ -18,6 +18,7 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { METHODS } from "http";
+import { DIRE, RADIANT } from "../../app/common/constraints";
 
 type GameStatus =
   | "PREGAME"
@@ -42,7 +43,7 @@ interface game {
 export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
   const [games, setGames] = useState(gamesList);
   const [filterStatus, setFilterStatus] = useState<GameStatus | "ALL">(
-    "ALL"
+    "STARTED"
   );
   const [loading, setLoading] = useState(false);
 
@@ -51,41 +52,44 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
       const res = await fetch("api/games-crud/games-crud-read");
       if (!res.ok) throw new Error("Failed to fetch games");
       const updatedGames = await res.json();
-      setGames(updatedGames.games)
+      setGames(updatedGames.games);
     } catch (error) {
-      console.error("Error fetching games", error)
+      console.error("Error fetching games", error);
     }
-  }
+  };
 
   const handleTeamWin = async (i: number, teamNum: number) => {
     const confirmation = confirm("Are you sure ?");
     if (!confirmation) return;
-    setLoading(true)
+    setLoading(true);
     const arrayNum = i;
-    const gameId = games[arrayNum].id
+    const gameId = games[arrayNum].id;
     const team = teamNum;
-    const status = games[arrayNum].status
+    const status = games[arrayNum].status;
 
     if (status !== "STARTED") {
-      setLoading(false)
+      setLoading(false);
       return alert(
         games[Number(gameId) - 1].status + " IS NOT A VALID GAME STATUS!!!"
       );
     }
     try {
-      const res = await fetch("api/games-crud/games-crud-update-winner-looser", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: gameId, team_won: team, status: status }),
-      });
+      const res = await fetch(
+        "api/games-crud/games-crud-update-winner-looser",
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: gameId, team_won: team, status: status }),
+        }
+      );
       if (!res.ok) {
         throw new Error("Failed to update MMR based on winning team");
       }
-      fetchGames()
+      fetchGames();
     } catch (error) {
       console.error("Could not resolve a winner/looser", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -94,9 +98,9 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
     if (!confirmation) return;
     setLoading(true);
 
-    const gameId = games[i].id
-    const status = games[i].status
-    const result = games[i].result
+    const gameId = games[i].id;
+    const status = games[i].status;
+    const result = games[i].result;
     try {
       const res = await fetch("/api/games-crud/games-crud-delete", {
         method: "DELETE",
@@ -107,43 +111,41 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
       if (!res.ok) {
         throw new Error("Failed to delete game");
       }
-      fetchGames()
+      fetchGames();
     } catch (error) {
       console.error("Failed to delete the game", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
   const handleCancel = async (i: number) => {
     const confirmation = confirm("Are you sure ?");
     if (!confirmation) return;
-    setLoading(true)
-    const gameId = games[i].id
-    const status = games[i].status
+    setLoading(true);
+    const gameId = games[i].id;
+    const status = games[i].status;
     if (status !== "PREGAME" && status !== "HOSTED") {
-      setLoading(false)
-      return alert(
-        games[i].status + " IS NOT A VALID GAME STATUS!!!"
-      );
+      setLoading(false);
+      return alert(games[i].status + " IS NOT A VALID GAME STATUS!!!");
     }
     try {
       const res = await fetch("api/games-crud/games-crud-update-cancel", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: gameId, status: status })
+        body: JSON.stringify({ id: gameId, status: status }),
       });
 
       if (!res.ok) {
         throw new Error("Failed to Cancel the game!");
       }
-      fetchGames()
+      fetchGames();
     } catch (error) {
-      console.error("Failed to Cancel the game!")
+      console.error("Failed to Cancel the game!");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
   const filteredRegisterList =
     filterStatus === "ALL"
       ? games
@@ -202,7 +204,6 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
               <TableBody>
                 {filteredRegisterList.map((game: game, i: number) => {
                   return (
-
                     <TableRow key={game.id}>
                       <TableCell>{game.id}</TableCell>
                       <TableCell>{game.status}</TableCell>
@@ -215,25 +216,27 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                         {game.status !== "OVER" && (
                           <Button
                             disabled={loading}
-                            onClick={() => handleTeamWin(i, 0)}
+                            onClick={() => handleTeamWin(i, RADIANT)}
                           >
                             Radiant Won
                           </Button>
                         )}
-
                       </TableCell>
                       <TableCell>
                         {game.status !== "OVER" && (
                           <Button
                             disabled={loading}
-                            onClick={() => handleTeamWin(i, 1)}
+                            onClick={() => handleTeamWin(i, DIRE)}
                           >
                             Dire Won
                           </Button>
                         )}
                       </TableCell>
                       <TableCell>
-                        <Button disabled={loading} onClick={() => handleDelete(i)}>
+                        <Button
+                          disabled={loading}
+                          onClick={() => handleDelete(i)}
+                        >
                           Delete
                         </Button>
                       </TableCell>
@@ -248,7 +251,6 @@ export default function GamesCrud({ gamesList }: { gamesList: game[] }) {
                         )}
                       </TableCell>
                     </TableRow>
-
                   );
                 })}
               </TableBody>

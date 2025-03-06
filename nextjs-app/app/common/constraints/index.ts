@@ -19,3 +19,6 @@ export async function isUserAdmin() {
   console.log("includes", adminIds.includes(String(session?.user?.id)));
   return adminIds.includes(String((session?.user as ExtendedUser)?.discordId));
 }
+
+export const RADIANT = 0;
+export const DIRE = 1;

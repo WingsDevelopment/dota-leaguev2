@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDbInstance } from "@/db/utils";
 import { isUserAdmin } from "@/app/common/constraints";
+import { calculateElo } from "../../../../lib/utils";
 
 export async function PUT(req: NextRequest) {
   if (!(await isUserAdmin())) {
@@ -19,7 +20,7 @@ export async function PUT(req: NextRequest) {
   const db = await getDbInstance();
 
   try {
-    // Fetch the actual status from the database
+    // Fetch the actual status from the database.
     const actualGame: { status: string } | undefined = await new Promise(
       (resolve, reject) => {
         db.get(`SELECT status FROM Game WHERE id = ?`, [id], (err, row) => {
@@ -45,11 +46,19 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // Get all players from gamePlayers where game_id = id
-    const players: Array<{ player_id: number; team: number }> =
+    // Start a transaction.
+    await new Promise((resolve, reject) =>
+      db.run("BEGIN TRANSACTION", (err) => (err ? reject(err) : resolve(null)))
+    );
+
+    // Get all players (including their current mmr) for the game.
+    const players: Array<{ player_id: number; team: number; mmr: number }> =
       await new Promise((resolve, reject) => {
         db.all(
-          `SELECT player_id, team FROM gamePlayers WHERE game_id = ?`,
+          `SELECT gp.player_id, gp.team, p.mmr 
+           FROM gamePlayers gp 
+           JOIN Players p ON gp.player_id = p.id 
+           WHERE gp.game_id = ?`,
           [id],
           (err, rows) => {
             if (err) {
@@ -62,6 +71,10 @@ export async function PUT(req: NextRequest) {
       });
 
     if (players.length === 0) {
+      // Rollback if no players found.
+      await new Promise((resolve, reject) =>
+        db.run("ROLLBACK", (err) => (err ? reject(err) : resolve(null)))
+      );
       db.close();
       return NextResponse.json(
         { error: "No players found for this game" },
@@ -69,13 +82,42 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // Update MMR based on team result
+    // Split players into two teams.
+    const radiantPlayers = players.filter((p) => p.team === 0);
+    const direPlayers = players.filter((p) => p.team === 1);
+
+    if (radiantPlayers.length === 0 || direPlayers.length === 0) {
+      await new Promise((resolve, reject) =>
+        db.run("ROLLBACK", (err) => (err ? reject(err) : resolve(null)))
+      );
+      db.close();
+      return NextResponse.json(
+        { error: "Insufficient players to calculate Elo" },
+        { status: 400 }
+      );
+    }
+
+    // Calculate the average MMR for each team.
+    const radiantAvg =
+      radiantPlayers.reduce((sum, p) => sum + p.mmr, 0) / radiantPlayers.length;
+    const direAvg =
+      direPlayers.reduce((sum, p) => sum + p.mmr, 0) / direPlayers.length;
+
+    // Compute the ELO change.
+    // team_won is assumed to be 0 (radiant wins) or 1 (dire wins).
+    const eloChange = calculateElo(
+      radiantAvg,
+      direAvg,
+      team_won === 0 ? 1 : -1
+    );
+
+    // Update MMR for each player based on the match result.
     await Promise.all(
       players.map(({ player_id, team }) => {
         return new Promise((resolve, reject) => {
           db.run(
             `UPDATE Players SET mmr = mmr + ? WHERE id = ?`,
-            [team === team_won ? 25 : -25, player_id],
+            [team === team_won ? eloChange : -eloChange, player_id],
             (err) => {
               if (err) {
                 console.error(
@@ -91,16 +133,25 @@ export async function PUT(req: NextRequest) {
       })
     );
 
-    // Update Game table status to "OVER"
+    // Update Game table status to "OVER" with the match result.
     await new Promise((resolve, reject) => {
-      db.run(`UPDATE Game SET status = 'OVER' WHERE id = ?`, [id], (err) => {
-        if (err) {
-          console.error("Error updating game status:", err);
-          return reject(err);
+      db.run(
+        `UPDATE Game SET result = ?, status = 'OVER', steam_match_id = ? WHERE id = ?`,
+        [team_won, -1, id],
+        (err) => {
+          if (err) {
+            console.error("Error updating game status:", err);
+            return reject(err);
+          }
+          resolve(null);
         }
-        resolve(null);
-      });
+      );
     });
+
+    // Commit the transaction.
+    await new Promise((resolve, reject) =>
+      db.run("COMMIT", (err) => (err ? reject(err) : resolve(null)))
+    );
 
     db.close();
     return NextResponse.json({
@@ -109,6 +160,10 @@ export async function PUT(req: NextRequest) {
     });
   } catch (error) {
     console.error("Error updating MMR and game status:", error);
+    // Rollback transaction in case of error.
+    await new Promise((resolve, reject) =>
+      db.run("ROLLBACK", (err) => (err ? reject(err) : resolve(null)))
+    );
     db.close();
     return NextResponse.json(
       { error: "Internal Server Error" },
