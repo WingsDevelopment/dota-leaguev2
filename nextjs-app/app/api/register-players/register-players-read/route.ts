@@ -4,7 +4,7 @@ import { isUserAdmin } from "@/app/common/constraints";
 
 export async function GET() {
   const db = await getDbInstance();
-  
+
   if (!(await isUserAdmin())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -15,7 +15,7 @@ export async function GET() {
     // Execute the game query.
     const registerPlayers: Array<Record<string, any>> = await new Promise(
       (resolve, reject) => {
-        db.all(`SELECT * FROM registerPlayers`, [], (err, rows) => {
+        db.all(`SELECT * FROM RegisterPlayers`, [], (err, rows) => {
           if (err) {
             console.error("Error executing query:", err);
             return reject(err);
