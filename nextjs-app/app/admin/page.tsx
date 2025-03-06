@@ -19,19 +19,17 @@ export default async function Page() {
       cache: "no-store",
     }),
   ]);
-  const [gamesData, registerPlayersData] = await Promise.all([
-    gamesRes.json(),
-    registerPlayersRes.json(),
-  ]);
-
-  const gamesList = (await gamesData.games) || [];
-  const registerList = (await registerPlayersData.registerPlayers) || [];
-
+  const gamesData = await gamesRes.json();
+  const registerPlayersData = await registerPlayersRes.json();
   console.log("ADMIN PAGE FETCH");
   console.log({
-    gamesList,
-    registerList,
+    gamesData,
+    registerPlayersData,
   });
+
+  const gamesList = gamesData.games || [];
+  const registerList = registerPlayersData.registerPlayers || [];
+
   return (
     <div className="flex flex-col gap-4">
       <RegisterCrud registerList={registerList} />
