@@ -14,13 +14,8 @@ import {
     TableHeaderCell,
     TableRow,
 } from "@/components/ui/table";
-import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { DIRE, RADIANT } from "../../app/common/constraints";
-
-
-
 
 interface Player {
     id: number;
@@ -29,11 +24,59 @@ interface Player {
     name: string;
     mmr: number;
     captain: number
+    banned_until: string,
+    games_left: number,
+    games_griefed: number,
+    bbb: number
 }
 
 export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
+    const [players, setPlayers] = useState(playerList);
+    const [selectedValue, setSelectedValue] = useState<{ [key: number]: string }>({});
 
-    const handleBan = (i: number) => { }
+    useEffect(() => {
+        const initialValues: { [key: number]: string } = {};
+        players.forEach((player) => {
+            initialValues[player.id] = "1l"; // Default to "1 LEAVE" or any default value
+        });
+        setSelectedValue(initialValues);
+    }, [players]);
+
+    const fetchPlayers = async () => {
+        try {
+            const res = await fetch("api/player/players-read");
+            if (!res.ok) throw new Error("Failed to fetch games");
+            const updatedPlayers = await res.json();
+            setPlayers(updatedPlayers.players);
+        } catch (error) {
+            console.error("Error fetching games", error);
+        }
+    };
+
+    const handleBan = async (id: number, value: string) => {
+        const confirmation = confirm("Are you sure you want to punish player?");
+        console.log(value, "VALUE")
+        if (!confirmation) return;
+        try {
+            const res = await fetch("api/player/players-ban", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id, value })
+            });
+            if (!res.ok) {
+                throw new Error("Failed to ban/unban player");
+            }
+            await fetchPlayers()
+        } catch (error) {
+            console.error("Failed to ban/unban player")
+        }
+    }
+    const handleSelectChange = (id: number, value: string) => {
+        setSelectedValue((prev) => ({
+            ...prev,
+            [id]: value, // Update only the specific player's dropdown
+        }));
+    };
     return (
         <div>
             <Card>
@@ -53,10 +96,17 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
                                 <TableHeaderCell>Name</TableHeaderCell>
                                 <TableHeaderCell>MMR</TableHeaderCell>
                                 <TableHeaderCell>Captain</TableHeaderCell>
+                                <TableHeaderCell>Banned Until</TableHeaderCell>
+                                <TableHeaderCell>Games Left</TableHeaderCell>
+                                <TableHeaderCell>Games Griefed</TableHeaderCell>
+                                <TableHeaderCell>Bad Behaviour Ban</TableHeaderCell>
+                                <TableHeaderCell>Ban Type</TableHeaderCell>
+                                <TableHeaderCell>Ban Player</TableHeaderCell>
+                                <TableHeaderCell>Unban Player</TableHeaderCell>
                             </tr>
                         </TableHeader>
                         <TableBody>
-                            {playerList.map((player: Player, i: number) => {
+                            {players.map((player: Player, i: number) => {
                                 return (
                                     <TableRow key={player.id}>
                                         <TableCell>{player.id}</TableCell>
@@ -65,12 +115,34 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
                                         <TableCell>{player.name}</TableCell>
                                         <TableCell>{player.mmr}</TableCell>
                                         <TableCell>{player.captain}</TableCell>
+                                        <TableCell>{player.banned_until}</TableCell>
+                                        <TableCell>{player.games_left}</TableCell>
+                                        <TableCell>{player.games_griefed}</TableCell>
+                                        <TableCell>{player.bbb}</TableCell>
+                                        <TableCell>
+                                            <select
+                                                id="status-filter"
+                                                className="p-2 border rounded"
+                                                value={selectedValue[player.id]}
+                                                onChange={(e) => handleSelectChange(player.id, e.currentTarget.value)}>
+                                                <option value="1l">1 LEAVE</option>
+                                                <option value="1g">1 GRIEF</option>
+                                                <option value="bbb">BBB</option>
+                                            </select></TableCell>
                                         <TableCell>
                                             <Button
 
-                                                onClick={() => handleBan(i)}
+                                                onClick={() => handleBan(player.id, selectedValue[player.id] || "")}
                                             >
                                                 Ban Player
+                                            </Button>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Button
+
+                                                onClick={() => handleBan(player.id, "unban")}
+                                            >
+                                                Unban Player
                                             </Button>
                                         </TableCell>
                                     </TableRow>
