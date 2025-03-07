@@ -148,3 +148,7 @@ mkdir -p letsencrypt
 chmod 600 letsencrypt/acme.json
 touch letsencrypt/acme.json
 chmod 600 letsencrypt/acme.json
+
+# Add admin to league
+
+Copy paste whole steam profile url to https://www.dota2.com/league/17791/admins
