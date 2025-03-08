@@ -37,7 +37,6 @@ interface Game {
   type: GameType;
   game_started_at: string;
   game_created_at: string;
-  // Optional players property containing arrays for each team.
   players?: {
     radiant: string[];
     dire: string[];
@@ -63,18 +62,20 @@ export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
     }
   };
 
-  const handleTeamWin = async (i: number, teamNum: number) => {
+  // Pass gameId directly instead of using an index.
+  const handleTeamWin = async (gameId: number, teamNum: number) => {
     const confirmation = confirm("Are you sure ?");
     if (!confirmation) return;
     setLoading(true);
-    const gameId = games[i].id;
-    const status = games[i].status;
-
-    if (status !== "STARTED") {
+    // Find the game from our games array.
+    const game = games.find((g) => g.id === gameId);
+    if (!game) {
       setLoading(false);
-      return alert(
-        games[Number(gameId) - 1].status + " IS NOT A VALID GAME STATUS!!!"
-      );
+      return alert("Game not found");
+    }
+    if (game.status !== "STARTED") {
+      setLoading(false);
+      return alert(`${game.status} IS NOT A VALID GAME STATUS!!!`);
     }
     try {
       const res = await fetch(
@@ -82,7 +83,11 @@ export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: gameId, team_won: teamNum, status }),
+          body: JSON.stringify({
+            id: gameId,
+            team_won: teamNum,
+            status: game.status,
+          }),
         }
       );
       if (!res.ok) {
@@ -96,21 +101,26 @@ export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
     }
   };
 
-  const handleDelete = async (i: number) => {
+  const handleDelete = async (gameId: number) => {
     const confirmation = confirm("Are you sure ?");
     if (!confirmation) return;
     setLoading(true);
-
-    const gameId = games[i].id;
-    const status = games[i].status;
-    const result = games[i].result;
+    // Look up the game from the games state.
+    const game = games.find((g) => g.id === gameId);
+    if (!game) {
+      setLoading(false);
+      return alert("Game not found");
+    }
     try {
       const res = await fetch("/api/games-crud/games-crud-delete", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: gameId, status, result }),
+        body: JSON.stringify({
+          id: gameId,
+          status: game.status,
+          result: game.result,
+        }),
       });
-
       if (!res.ok) {
         throw new Error("Failed to delete game");
       }
@@ -122,23 +132,25 @@ export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
     }
   };
 
-  const handleCancel = async (i: number) => {
+  const handleCancel = async (gameId: number) => {
     const confirmation = confirm("Are you sure ?");
     if (!confirmation) return;
     setLoading(true);
-    const gameId = games[i].id;
-    const status = games[i].status;
-    if (status !== "PREGAME" && status !== "HOSTED") {
+    const game = games.find((g) => g.id === gameId);
+    if (!game) {
       setLoading(false);
-      return alert(games[i].status + " IS NOT A VALID GAME STATUS!!!");
+      return alert("Game not found");
+    }
+    if (game.status !== "PREGAME" && game.status !== "HOSTED") {
+      setLoading(false);
+      return alert(`${game.status} IS NOT A VALID GAME STATUS!!!`);
     }
     try {
       const res = await fetch("api/games-crud/games-crud-update-cancel", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: gameId, status }),
+        body: JSON.stringify({ id: gameId, status: game.status }),
       });
-
       if (!res.ok) {
         throw new Error("Failed to Cancel the game!");
       }
@@ -203,72 +215,68 @@ export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
                   <TableHeaderCell>Dire Team</TableHeaderCell>
                   <TableHeaderCell>Delete Game</TableHeaderCell>
                   <TableHeaderCell>Cancel Game</TableHeaderCell>
+                  <TableHeaderCell>Dire Won</TableHeaderCell>
+                  <TableHeaderCell>Radiant Won</TableHeaderCell>
                 </tr>
               </TableHeader>
               <TableBody>
-                {filteredRegisterList.map((game: Game, i: number) => {
-                  return (
-                    <TableRow key={game.id}>
-                      <TableCell>{game.id}</TableCell>
-                      <TableCell>{game.status}</TableCell>
-                      <TableCell>
-                        {game.result == null ? "N/A" : game.result}
-                      </TableCell>
-                      <TableCell>{game.steam_match_id}</TableCell>
-                      <TableCell>{game.type}</TableCell>
-                      <TableCell>{game.game_created_at}</TableCell>
-                      <TableCell>{game.game_started_at}</TableCell>
-                      <TableCell>
-                        {game.players ? game.players.radiant.join(", ") : "N/A"}
-                      </TableCell>
-                      <TableCell>
-                        {game.players ? game.players.dire.join(", ") : "N/A"}
-                      </TableCell>
-                      <TableCell>
+                {filteredRegisterList.map((game) => (
+                  <TableRow key={game.id}>
+                    <TableCell>{game.id}</TableCell>
+                    <TableCell>{game.status}</TableCell>
+                    <TableCell>
+                      {game.result == null ? "N/A" : game.result}
+                    </TableCell>
+                    <TableCell>{game.steam_match_id}</TableCell>
+                    <TableCell>{game.type}</TableCell>
+                    <TableCell>{game.game_created_at}</TableCell>
+                    <TableCell>{game.game_started_at}</TableCell>
+                    <TableCell>
+                      {game.players ? game.players.radiant.join(", ") : "N/A"}
+                    </TableCell>
+                    <TableCell>
+                      {game.players ? game.players.dire.join(", ") : "N/A"}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        disabled={loading}
+                        onClick={() => handleDelete(game.id)}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                    <TableCell>
+                      {["PREGAME", "HOSTED"].includes(game.status) && (
                         <Button
                           disabled={loading}
-                          onClick={() => handleDelete(i)}
+                          onClick={() => handleCancel(game.id)}
                         >
-                          Delete
+                          Cancel
                         </Button>
-                      </TableCell>
-                      <TableCell>
-                        {["PREGAME", "HOSTED"].includes(game.status) && (
-                          <Button
-                            disabled={loading}
-                            onClick={() => handleCancel(i)}
-                          >
-                            Cancel
-                          </Button>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {game.status !== "OVER" && (
-                          <>
-                            <Button
-                              disabled={loading}
-                              onClick={() => handleTeamWin(i, DIRE)}
-                            >
-                              Dire Won
-                            </Button>
-                          </>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {game.status !== "OVER" && (
-                          <>
-                            <Button
-                              disabled={loading}
-                              onClick={() => handleTeamWin(i, RADIANT)}
-                            >
-                              Radiant Won
-                            </Button>
-                          </>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {game.status !== "OVER" && (
+                        <Button
+                          disabled={loading}
+                          onClick={() => handleTeamWin(game.id, DIRE)}
+                        >
+                          Dire Won
+                        </Button>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {game.status !== "OVER" && (
+                        <Button
+                          disabled={loading}
+                          onClick={() => handleTeamWin(game.id, RADIANT)}
+                        >
+                          Radiant Won
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>

@@ -33,6 +33,7 @@ export default async function DashboardPage() {
   const data = await res.json();
   const leaderboard = data.leaderboard || [];
   console.log({ leaderboard });
+  console.log({ leaderboard });
 
   return (
     <>
@@ -156,6 +157,16 @@ export default async function DashboardPage() {
                               </Tooltip>
                             )}
                             <span>{player.name}</span>
+                            {player.discord_id === "662288348114845719" && (
+                              <Tooltip tooltip="PI Milioner">
+                                <Image
+                                  src="/pi-milionare.svg"
+                                  alt="pi-milionare"
+                                  width={24}
+                                  height={24}
+                                />
+                              </Tooltip>
+                            )}
                           </div>
                         </TableCell>
                         {/* <TableCell>{wins}</TableCell>

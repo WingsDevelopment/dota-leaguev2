@@ -96,7 +96,7 @@ def get_game(cursor: Cursor, id: str) -> None:
 
 def add_game(cursor: Cursor, type: str) -> None:
     cursor.execute(
-        '''INSERT INTO Game(status, result, steam_match_id, type, game_created_at) VALUES(?, ?, ?, ?)''', ('PREGAME', None, None, type))
+        '''INSERT INTO Game(status, result, steam_match_id, type, game_created_at) VALUES(?, ?, ?, ?, CURRENT_TIMESTAMP)''', ('PREGAME', None, None, type))
 
 
 def set_game_status_aborted(cursor: Cursor, id: str) -> None:
