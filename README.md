@@ -152,3 +152,12 @@ chmod 600 letsencrypt/acme.json
 # Add admin to league
 
 Copy paste whole steam profile url to https://www.dota2.com/league/17791/admins
+
+# Read db ubuntu
+
+- sqlite3 league.db
+- sqlite> .tables
+- sqlite> .headers on
+- sqlite> .mode column
+- sqlite> SELECT \* FROM MatchHistory;
+- sqlite> .exit
