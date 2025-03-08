@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDbInstance } from "@/db/utils";
 import { isUserAdmin } from "@/app/common/constraints";
+import { closeDatabase } from "@/db/initDatabase";
 
 export async function GET() {
   const db = await getDbInstance();
@@ -26,11 +27,11 @@ export async function GET() {
     );
 
     // Close the database connection.
-    db.close();
+
 
     return NextResponse.json({ registerPlayers });
   } catch (error) {
-    db.close();
+
 
     console.error("Error reading games:", error);
 
@@ -38,5 +39,8 @@ export async function GET() {
       { error: "Internal Server Error" },
       { status: 500 }
     );
+  } finally {
+    closeDatabase(db);
   }
+
 }

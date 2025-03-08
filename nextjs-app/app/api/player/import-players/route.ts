@@ -1,9 +1,12 @@
 // app/api/import-players/route.ts
+import { closeDatabase } from "@/db/initDatabase";
+import { getDbInstance } from "@/db/utils";
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import sqlite3 from "sqlite3";
 
 export async function POST(request: NextRequest) {
+  const db = await getDbInstance();
   try {
     // Parse incoming JSON
     const { leaderboard } = await request.json();
@@ -15,21 +18,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Open the DB
-    const dbPath =
-      process.env.DATABASE_PATH || path.join(process.cwd(), "db", "league.db");
-    const db = await new Promise<sqlite3.Database>((resolve, reject) => {
-      const instance = new sqlite3.Database(
-        dbPath,
-        sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
-        (err) => {
-          if (err) {
-            console.error("Error opening database:", err);
-            return reject(err);
-          }
-          resolve(instance);
-        }
-      );
-    });
 
     // Insert each player
     for (const player of leaderboard) {
@@ -56,7 +44,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    db.close();
+
     return NextResponse.json({ message: "Imported leaderboard successfully." });
   } catch (error) {
     console.error("Import error:", error);
@@ -64,5 +52,7 @@ export async function POST(request: NextRequest) {
       { error: "Internal Server Error" },
       { status: 500 }
     );
+  } finally {
+    closeDatabase(db);
   }
 }

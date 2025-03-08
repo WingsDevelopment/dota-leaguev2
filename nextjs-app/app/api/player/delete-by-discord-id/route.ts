@@ -1,3 +1,5 @@
+import { closeDatabase } from "@/db/initDatabase";
+import { getDbInstance } from "@/db/utils";
 import { NextResponse } from "next/server";
 import path from "path";
 import sqlite3 from "sqlite3";
@@ -13,25 +15,7 @@ export async function DELETE(request: Request) {
       { status: 400 }
     );
   }
-
-  // Use the environment variable if set, else default to "db/league.db"
-  const dbPath =
-    process.env.DATABASE_PATH || path.join(process.cwd(), "db", "league.db");
-
-  // Open the SQLite database:
-  const db = await new Promise<sqlite3.Database>((resolve, reject) => {
-    const instance = new sqlite3.Database(
-      dbPath,
-      sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
-      (err) => {
-        if (err) {
-          console.error("Error opening database:", err);
-          return reject(err);
-        }
-        resolve(instance);
-      }
-    );
-  });
+ const db = await getDbInstance();
 
   try {
     // Perform the DELETE operation:
@@ -51,7 +35,7 @@ export async function DELETE(request: Request) {
       );
     });
 
-    db.close();
+    
 
     // If no rows were deleted, return a 404
     if (changes === 0) {
@@ -62,10 +46,12 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ message: "Player deleted successfully" });
   } catch (error) {
     console.error("Error deleting player:", error);
-    db.close();
+    
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
     );
+  } finally{
+    closeDatabase(db);
   }
 }

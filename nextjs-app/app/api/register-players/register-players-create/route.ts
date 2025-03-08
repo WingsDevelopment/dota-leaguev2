@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDbInstance } from "@/db/utils";
 import { isUserAdmin } from "@/app/common/constraints";
 import { auth, ExtendedUser } from "../../../../auth";
+import { closeDatabase } from "@/db/initDatabase";
 
 export async function PUT(req: NextRequest) {
   const { steam_id, mmr } = await req.json();
@@ -46,7 +47,7 @@ export async function PUT(req: NextRequest) {
     });
 
     if (playerExists) {
-      db.close();
+      
       return NextResponse.json({
         message: "Player already exists in Players table, no action needed.",
       });
@@ -64,16 +65,18 @@ export async function PUT(req: NextRequest) {
       );
     });
 
-    db.close();
+    
     return NextResponse.json({
       message: "Player added to RegisterPlayers with status PENDING.",
     });
   } catch (error) {
-    db.close();
+    
     console.error("Error processing request:", error);
     return NextResponse.json(
       { error: `Internal Server Error ${error}` },
       { status: 500 }
     );
+  }finally{
+    closeDatabase(db);
   }
 }

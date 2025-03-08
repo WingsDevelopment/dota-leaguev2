@@ -4,6 +4,7 @@ import sqlite3 from "sqlite3";
 import { getDbInstance } from "@/db/utils";
 import { isUserAdmin } from "@/app/common/constraints";
 import { getGamesWithPlayers } from "../../../services/gameService/getGamesWithPlayers";
+import { closeDatabase } from "@/db/initDatabase";
 
 // Our mock players.
 const mockPlayers = {
@@ -213,17 +214,19 @@ export async function POST(req: NextRequest) {
     // Wait for all assignments.
     await Promise.all(assignPromises);
 
-    db.close();
+    
     return NextResponse.json({
       gameId: createGame,
       message: "Game created with players assigned",
     });
   } catch (error) {
-    db.close();
+    
     console.error("Error creating game:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
     );
+  }finally{
+    closeDatabase(db);
   }
 }
