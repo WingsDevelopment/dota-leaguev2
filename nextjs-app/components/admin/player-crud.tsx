@@ -34,23 +34,6 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
     const [players, setPlayers] = useState(playerList);
     const [loading, setLoading] = useState(false)
     const [selectedValue, setSelectedValue] = useState<{ [key: number]: string }>({});
-    const [selectedValueUnban, setSelectedValueUnban] = useState<{ [key: number]: string }>({});
-
-    useEffect(() => {
-        const initialValues: { [key: number]: string } = {};
-        players.forEach((player) => {
-            initialValues[player.id] = "1lu"; // Default to "1 LEAVE" or any default value
-        });
-        setSelectedValueUnban(initialValues);
-    }, [players]);
-
-    useEffect(() => {
-        const initialValues: { [key: number]: string } = {};
-        players.forEach((player) => {
-            initialValues[player.id] = "1l"; // Default to "1 LEAVE" or any default value
-        });
-        setSelectedValue(initialValues);
-    }, [players]);
 
     const fetchPlayers = async () => {
         try {
@@ -63,33 +46,17 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
         }
     };
 
-    const handleBan = async (id: number, value: string) => {
+    const handleBanUnban = async (id: number, value: string) => {
         setLoading(true);
-        const confirmation = confirm("Are you sure you want to punish player?");
-        if (!confirmation) return;
-        try {
-            const res = await fetch("api/player/players-ban", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id, value })
-            });
-            if (!res.ok) {
-                throw new Error("Failed to ban/unban player");
-            }
-            await fetchPlayers()
-        } catch (error) {
-            console.error("Failed to ban/unban player")
-        }finally{
-            setLoading(false);
+        if (value === "unban") {
+            const confirmation = confirm("Are you sure you want to unban this player?");
+            if (!confirmation) return;
+        } else {
+            const confirmation = confirm("Are you sure you want to ban this player?");
+            if (!confirmation) return;
         }
-    }
-
-    const handleUnban = async (id: number, value: string) => {
-        setLoading(true)
-        const confirmation = confirm("Are you sure you want to punish player?");
-        if (!confirmation) return;
         try {
-            const res = await fetch("api/player/players-unban", {
+            const res = await fetch("api/player/players-ban-unban", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ id, value })
@@ -100,7 +67,7 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
             await fetchPlayers()
         } catch (error) {
             console.error("Failed to ban/unban player")
-        }finally{
+        } finally {
             setLoading(false);
         }
     }
@@ -111,12 +78,7 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
             [id]: value, // Update only the specific player's dropdown
         }));
     };
-    const handleSelectChangeUnban = (id: number, value: string) => {
-        setSelectedValueUnban((prev) => ({
-            ...prev,
-            [id]: value, // Update only the specific player's dropdown
-        }));
-    };
+
     return (
         <div>
             <Card>
@@ -142,7 +104,6 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
                                 <TableHeaderCell>Bad Behaviour Ban</TableHeaderCell>
                                 <TableHeaderCell>Ban Type</TableHeaderCell>
                                 <TableHeaderCell>Ban Player</TableHeaderCell>
-                                <TableHeaderCell>Unban Type</TableHeaderCell>
                                 <TableHeaderCell>Unban Player</TableHeaderCell>
                             </tr>
                         </TableHeader>
@@ -164,7 +125,7 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
                                             <select
                                                 id="status-filter"
                                                 className="p-2 border rounded"
-                                                value={selectedValue[player.id]}
+                                                value={selectedValue[player.id] || "1l"}
                                                 onChange={(e) => handleSelectChange(player.id, e.currentTarget.value)}>
                                                 <option value="1l">1 LEAVE</option>
                                                 <option value="1g">1 GRIEF</option>
@@ -173,26 +134,15 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
                                         <TableCell>
                                             <Button
                                                 disabled={loading}
-                                                onClick={() => handleBan(player.id, selectedValue[player.id] || "")}
+                                                onClick={() => handleBanUnban(player.id, selectedValue[player.id] ?? "1l")}
                                             >
                                                 Ban Player
                                             </Button>
                                         </TableCell>
                                         <TableCell>
-                                            <select
-                                                id="status-filter"
-                                                className="p-2 border rounded"
-                                                value={selectedValueUnban[player.id]}
-                                                onChange={(e) => handleSelectChangeUnban(player.id, e.currentTarget.value)}>
-                                                <option value="1lu">1 LEAVE</option>
-                                                <option value="1gu">1 GRIEF</option>
-                                                <option value="bbbu">BBB</option>
-                                            </select>
-                                        </TableCell>
-                                        <TableCell>
                                             <Button
                                                 disabled={loading}
-                                                onClick={() => handleUnban(player.id, selectedValueUnban[player.id] || "")}
+                                                onClick={() => handleBanUnban(player.id, "unban")}
                                             >
                                                 Unban Player
                                             </Button>

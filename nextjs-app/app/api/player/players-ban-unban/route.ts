@@ -20,6 +20,19 @@ export async function POST(req: NextRequest) {
     const db = await getDbInstance();
 
     try {
+        if (value === "unban") {
+            // Reset all punishment-related fields
+            await new Promise((resolve, reject) => {
+                db.run(
+                    `UPDATE Players SET banned_until = NULL WHERE id = ?`,
+                    [id],
+                    (err) => (err ? reject(err) : resolve(null))
+                );
+            });
+
+            return NextResponse.json({ success: true, message: "Player unbanned successfully" });
+        }
+        // Fetch the player's current banned_until and games_left values
         const player: { banned_until: string | null; games_left: number; games_griefed: number; bbb: number } | undefined =
             await new Promise((resolve, reject) => {
                 db.get(
@@ -36,54 +49,75 @@ export async function POST(req: NextRequest) {
             });
 
         if (!player) {
-
+            
             return NextResponse.json({ error: "Player not found" }, { status: 404 });
         }
 
-
         let { banned_until, games_left, games_griefed, bbb } = player;
         let newBanDate = banned_until ? new Date(banned_until) : null;
-
-        if (value === "1lu") {
-            games_left = Math.max(0, games_left - 1);
+        console.log(games_left, "GAMOVA LIVANO")
+        // Handle punishment cases
+        if (value === "1l") {
+            games_left += 1;
             if (games_left === 1) {
+                // Do nothing
+            } else if (games_left === 2) {
+                // Add 30 days to ban
                 if (newBanDate) {
-                    newBanDate.setDate(newBanDate.getDate() - 30);
+                    newBanDate.setDate(newBanDate.getDate() + 30);
                 } else {
                     newBanDate = new Date();
-                    newBanDate.setDate(newBanDate.getDate() - 30);
+                    newBanDate.setDate(newBanDate.getDate() + 30);
                 }
             }
-        } else if (value === "1gu") {
-            games_griefed = Math.max(0, games_griefed - 1);
-            if (games_griefed === 2) {
+
+        } else if (value === "1g") {
+            games_griefed += 1
+            if (games_griefed === 1) {
+                // Add 4 days to ban
                 if (newBanDate) {
-                    newBanDate.setDate(newBanDate.getDate() - 365);
+                    newBanDate.setDate(newBanDate.getDate() + 4);
+                } else {
+                    newBanDate = new Date();
+                    newBanDate.setDate(newBanDate.getDate() + 4);
                 }
-            } else if (games_griefed === 1) {
+            } else if (games_griefed === 2) {
+                // Add 5 days to ban
                 if (newBanDate) {
-                    newBanDate.setDate(newBanDate.getDate() - 5);
+                    newBanDate.setDate(newBanDate.getDate() + 5);
+                } else {
+                    newBanDate = new Date();
+                    newBanDate.setDate(newBanDate.getDate() + 5);
                 }
-            } else if (games_griefed === 0) {
+            } else if (games_griefed >= 3) {
+                // Add 365 days to ban
                 if (newBanDate) {
-                    newBanDate.setDate(newBanDate.getDate() - 4);
+                    newBanDate.setDate(newBanDate.getDate() + 365);
+                } else {
+                    newBanDate = new Date();
+                    newBanDate.setDate(newBanDate.getDate() + 365);
                 }
             }
-        } else if (value === "bbbu") {
-            bbb = 0;
+
+
+        } else if (value === "bbb" && bbb!=1) {
+            bbb = 1; // Set BBB flag
+            // Add 1278.38 days to ban
             if (newBanDate) {
-                newBanDate.setDate(newBanDate.getDate() - 1278);
+                newBanDate.setDate(newBanDate.getDate() + 1278);
+            } else {
+                newBanDate = new Date();
+                newBanDate.setDate(newBanDate.getDate() + 1278);
             }
         } else {
-            return NextResponse.json({ error: "Invalid ban type" }, { status: 400 });
+            
+            return NextResponse.json({ error: "Player already has this ban" }, { status: 400 });
         }
 
-        if (newBanDate && newBanDate < new Date()) {
-            newBanDate = null;
-        }
-
+        // Convert newBanDate to string if it was modified
         const bannedUntilStr = newBanDate ? newBanDate.toISOString().split("T")[0] : null;
 
+        // Update the player record
         await new Promise((resolve, reject) => {
             db.run(
                 `UPDATE Players SET banned_until = ?, games_left = ?, games_griefed = ?, bbb = ? WHERE id = ?`,
@@ -98,12 +132,14 @@ export async function POST(req: NextRequest) {
             );
         });
 
+        
         return NextResponse.json({
             success: true,
             message: `Player ${id} updated successfully`,
         });
     } catch (error) {
         console.error("Error updating player ban:", error);
+        
         return NextResponse.json(
             { error: "Internal Server Error" },
             { status: 500 }
