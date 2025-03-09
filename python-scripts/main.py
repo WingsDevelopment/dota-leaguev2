@@ -536,7 +536,10 @@ async def signup(ctx: Context):
     global RENDER
     author: Member = ctx.message.author  # type: ignore
     try:
+        # get player id, proveri da l je registrovan
         execute_function_single_row_return('get_player_id', author.id)
+        # get_player
+        # player != undefined && player.bannedDateTime === undefined && player.bannedDateTime < datetime.now() moze dalje
     except ValueError:
         await ctx.reply('You need to signup for the leage', mention_author=True, delete_after=10)
         return
