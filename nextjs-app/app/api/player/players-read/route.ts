@@ -25,18 +25,16 @@ export async function GET() {
       }
     );
 
-
+    closeDatabase(db);
     return NextResponse.json({ players });
   } catch (error) {
 
 
     console.error("Error reading games:", error);
-
+    closeDatabase(db);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
     );
-  }finally{
-    closeDatabase(db);
   }
 }
