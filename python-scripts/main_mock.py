@@ -408,17 +408,10 @@ async def unmark_captain(ctx: Context, discord_id: str):
     await ctx.reply(f'Player <@{discord_id}> unmarked as captain')
 
 
-autoscore_lock = asyncio.Lock()
+
 @bot.hybrid_command("autoscore", description="Attempt to score a game")
-@commands.cooldown(rate=1, per=60, type=commands.BucketType.user)
 async def autoscore(ctx: Context):
-    _log("Autoscore command invoked")
-    try:
-        await asyncio.wait_for(autoscore_lock.acquire(), timeout=0.01)
-    except asyncio.TimeoutError:
-        await ctx.reply("Autoscore already in progress", delete_after=10)
-        return
-        
+    global AUTO_SCORING_IN_PROGRESS 
     try:
         _log("Autoscore command invoked")
         if LEAGUE_ID == 0:
@@ -427,26 +420,161 @@ async def autoscore(ctx: Context):
 
         _log(f"Retrieving match history for league ID {LEAGUE_ID}...")
         matches = api.get_match_history(league_id=LEAGUE_ID)
-        _log(f"Match history retrieved!")
+        # _log(f"Match history retrieved: {matches}")
+        _log(f"Match history retrieved: {matches['matches'][0]}")
+        # _log(f"Match history retrieved: {Object.keys(matches)}")
+        _log("Properties: " + str(list(matches.keys())), level="DEBUG")
         
         if not matches['matches']:
             await ctx.reply(f'No matches found in a league with id {LEAGUE_ID}', delete_after=10)
             return
 
-        try:
-            active_games = execute_function_with_return('get_active_games')
-            _log(f"Active games retrieved: {active_games}")
-        except ValueError:
-            await ctx.reply('No games in progress', delete_after=10)
+        # try:
+        #     active_games = execute_function_with_return('get_active_games')
+        #     _log(f"Active games retrieved: {active_games}")
+        # except ValueError:
+        #     await ctx.reply('No games in progress', delete_after=10)
+        #     return
+        # Inside your autoscore command, replace the active_games and active_game_players_dict mocks with:
+        active_games = [{
+            "id": 2,
+            "status": "STARTED",
+            "steam_match_id": None,
+            "type": "NORMAL",
+            "game_created_at": "2025-03-08 12:00:00",
+            "game_started_at": "2025-03-08 12:01:00"
+        }]
+
+        active_game_players_dict = {
+            2: [
+                (("76561198148976230"), 0),  # Cvoja
+                (("76561198209229704"), 0),  # Raale
+                (("76561198133751760"), 0),  # cowboydota
+                (("76561198073832118"), 0),  # instagram‑radekomsa‑tiktok
+                (("76561199385629136"), 0),  # X Æ A‑Xii
+                (("76561198323274214"), 1),  # GiveMeHugBaby
+                (("76561198155769340"), 1),  # Dzoint moga oca
+                (("76561198092513376"), 1),  # Ghost of Medosevac
+                (("76561198052417128"), 1),  # sorry
+                (("76561198143559772"), 1)   # Ma Ne
+            ]
+        }
+        mock_match = {
+            "dire_team_id": 0,
+            "lobby_type": 1,
+            "match_id": 8204990870,
+            "match_seq_num": 6895701220,
+            "players": [
+                {
+                    "hero": {"hero_id": 29},
+                    "hero_variant": 1,
+                    "side": "radiant",
+                    "steam_account": {"id32": "N/A", "id64": "76561198148976230"},
+                    "team_number": 0,
+                    "team_slot": 0
+                },
+                {
+                    "hero": {"hero_id": 36},
+                    "hero_variant": 1,
+                    "side": "radiant",
+                    "steam_account": {"id32": "N/A", "id64": "76561198209229704"},
+                    "team_number": 0,
+                    "team_slot": 1
+                },
+                {
+                    "hero": {"hero_id": 75},
+                    "hero_variant": 2,
+                    "side": "radiant",
+                    "steam_account": {"id32": "N/A", "id64": "76561198133751760"},
+                    "team_number": 0,
+                    "team_slot": 2
+                },
+                {
+                    "hero": {"hero_id": 86},
+                    "hero_variant": 1,
+                    "side": "radiant",
+                    "steam_account": {"id32": "N/A", "id64": "76561198073832118"},
+                    "team_number": 0,
+                    "team_slot": 3
+                },
+                {
+                    "hero": {"hero_id": 15},
+                    "hero_variant": 1,
+                    "side": "radiant",
+                    "steam_account": {"id32": "N/A", "id64": "76561199385629136"},
+                    "team_number": 0,
+                    "team_slot": 4
+                },
+                {
+                    "hero": {"hero_id": 2},
+                    "hero_variant": 1,
+                    "side": "dire",
+                    "steam_account": {"id32": "N/A", "id64": "76561198323274214"},
+                    "team_number": 1,
+                    "team_slot": 0
+                },
+                {
+                    "hero": {"hero_id": 70},
+                    "hero_variant": 2,
+                    "side": "dire",
+                    "steam_account": {"id32": "N/A", "id64": "76561198155769340"},
+                    "team_number": 1,
+                    "team_slot": 1
+                },
+                {
+                    "hero": {"hero_id": 22},
+                    "hero_variant": 1,
+                    "side": "dire",
+                    "steam_account": {"id32": "N/A", "id64": "76561198092513376"},
+                    "team_number": 1,
+                    "team_slot": 2
+                },
+                {
+                    "hero": {"hero_id": 40},
+                    "hero_variant": 1,
+                    "side": "dire",
+                    "steam_account": {"id32": "N/A", "id64": "76561198052417128"},
+                    "team_number": 1,
+                    "team_slot": 3
+                },
+                {
+                    "hero": {"hero_id": 62},
+                    "hero_variant": 1,
+                    "side": "dire",
+                    "steam_account": {"id32": "N/A", "id64": "76561198143559772"},
+                    "team_number": 1,
+                    "team_slot": 4
+                }
+            ],
+            "radiant_team_id": 2687557,
+            "series_id": 0,
+            "series_type": 0,
+            "start_time": 1741404078
+        }
+
+        # When your autoscore command runs, it will use this mock match.
+        # In your test you can replace the call to api.get_match_history with something like:
+        matches = {
+            "status": 1,
+            "num_results": 1,
+            "total_results": 1,
+            "results_remaining": 0,
+            "matches": [mock_match]
+        }
+
+
+        if AUTO_SCORING_IN_PROGRESS:
+            await ctx.reply('Autoscoring already in progress', delete_after=10)
             return
 
-        active_game_players_dict = {}
-        for game in active_games:
-            players_in_game = execute_function_with_return('get_all_players_from_game', game['id'])
-            active_game_players_dict[game['id']] = [
-                (int(player['steam_id']), player['team']) for player in players_in_game
-            ]
-            _log(f"Game ID {game['id']} has players: {active_game_players_dict[game['id']]}")
+        AUTO_SCORING_IN_PROGRESS = True
+        # active_game_players_dict = {}
+        # for game in active_games:
+        #     players_in_game = execute_function_with_return('get_all_players_from_game', game['id'])
+        #     active_game_players_dict[game['id']] = [
+        #         (int(player['steam_id']), player['team']) for player in players_in_game
+        #     ]
+        #     _log(f"Game ID {game['id']} has players: {active_game_players_dict[game['id']]}")
         
         try:
             scored_games = execute_function_with_return('get_scored_games_with_steam_match_id')
@@ -464,7 +592,8 @@ async def autoscore(ctx: Context):
         matches['matches'] = [match for match in matches['matches'] if match['match_id'] not in skip_games]
         _log(f"Filtered matches: {len(matches['matches'])} remaining (from original {original_count})")
 
-        for match in matches['matches']:
+        newMatches = [matches['matches'][0]]
+        for match in newMatches:
             if not active_game_players_dict:
                 _log("No active game players left, breaking out of loop")
                 break
@@ -497,27 +626,22 @@ async def autoscore(ctx: Context):
                 _log(f"Processing game ID {game_id_matched} for match {steam_match_id}")
                 await score(ctx, game_id_matched, winner, steam_match_id)
                 _log(f"Scored game {game_id_matched} with winner {winner}")
+                # Fetch detailed match info and store history
+                match_details = get_match_info(steam_match_id)
+                _log(f"Match details for match {steam_match_id}: {match_details}")
                 try:
-                    # Fetch detailed match info and store history
-                    match_details = get_match_info(steam_match_id)
-                    _log(f"Match details for match {steam_match_id}: {match_details}")
                     _log(f"Storing...")
-                    store_match_history(match_details, LEAGUE_ID, match['players'])
+                    store_match_history(match_details, LEAGUE_ID)
                     _log(f"Stored match history for match {steam_match_id}")
                 except Exception as e:
                     _log(f"Error storing match history for match {steam_match_id}: {e}", level="ERROR")
                 await asyncio.sleep(5)
 
+        AUTO_SCORING_IN_PROGRESS = False
+
     except Exception as e:
         await ctx.reply(f"Autoscore encountered an error: {e}", delete_after=10)
-    finally:
-        _log(f"Unlocking autoscore lock...")
-        autoscore_lock.release()
-
-@autoscore.error
-async def autoscore_error(ctx, error):
-    if isinstance(error, commands.CommandOnCooldown):
-        await ctx.reply(f"Please wait {error.retry_after:.1f} seconds before using autoscore again.", delete_after=10)
+        AUTO_SCORING_IN_PROGRESS = False
 
 @bot.hybrid_command("signup", description="Signup for the game")
 async def signup(ctx: Context):
@@ -542,10 +666,7 @@ async def signup(ctx: Context):
     global RENDER
     author: Member = ctx.message.author  # type: ignore
     try:
-        # get player id, proveri da l je registrovan
         execute_function_single_row_return('get_player_id', author.id)
-        # get_player
-        # player != undefined && player.bannedDateTime === undefined && player.bannedDateTime < datetime.now() moze dalje
     except ValueError:
         await ctx.reply('You need to signup for the leage', mention_author=True, delete_after=10)
         return
