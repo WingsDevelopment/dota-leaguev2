@@ -409,14 +409,16 @@ async def unmark_captain(ctx: Context, discord_id: str):
 
 
 autoscore_lock = asyncio.Lock()
-
 @bot.hybrid_command("autoscore", description="Attempt to score a game")
+@commands.cooldown(rate=1, per=60, type=commands.BucketType.user)
 async def autoscore(ctx: Context):
+    _log("Autoscore command invoked")
     try:
-        await asyncio.wait_for(autoscore_lock.acquire(), timeout=0.0)
+        await asyncio.wait_for(autoscore_lock.acquire(), timeout=0.01)
     except asyncio.TimeoutError:
         await ctx.reply("Autoscore already in progress", delete_after=10)
         return
+        
     try:
         _log("Autoscore command invoked")
         if LEAGUE_ID == 0:
@@ -437,7 +439,6 @@ async def autoscore(ctx: Context):
         except ValueError:
             await ctx.reply('No games in progress', delete_after=10)
             return
-        Inside your autoscore command, replace the active_games and active_game_players_dict mocks with:
 
         active_game_players_dict = {}
         for game in active_games:
@@ -512,6 +513,11 @@ async def autoscore(ctx: Context):
     finally:
         _log(f"Unlocking autoscore lock...")
         autoscore_lock.release()
+
+@autoscore.error
+async def autoscore_error(ctx, error):
+    if isinstance(error, commands.CommandOnCooldown):
+        await ctx.reply(f"Please wait {error.retry_after:.1f} seconds before using autoscore again.", delete_after=10)
 
 @bot.hybrid_command("signup", description="Signup for the game")
 async def signup(ctx: Context):
