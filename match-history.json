@@ -1,0 +1,18 @@
+{
+  "matchHistory": [
+    {
+      "id": 1,
+      "match_id": 8204990870,
+      "league_id": 17791,
+      "start_time": 1741404078,
+      "duration": 4251,
+      "game_mode": "2",
+      "lobby_type": "1",
+      "region": "3",
+      "winner": "radiant",
+      "radiant_score": 74,
+      "dire_score": 61,
+      "additional_info": "{\"replay_url\": \"http://replay273.valve.net/570/8204990870_1975896297.dem.bz2\", \"picks_bans\": [{\"is_pick\": false, \"hero_id\": 35, \"team\": 0, \"order\": 0}, {\"is_pick\": false, \"hero_id\": 102, \"team\": 1, \"order\": 1}, {\"is_pick\": false, \"hero_id\": 60, \"team\": 1, \"order\": 2}, {\"is_pick\": false, \"hero_id\": 138, \"team\": 0, \"order\": 3}, {\"is_pick\": false, \"hero_id\": 106, \"team\": 1, \"order\": 4}, {\"is_pick\": false, \"hero_id\": 97, \"team\": 1, \"order\": 5}, {\"is_pick\": false, \"hero_id\": 44, \"team\": 0, \"order\": 6}, {\"is_pick\": true, \"hero_id\": 75, \"team\": 0, \"order\": 7}, {\"is_pick\": true, \"hero_id\": 2, \"team\": 1, \"order\": 8}, {\"is_pick\": false, \"hero_id\": 67, \"team\": 0, \"order\": 9}, {\"is_pick\": false, \"hero_id\": 49, \"team\": 0, \"order\": 10}, {\"is_pick\": false, \"hero_id\": 114, \"team\": 1, \"order\": 11}, {\"is_pick\": true, \"hero_id\": 40, \"team\": 1, \"order\": 12}, {\"is_pick\": true, \"hero_id\": 86, \"team\": 0, \"order\": 13}, {\"is_pick\": true, \"hero_id\": 29, \"team\": 0, \"order\": 14}, {\"is_pick\": true, \"hero_id\": 62, \"team\": 1, \"order\": 15}, {\"is_pick\": true, \"hero_id\": 70, \"team\": 1, \"order\": 16}, {\"is_pick\": true, \"hero_id\": 36, \"team\": 0, \"order\": 17}, {\"is_pick\": false, \"hero_id\": 76, \"team\": 0, \"order\": 18}, {\"is_pick\": false, \"hero_id\": 93, \"team\": 1, \"order\": 19}, {\"is_pick\": false, \"hero_id\": 95, \"team\": 1, \"order\": 20}, {\"is_pick\": false, \"hero_id\": 13, \"team\": 0, \"order\": 21}, {\"is_pick\": true, \"hero_id\": 15, \"team\": 0, \"order\": 22}, {\"is_pick\": true, \"hero_id\": 22, \"team\": 1, \"order\": 23}], \"cluster\": 273}"
+    }
+  ]
+}

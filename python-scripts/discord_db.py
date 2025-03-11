@@ -256,6 +256,52 @@ def get_leaderboards(cursor: Cursor) -> None:
     """)
 
 
+# ------------------------------
+# New Tables for Match History
+# ------------------------------
+
+def create_match_history_table(cursor: Cursor) -> None:
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS MatchHistory (
+        id INTEGER PRIMARY KEY,
+        match_id INTEGER UNIQUE,
+        league_id INTEGER,
+        start_time TIMESTAMP,
+        duration INTEGER,
+        game_mode TEXT,
+        lobby_type TEXT,
+        region TEXT,
+        winner TEXT,
+        radiant_score INTEGER,
+        dire_score INTEGER,
+        additional_info TEXT
+    )
+    ''')
+
+def create_match_player_stats_table(cursor: Cursor) -> None:
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS MatchPlayerStats (
+        id INTEGER PRIMARY KEY,
+        match_history_id INTEGER,
+        steam_id TEXT,  -- now using steam_id instead of internal player id
+        hero_id INTEGER,
+        kills INTEGER,
+        deaths INTEGER,
+        assists INTEGER,
+        net_worth INTEGER,
+        last_hits INTEGER,
+        denies INTEGER,
+        gpm INTEGER,
+        xpm INTEGER,
+        damage INTEGER,
+        heal INTEGER,
+        building_damage INTEGER,
+        wards_placed INTEGER,
+        items TEXT,
+        FOREIGN KEY(match_history_id) REFERENCES MatchHistory(id)
+    )
+    ''')
+
 def create_tables(cursor: Connection) -> None:
     cursor.execute('''CREATE TABLE IF NOT EXISTS Players
                             (id INTEGER PRIMARY KEY,
@@ -309,6 +355,9 @@ def create_tables(cursor: Connection) -> None:
                     player_id INTEGER,
                     role INTEGER,
                     FOREIGN KEY(player_id) REFERENCES Player(id))''')
+
+    create_match_history_table(cursor)
+    create_match_player_stats_table(cursor)
 
 # wrapper functions
 
@@ -394,13 +443,23 @@ def custom_query(cursor: Cursor, query: str) -> None:
 
 # maintenance functions
 def ensure_database_exists() -> None:
-    if not os.path.exists(DB_PATH):
-        open(DB_PATH, 'w').close()
+    # Connect to the database whether or not the file exists.
+    conn = sqlite3.connect(DB_PATH, uri=True)
+    cursor = conn.cursor()
+    # Check if the Game table exists.
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Game'")
+    table_exists = cursor.fetchone()
+    if not table_exists:
+        print("Database tables not found. Creating tables...")
         try:
             execute_function_no_return('create_tables')
         except DataBaseErrorNonModified:
             pass
         register_steam_bots()
+    else:
+        print("Database tables exist.")
+    conn.close()
+
 
 
 def recalculate_mmr() -> None:
