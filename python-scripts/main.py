@@ -525,6 +525,16 @@ async def signup(ctx: Context):
     author: Member = ctx.message.author  # type: ignore
     try:
         execute_function_single_row_return('get_player_id', author.id)
+        player = execute_function_single_row_return("get_player", author.id)
+        banned_until_str = player.get('banned_until')
+        if banned_until_str:
+            try:
+                banned_until = datetime.datetime.fromisoformat(banned_until_str)  # Convert only if not None
+                if banned_until > datetime.datetime.now():
+                    await ctx.reply(f'You are banned until {banned_until}', mention_author=True, delete_after=10)
+                    return
+            except ValueError:
+                print(f"Warning: Invalid date format in banned_until for {author.id}: {banned_until_str}")
     except ValueError:
         await ctx.reply('You need to signup for the leage', mention_author=True, delete_after=10)
         return
@@ -542,8 +552,17 @@ async def signup(ctx: Context):
     global RENDER
     author: Member = ctx.message.author  # type: ignore
     try:
-        # get player id, proveri da l je registrovan
         execute_function_single_row_return('get_player_id', author.id)
+        player = execute_function_single_row_return("get_player", author.id)
+        banned_until_str = player.get('banned_until')
+        if banned_until_str:
+            try:
+                banned_until = datetime.datetime.fromisoformat(banned_until_str)  # Convert only if not None
+                if banned_until > datetime.datetime.now():
+                    await ctx.reply(f'You are banned until {banned_until}', mention_author=True, delete_after=10)
+                    return
+            except ValueError:
+                print(f"Warning: Invalid date format in banned_until for {author.id}: {banned_until_str}")
         # get_player
         # player != undefined && player.bannedDateTime === undefined && player.bannedDateTime < datetime.now() moze dalje
     except ValueError:
