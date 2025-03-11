@@ -408,10 +408,15 @@ async def unmark_captain(ctx: Context, discord_id: str):
     await ctx.reply(f'Player <@{discord_id}> unmarked as captain')
 
 
+autoscore_lock = asyncio.Lock()
 
 @bot.hybrid_command("autoscore", description="Attempt to score a game")
 async def autoscore(ctx: Context):
-    global AUTO_SCORING_IN_PROGRESS 
+    try:
+        await asyncio.wait_for(autoscore_lock.acquire(), timeout=0.0)
+    except asyncio.TimeoutError:
+        await ctx.reply("Autoscore already in progress", delete_after=10)
+        return
     try:
         _log("Autoscore command invoked")
         if LEAGUE_ID == 0:
@@ -434,11 +439,6 @@ async def autoscore(ctx: Context):
             return
         Inside your autoscore command, replace the active_games and active_game_players_dict mocks with:
 
-        if AUTO_SCORING_IN_PROGRESS:
-            await ctx.reply('Autoscoring already in progress', delete_after=10)
-            return
-
-        AUTO_SCORING_IN_PROGRESS = True
         active_game_players_dict = {}
         for game in active_games:
             players_in_game = execute_function_with_return('get_all_players_from_game', game['id'])
@@ -507,11 +507,11 @@ async def autoscore(ctx: Context):
                     _log(f"Error storing match history for match {steam_match_id}: {e}", level="ERROR")
                 await asyncio.sleep(5)
 
-        AUTO_SCORING_IN_PROGRESS = False
-
     except Exception as e:
         await ctx.reply(f"Autoscore encountered an error: {e}", delete_after=10)
-        AUTO_SCORING_IN_PROGRESS = False
+    finally:
+        _log(f"Unlocking autoscore lock...")
+        autoscore_lock.release()
 
 @bot.hybrid_command("signup", description="Signup for the game")
 async def signup(ctx: Context):

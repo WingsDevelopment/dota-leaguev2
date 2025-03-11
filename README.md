@@ -161,3 +161,7 @@ Copy paste whole steam profile url to https://www.dota2.com/league/17791/admins
 - sqlite> .mode column
 - sqlite> SELECT \* FROM MatchHistory;
 - sqlite> .exit
+
+# Read python logs
+
+- docker-compose logs -f python
