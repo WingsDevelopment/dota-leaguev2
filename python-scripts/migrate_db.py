@@ -48,6 +48,7 @@ def add_banned_until_migration(cursor):
     columns = [col[1] for col in cursor.fetchall()]
     new_columns = {
         "banned_until": "DATE",
+        "games_didnt_show": "INTEGER DEFAULT 0",
         "games_left": "INTEGER DEFAULT 0",
         "games_griefed": "INTEGER DEFAULT 0",
         "bbb": "INTEGER DEFAULT 0"

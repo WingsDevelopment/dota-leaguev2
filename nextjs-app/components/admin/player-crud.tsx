@@ -1,4 +1,5 @@
-"use client";
+'use client'
+import { useState } from "react";
 import {
     Card,
     CardContent,
@@ -14,8 +15,8 @@ import {
     TableHeaderCell,
     TableRow,
 } from "@/components/ui/table";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Modal, ModalClose, ModalContent, ModalDescription, ModalHeader, ModalTrigger } from "../ui/modal";
 
 interface Player {
     id: number;
@@ -23,17 +24,18 @@ interface Player {
     steam_id: number;
     name: string;
     mmr: number;
-    captain: number
-    banned_until: string,
-    games_left: number,
-    games_griefed: number,
-    bbb: number
+    captain: number;
+    banned_until: string;
+    games_didnt_show:number;
+    games_left: number;
+    games_griefed: number;
+    bbb: number;
 }
 
 export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
     const [players, setPlayers] = useState(playerList);
-    const [loading, setLoading] = useState(false)
-    const [selectedValue, setSelectedValue] = useState<{ [key: number]: string }>({});
+    const [loading, setLoading] = useState(false);
+    const [openModal, setOpenModal] = useState<number | null>(null); // Track which modal is open
 
     const fetchPlayers = async () => {
         try {
@@ -66,23 +68,16 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
     };
 
     // Handle banning logic
-    const handleBan = async (id: number) => {
+    const handleBan = async (id: number, value: string) => {
         if (!confirm("Are you sure you want to ban this player?")) return;
-        const value = selectedValue[id] ?? "1l";
         await sendBanRequest(id, value);
+        setOpenModal(null); // Close modal after action
     };
 
     // Handle unbanning logic
     const handleUnban = async (id: number) => {
         if (!confirm("Are you sure you want to unban this player?")) return;
         await sendBanRequest(id, "unban");
-    };
-
-    const handleSelectChange = (id: number, value: string) => {
-        setSelectedValue((prev) => ({
-            ...prev,
-            [id]: value, // Update only the specific player's dropdown
-        }));
     };
 
     return (
@@ -99,63 +94,77 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
                         <TableHeader>
                             <tr>
                                 <TableHeaderCell>Id</TableHeaderCell>
-                                <TableHeaderCell>Discrod Id</TableHeaderCell>
+                                <TableHeaderCell>Discord Id</TableHeaderCell>
                                 <TableHeaderCell>Steam Id</TableHeaderCell>
                                 <TableHeaderCell>Name</TableHeaderCell>
                                 <TableHeaderCell>MMR</TableHeaderCell>
                                 <TableHeaderCell>Captain</TableHeaderCell>
                                 <TableHeaderCell>Banned Until</TableHeaderCell>
+                                <TableHeaderCell>Games Didn't Show</TableHeaderCell>
                                 <TableHeaderCell>Games Left</TableHeaderCell>
                                 <TableHeaderCell>Games Griefed</TableHeaderCell>
                                 <TableHeaderCell>Bad Behaviour Ban</TableHeaderCell>
-                                <TableHeaderCell>Ban Type</TableHeaderCell>
                                 <TableHeaderCell>Ban Player</TableHeaderCell>
                                 <TableHeaderCell>Unban Player</TableHeaderCell>
                             </tr>
                         </TableHeader>
                         <TableBody>
-                            {players.map((player: Player, i: number) => {
-                                return (
-                                    <TableRow key={player.id}>
-                                        <TableCell>{player.id}</TableCell>
-                                        <TableCell>{player.discord_id}</TableCell>
-                                        <TableCell>{player.steam_id}</TableCell>
-                                        <TableCell>{player.name}</TableCell>
-                                        <TableCell>{player.mmr}</TableCell>
-                                        <TableCell>{player.captain}</TableCell>
-                                        <TableCell>{player.banned_until}</TableCell>
-                                        <TableCell>{player.games_left}</TableCell>
-                                        <TableCell>{player.games_griefed}</TableCell>
-                                        <TableCell>{player.bbb}</TableCell>
-                                        <TableCell>
-                                            <select
-                                                id="status-filter"
-                                                className="p-2 border rounded"
-                                                value={selectedValue[player.id] || "1l"}
-                                                onChange={(e) => handleSelectChange(player.id, e.currentTarget.value)}>
-                                                <option value="1l">1 LEAVE</option>
-                                                <option value="1g">1 GRIEF</option>
-                                                <option value="bbb">BBB</option>
-                                            </select></TableCell>
-                                        <TableCell>
-                                            <Button
-                                                disabled={loading}
-                                                onClick={() => handleBan(player.id)}
-                                            >
-                                                Ban Player
-                                            </Button>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Button
-                                                disabled={loading}
-                                                onClick={() => handleUnban(player.id)}
-                                            >
-                                                Unban Player
-                                            </Button>
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })}
+                            {players.map((player: Player) => (
+                                <TableRow key={player.id}>
+                                    <TableCell>{player.id}</TableCell>
+                                    <TableCell>{player.discord_id}</TableCell>
+                                    <TableCell>{player.steam_id}</TableCell>
+                                    <TableCell>{player.name}</TableCell>
+                                    <TableCell>{player.mmr}</TableCell>
+                                    <TableCell>{player.captain}</TableCell>
+                                    <TableCell>{player.banned_until}</TableCell>
+                                    <TableCell>{player.games_didnt_show}</TableCell>
+                                    <TableCell>{player.games_left}</TableCell>
+                                    <TableCell>{player.games_griefed}</TableCell>
+                                    <TableCell>{player.bbb}</TableCell>
+
+                                    <TableCell>
+                                    <Modal open={openModal === player.id} onOpenChange={(isOpen) => isOpen ? setOpenModal(player.id) : setOpenModal(null)}>
+                                            <ModalTrigger onClick={() => setOpenModal(player.id)}>Ban Player</ModalTrigger>
+                                            <ModalContent>
+                                                <ModalHeader>Ban Player</ModalHeader>
+                                                <ModalDescription>
+                                                    <Button onClick={() => handleBan(player.id, "1d")}>
+                                                        1 Game Didn't Show
+                                                    </Button>
+                                                    <Button onClick={() => handleBan(player.id, "1l")}>
+                                                        1 Game Left
+                                                    </Button>
+                                                    <Button onClick={() => handleBan(player.id, "1g")}>
+                                                        1 Game Griefed
+                                                    </Button>
+                                                    <Button onClick={() => handleBan(player.id, "bbb")}>
+                                                        Bad Behaviour Ban
+                                                    </Button>
+                                                </ModalDescription>
+
+                                                <div className="mt-4 flex justify-end">
+                                                    <ModalClose
+                                                        className="bg-red-600 text-white px-4 py-2 rounded"
+                                                        onClick={() => setOpenModal(null)}
+                                                    >
+                                                        Close
+                                                    </ModalClose>
+                                                </div>
+                                            </ModalContent>
+                                        </Modal>
+                                    </TableCell>
+
+                                    <TableCell>
+                                        <Button
+                                            disabled={loading}
+                                            onClick={() => handleUnban(player.id)}
+                                        >
+                                            Unban Player
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
                         </TableBody>
                     </Table>
                 </CardContent>
