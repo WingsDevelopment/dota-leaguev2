@@ -44,14 +44,19 @@ export async function banUnbanPlayer({ id, action, banType }: BanUnbanParams) {
     if (banType === "1l") {
       games_left += 1;
       if (games_left === 1) {
-        // Do nothing
+        if (newBanDate) {
+          newBanDate.setDate(newBanDate.getDate() + 1);
+        }else {
+          newBanDate = new Date();
+          newBanDate.setDate(newBanDate.getDate() + 1);
+        }
       } else if (games_left >= 2) {
         // Add 30 days to ban
         if (newBanDate) {
-          newBanDate.setDate(newBanDate.getDate() + 30);
+          newBanDate.setDate(newBanDate.getDate() + 10);
         } else {
           newBanDate = new Date();
-          newBanDate.setDate(newBanDate.getDate() + 30);
+          newBanDate.setDate(newBanDate.getDate() + 10);
         }
       }
 
@@ -83,24 +88,26 @@ export async function banUnbanPlayer({ id, action, banType }: BanUnbanParams) {
         }
       }
 
-    } else if (banType === "bbb" && bbb != 1) {
-      bbb = 1; // Set BBB flag
+    } else if (banType === "bbb") {
+      bbb += 1; // Set BBB flag
       // Add 1278.38 days to ban
-      if (newBanDate) {
-        newBanDate.setDate(newBanDate.getDate() + 1278);
-      } else {
-        newBanDate = new Date();
-        newBanDate.setDate(newBanDate.getDate() + 1278);
+      if(bbb===1){
+        if (newBanDate) {
+          newBanDate.setDate(newBanDate.getDate() + 14);
+        } else {
+          newBanDate = new Date();
+          newBanDate.setDate(newBanDate.getDate() + 548);
+        }
       }
     } else if (banType === "1d"){
       games_didnt_show+=1
       if (games_didnt_show === 1) {
         // Add 1 hour to the ban date
         if (newBanDate) {
-          newBanDate.setHours(newBanDate.getHours() + 1);
+          newBanDate.setHours(newBanDate.getHours() +2);
         } else {
           newBanDate = new Date();
-          newBanDate.setHours(newBanDate.getHours() + 1);
+          newBanDate.setHours(newBanDate.getHours() + 2);
         }
       } else if (games_didnt_show >= 2) {
         // Add 1 day to the ban date
