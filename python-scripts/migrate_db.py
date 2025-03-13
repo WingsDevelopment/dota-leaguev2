@@ -43,6 +43,22 @@ def add_game_created_at_migration(cursor):
     else:
         print("No migration needed: 'game_created_at' column already exists.")
 
+def add_banned_until_migration(cursor):
+    cursor.execute("PRAGMA table_info(Players)")
+    columns = [col[1] for col in cursor.fetchall()]
+    new_columns = {
+        "banned_until": "DATE",
+        "games_left": "INTEGER DEFAULT 0",
+        "games_griefed": "INTEGER DEFAULT 0",
+        "bbb": "INTEGER DEFAULT 0"
+    }
+    for column, column_type in new_columns.items():
+        if column not in columns:
+            cursor.execute(f"ALTER TABLE Players ADD COLUMN {column} {column_type}")
+            print(f"Migration applied: Added '{column}' column with type {column_type}.")
+        else:
+            print(f"No migration needed: '{column}' column already exists.")
+
 def create_match_history_table_migration(cursor):
     # Reuse the function from discord_db.py
     create_match_history_table(cursor)
@@ -64,6 +80,7 @@ def run_migrations(db_path):
         ("add_game_started_at", add_game_started_at_migration),
         ("create_match_history_table", create_match_history_table_migration),
         ("create_match_player_stats_table", create_match_player_stats_table_migration),
+        ("add_banned_until", add_banned_until_migration)
     ]
     
     for migration_name, migration_func in migrations:

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
 import sqlite3 from "sqlite3";
+import { closeDatabase } from "@/db/initDatabase";
 
 export async function GET() {
   //global export of dbPath
@@ -46,11 +47,11 @@ export async function GET() {
     );
 
     // Close the database connection.
-    db.close();
+    
 
     return NextResponse.json({ games });
   } catch (error) {
-    db.close();
+    
 
     console.error("Error reading games:", error);
 
@@ -58,5 +59,7 @@ export async function GET() {
       { error: "Internal Server Error" },
       { status: 500 }
     );
+  }finally{
+    closeDatabase(db);
   }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDbInstance } from "@/db/utils";
 import { isUserAdmin } from "@/app/common/constraints";
 import { auth } from "../../../../auth";
+import { closeDatabase } from "@/db/initDatabase";
 
 export async function POST(req: NextRequest) {
   if (!isUserAdmin()) {
@@ -135,6 +136,6 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }finally{
-    db.close();
+    closeDatabase(db);
   }
 }

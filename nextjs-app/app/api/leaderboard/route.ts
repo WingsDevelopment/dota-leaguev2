@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { getDbInstance } from "@/db/utils";
+import { closeDatabase } from "@/db/initDatabase";
 
 export async function GET() {
+  const db = await getDbInstance();
   try {
-    const db = await getDbInstance();
 
     const leaderboard: Array<Record<string, any>> = await new Promise(
       (resolve, reject) => {
@@ -24,7 +25,7 @@ export async function GET() {
     );
 
     // Close the database connection.
-    db.close();
+
 
     return NextResponse.json({ leaderboard });
   } catch (error) {
@@ -33,5 +34,7 @@ export async function GET() {
       { error: "Internal Server Error" },
       { status: 500 }
     );
+  } finally {
+    closeDatabase(db);
   }
 }

@@ -33,7 +33,6 @@ export default async function DashboardPage() {
   const data = await res.json();
   const leaderboard = data.leaderboard || [];
   console.log({ leaderboard });
-  console.log({ leaderboard });
 
   return (
     <>
@@ -61,7 +60,7 @@ export default async function DashboardPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Total players</CardTitle>
-                  <CardDescription>todo</CardDescription>
+                  <CardDescription>{leaderboard.length}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm">+20.1% from last month</p>

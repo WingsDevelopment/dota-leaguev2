@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDbInstance } from "@/db/utils";
 import { isUserAdmin } from "@/app/common/constraints";
 import { calculateElo } from "../../../../lib/utils";
+import { closeDatabase } from "@/db/initDatabase";
 
 export async function PUT(req: NextRequest) {
   if (!(await isUserAdmin())) {
@@ -34,12 +35,12 @@ export async function PUT(req: NextRequest) {
     );
 
     if (!actualGame) {
-      db.close();
+      
       return NextResponse.json({ error: "Game not found" }, { status: 404 });
     }
 
     if (actualGame.status !== status) {
-      db.close();
+      
       return NextResponse.json(
         { error: "Game status mismatch. Possible tampering detected." },
         { status: 403 }
@@ -75,7 +76,7 @@ export async function PUT(req: NextRequest) {
       await new Promise((resolve, reject) =>
         db.run("ROLLBACK", (err) => (err ? reject(err) : resolve(null)))
       );
-      db.close();
+      
       return NextResponse.json(
         { error: "No players found for this game" },
         { status: 404 }
@@ -90,7 +91,7 @@ export async function PUT(req: NextRequest) {
       await new Promise((resolve, reject) =>
         db.run("ROLLBACK", (err) => (err ? reject(err) : resolve(null)))
       );
-      db.close();
+      
       return NextResponse.json(
         { error: "Insufficient players to calculate Elo" },
         { status: 400 }
@@ -153,7 +154,7 @@ export async function PUT(req: NextRequest) {
       db.run("COMMIT", (err) => (err ? reject(err) : resolve(null)))
     );
 
-    db.close();
+    
     return NextResponse.json({
       success: true,
       message: "MMR updated and game marked as OVER",
@@ -164,10 +165,12 @@ export async function PUT(req: NextRequest) {
     await new Promise((resolve, reject) =>
       db.run("ROLLBACK", (err) => (err ? reject(err) : resolve(null)))
     );
-    db.close();
+    
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
     );
+  }finally{
+    closeDatabase(db);
   }
 }

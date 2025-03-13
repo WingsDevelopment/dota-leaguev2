@@ -1,3 +1,4 @@
+import datetime
 from typing import Any, Dict, List
 from random import choice
 from discord import ButtonStyle, Interaction, TextChannel
@@ -30,6 +31,16 @@ class ConsoleView(View):
         user = interaction.user
         try:
             execute_function_single_row_return('get_player_id', interaction.user.id)
+            player = execute_function_single_row_return("get_player", interaction.user.id)
+            banned_until_str = player.get('banned_until')
+            if banned_until_str:
+                try:
+                    banned_until = datetime.datetime.fromisoformat(banned_until_str)  # Convert only if not None
+                    if banned_until > datetime.datetime.now():
+                        await interaction.response.send_message(f'You are banned until {banned_until}', delete_after=10)
+                        return
+                except ValueError:
+                    print(f"Warning: Invalid date format in banned_until for {interaction.user.id}: {banned_until_str}")
         except ValueError:
             await self.console_channel.send(f'<@{user.id}> You need to signup for the leage', delete_after=5)
             return
@@ -50,6 +61,16 @@ class ConsoleView(View):
         user = interaction.user
         try:
             execute_function_single_row_return('get_player_id', interaction.user.id)
+            player = execute_function_single_row_return("get_player", interaction.user.id)
+            banned_until_str = player.get('banned_until')
+            if banned_until_str:
+                try:
+                    banned_until = datetime.datetime.fromisoformat(banned_until_str)  # Convert only if not None
+                    if banned_until > datetime.datetime.now():
+                        await interaction.response.send_message(f'You are banned until {banned_until}', delete_after=10)
+                        return
+                except ValueError:
+                    print(f"Warning: Invalid date format in banned_until for {interaction.user.id}: {banned_until_str}")
         except ValueError:
             await self.console_channel.send(f'<@{user.id}> You need to signup for the leage', delete_after=5)
             return

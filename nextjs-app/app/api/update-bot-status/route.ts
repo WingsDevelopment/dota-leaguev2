@@ -1,3 +1,6 @@
+import { isUserAdmin } from "@/app/common/constraints";
+import { closeDatabase } from "@/db/initDatabase";
+import { getDbInstance } from "@/db/utils";
 import { NextResponse } from "next/server";
 import path from "path";
 import sqlite3 from "sqlite3";
@@ -6,22 +9,11 @@ import sqlite3 from "sqlite3";
 
 // TODO DELETE ASAP/ OR MAKE ADMIN ACTION
 export async function POST() {
+  if (!(await isUserAdmin())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const db = await getDbInstance();
   try {
-    // const session = await auth();
-
-    // if (!ADMIN_IDS.some(session.user.id)) throw new Error("Unauthorized");
-
-    const dbPath =
-      process.env.DATABASE_PATH || path.join(process.cwd(), "db", "league.db");
-
-    // Open the SQLite database.
-    const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => {
-      if (err) {
-        console.error("Error opening database:", err);
-        throw new Error("Database connection failed");
-      }
-    });
-
     // Execute update query wrapped in a promise
     await new Promise<void>((resolve, reject) => {
       db.run(
@@ -38,7 +30,7 @@ export async function POST() {
     });
 
     // Close the database connection.
-    db.close();
+
 
     return NextResponse.json({
       success: true,
@@ -50,5 +42,7 @@ export async function POST() {
       { error: "Internal Server Error" },
       { status: 500 }
     );
+  } finally {
+    closeDatabase(db);
   }
 }
