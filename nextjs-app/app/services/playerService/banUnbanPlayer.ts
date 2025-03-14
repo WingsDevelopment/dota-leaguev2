@@ -4,7 +4,7 @@ import { closeDatabase } from "@/db/initDatabase";
 interface BanUnbanParams {
   id: number;
   action: "ban" | "unban";
-  banType?: "1l" | "1g" | "bbb"|"1d"; // Only required for bans
+  banType?: "1l" | "1g" | "bbb" | "1d"; // Only required for bans
 }
 
 export async function banUnbanPlayer({ id, action, banType }: BanUnbanParams) {
@@ -46,7 +46,7 @@ export async function banUnbanPlayer({ id, action, banType }: BanUnbanParams) {
       if (games_left === 1) {
         if (newBanDate) {
           newBanDate.setDate(newBanDate.getDate() + 1);
-        }else {
+        } else {
           newBanDate = new Date();
           newBanDate.setDate(newBanDate.getDate() + 1);
         }
@@ -91,7 +91,7 @@ export async function banUnbanPlayer({ id, action, banType }: BanUnbanParams) {
     } else if (banType === "bbb") {
       bbb += 1; // Set BBB flag
       // Add 1278.38 days to ban
-      if(bbb===1){
+      if (bbb === 1) {
         if (newBanDate) {
           newBanDate.setDate(newBanDate.getDate() + 14);
         } else {
@@ -99,24 +99,15 @@ export async function banUnbanPlayer({ id, action, banType }: BanUnbanParams) {
           newBanDate.setDate(newBanDate.getDate() + 548);
         }
       }
-    } else if (banType === "1d"){
-      games_didnt_show+=1
-      if (games_didnt_show === 1) {
-        // Add 1 hour to the ban date
-        if (newBanDate) {
-          newBanDate.setHours(newBanDate.getHours() +2);
-        } else {
-          newBanDate = new Date();
-          newBanDate.setHours(newBanDate.getHours() + 2);
-        }
-      } else if (games_didnt_show >= 2) {
-        // Add 1 day to the ban date
-        if (newBanDate) {
-          newBanDate.setDate(newBanDate.getDate() + 1);
-        } else {
-          newBanDate = new Date();
-          newBanDate.setDate(newBanDate.getDate() + 1);
-        }
+    } else if (banType === "1d") {
+      games_didnt_show += 1
+
+      // Add 1 hour to the ban date
+      if (newBanDate) {
+        newBanDate.setHours(newBanDate.getHours() + games_didnt_show);
+      } else {
+        newBanDate = new Date();
+        newBanDate.setHours(newBanDate.getHours() + games_didnt_show);
       }
     }
 
