@@ -2,7 +2,7 @@ import { closeDatabase } from "@/db/initDatabase";
 import { getDbInstance } from "@/db/utils";
 import { NextResponse } from "next/server";
 
-
+//Dodati transakcije i napraviti service.
 // GET matches based on steam_id
 export async function GET(req: Request) {
   const db = await getDbInstance();
