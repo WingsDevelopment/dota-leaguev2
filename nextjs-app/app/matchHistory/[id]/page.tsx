@@ -2,10 +2,12 @@ import { baseUrl } from "@/app/common/constraints";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from "@/components/ui/table";
 import { headers } from "next/headers";
+import Link from "next/link";
 
-interface MatchHistoryProps {
+export interface MatchHistoryProps {
   params: {
-    id: string; // Next.js dynamic params are always strings
+    id: string; 
+    match:string// Next.js dynamic params are always strings
   };
 }
 export interface MatchHistory {
@@ -24,10 +26,9 @@ export interface MatchHistory {
 }
 export default async function MatchHistory({ params }: MatchHistoryProps) {
   const { id } = params;
-  const steam_id = "76561198148976230" // hardcoded radi testiranja
   const cookie = headers().get("cookie") || "";
   const [matchHistoryRes, matchHistroyPlayerStatsRes] = await Promise.all([
-    fetch(`${baseUrl}/api/match-history-players/show-history?steam_id=${steam_id}`, { //passovacu steam id preko leaderboards
+    fetch(`${baseUrl}/api/match-history-players/show-history?steam_id=${id}`, { //passovacu steam id preko leaderboards
       cache: "no-store",
       headers: { cookie },
     }),
@@ -55,9 +56,9 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
       <Card>
         <CardHeader>
           <CardTitle>
-            <h1 className="text-3xl font-bold mb-4">Request Vouch</h1>
+            <h1 className="text-3xl font-bold mb-4">Match History</h1>
           </CardTitle>
-          <CardDescription>Registered Players</CardDescription>
+          <CardDescription>Details</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -74,7 +75,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
                 <TableHeaderCell>Radiant Score</TableHeaderCell>
                 <TableHeaderCell>Dire Score</TableHeaderCell>
                 <TableHeaderCell>Additional Info</TableHeaderCell>
-
+                <TableHeaderCell>Show Match</TableHeaderCell>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -91,6 +92,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
                   <TableCell>{match.radiant_score}</TableCell>
                   <TableCell>{match.dire_score}</TableCell>
                   <TableCell>{match.additional_info}</TableCell>
+                  <TableCell><Link href={`/matchHistory/${id}/${match.id}`}>Show Match</Link></TableCell>
                 </TableRow>
               ))}
             </TableBody>

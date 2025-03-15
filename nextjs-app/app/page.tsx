@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/table";
 import Image from "next/image";
 import { Tooltip } from "../components/ui/tooltip";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "RADEKOMSA LEADERBOARD",
@@ -155,7 +156,7 @@ export default async function DashboardPage() {
                                 />
                               </Tooltip>
                             )}
-                            <span>{player.name}</span>
+                            <span><Link href={`/matchHistory/${player.steam_id}`}>{player.name}</Link></span>
                             {player.discord_id === "662288348114845719" && (
                               <Tooltip tooltip="PI Milioner">
                                 <Image
