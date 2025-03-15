@@ -24,10 +24,10 @@ export interface MatchHistory {
 }
 export default async function MatchHistory({ params }: MatchHistoryProps) {
   const { id } = params;
-  const steam_id = "76561198148976230"
+  const steam_id = "76561198148976230" // hardcoded radi testiranja
   const cookie = headers().get("cookie") || "";
   const [matchHistoryRes, matchHistroyPlayerStatsRes] = await Promise.all([
-    fetch(`${baseUrl}/api/match-history-players/show-history?steam_id=${steam_id}`, { //based on id we need to fetch steam id first then match history
+    fetch(`${baseUrl}/api/match-history-players/show-history?steam_id=${steam_id}`, { //passovacu steam id preko leaderboards
       cache: "no-store",
       headers: { cookie },
     }),
