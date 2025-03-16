@@ -3,11 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from "@/components/ui/table";
 import { headers } from "next/headers";
 import Link from "next/link";
+import { heroMap, itemMap } from "./hero_and_items_images";
 
 export interface MatchHistoryProps {
   params: {
-    id: string; 
-    match:string// Next.js dynamic params are always strings
+    id: string;
+    match: string// Next.js dynamic params are always strings
   };
 }
 export interface MatchHistory {
@@ -23,27 +24,25 @@ export interface MatchHistory {
   radiant_score: number;
   dire_score: number;
   additional_info: string; // JSON string, might need parsing
+  hero_id: number,
+  kills: number,
+  deaths: number,
+  assists: number,
+  items: string
 }
 export default async function MatchHistory({ params }: MatchHistoryProps) {
   const { id } = params;
   const cookie = headers().get("cookie") || "";
-  const [matchHistoryRes, matchHistroyPlayerStatsRes] = await Promise.all([
+  const [matchHistoryRes] = await Promise.all([
     fetch(`${baseUrl}/api/match-history-players/show-history?steam_id=${id}`, { //passovacu steam id preko leaderboards
       cache: "no-store",
       headers: { cookie },
-    }),
-    fetch(`${baseUrl}/api/match-history/player-stats`, {
-      cache: "no-store",
-      headers: { cookie },
-    }),
+    })
   ]);
 
   const matchHistoryData = await matchHistoryRes.json();
-  // const matchHistoryPlayerStatsData = await matchHistroyPlayerStatsRes.json();
 
   const matchHistoryList = await matchHistoryData.matchHistory || [];
-  console.log(matchHistoryList)
-  // const matchHistoryPlayerStatsList = matchHistoryPlayerStatsData.registerPlayers || [];
 
   const formatDuration = (seconds: number) => {
     const h = Math.floor(seconds / 3600);
@@ -51,6 +50,26 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
     const s = seconds % 60;
     return `${h}h ${m}m ${s}s`;
   };
+
+  const calculateKDA = (k: number, d: number, a: number) => {
+    const kda = (k + a) / d
+    return kda.toFixed(2);
+  }
+
+  const getHeroImage = (heroId: number) => {
+    const heroName = heroMap[heroId];
+    return `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${heroName}.png`
+  }
+  const getItemImage = (items: string) => {
+    console.log(JSON.parse(items))
+    const itemArray = JSON.parse(items)
+    const itemLink = itemArray.map((itemid: string) => {
+      const num= itemMap[itemid]
+        return `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/items/${num}_lg.png`
+      })
+    console.log(itemLink)
+    return itemLink;
+  }
   return (
     <div>
       <Card>
@@ -64,34 +83,30 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHeaderCell>Id</TableHeaderCell>
-                <TableHeaderCell>League Id</TableHeaderCell>
-                <TableHeaderCell>Start Time</TableHeaderCell>
+                <TableHeaderCell>Hero</TableHeaderCell>
+                <TableHeaderCell>Result</TableHeaderCell>
+                <TableHeaderCell>Type</TableHeaderCell>
                 <TableHeaderCell>Duration</TableHeaderCell>
-                <TableHeaderCell>Game Mode</TableHeaderCell>
-                <TableHeaderCell>Lobby Type</TableHeaderCell>
-                <TableHeaderCell>Region</TableHeaderCell>
-                <TableHeaderCell>Winner</TableHeaderCell>
-                <TableHeaderCell>Radiant Score</TableHeaderCell>
-                <TableHeaderCell>Dire Score</TableHeaderCell>
-                <TableHeaderCell>Additional Info</TableHeaderCell>
-                <TableHeaderCell>Show Match</TableHeaderCell>
+                <TableHeaderCell>KDA</TableHeaderCell>
+                <TableHeaderCell>Items</TableHeaderCell>
+                <TableHeaderCell>Show MATCH</TableHeaderCell>
               </TableRow>
             </TableHeader>
             <TableBody>
               {matchHistoryList.map((match: MatchHistory) => (
                 <TableRow key={match.id}>
-                  <TableCell>{match.match_id}</TableCell>
-                  <TableCell>{match.league_id}</TableCell>
-                  <TableCell>{new Date(match.start_time * 1000).toLocaleString()}</TableCell>
-                  <TableCell>{formatDuration(match.duration)}</TableCell>
-                  <TableCell>{match.game_mode}</TableCell>
-                  <TableCell>{match.lobby_type}</TableCell>
-                  <TableCell>{match.region}</TableCell>
+                  <TableCell><img src={getHeroImage(match.hero_id)} alt={heroMap[match.hero_id]} width={80} />
+                    {heroMap[match.hero_id]}
+                  </TableCell>
                   <TableCell>{match.winner}</TableCell>
-                  <TableCell>{match.radiant_score}</TableCell>
-                  <TableCell>{match.dire_score}</TableCell>
-                  <TableCell>{match.additional_info}</TableCell>
+                  <TableCell>{match.lobby_type}</TableCell>
+                  <TableCell>{formatDuration(match.duration)}</TableCell>
+                  <TableCell>{calculateKDA(match.kills, match.deaths, match.assists)}</TableCell>
+                  <TableCell>
+                    {getItemImage(match.items).map((link: string) => {
+                      return <img src={link} alt="Item" width={50} />
+                    })}
+                  </TableCell>
                   <TableCell><Link href={`/matchHistory/${id}/${match.id}`}>Show Match</Link></TableCell>
                 </TableRow>
               ))}
