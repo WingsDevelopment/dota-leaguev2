@@ -64,11 +64,19 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
     console.log(JSON.parse(items))
     const itemArray = JSON.parse(items)
     const itemLink = itemArray.map((itemid: string) => {
-      const num= itemMap[itemid]
-        return `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/items/${num}_lg.png`
-      })
+      const num = itemMap[itemid]
+      return `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/items/${num}_lg.png`
+    })
     console.log(itemLink)
     return itemLink;
+  }
+
+  const heroToUppercase = (name: string) => {
+    let stringSplit = name.split('_');
+    for (let i = 0; i < stringSplit.length; i++) {
+      stringSplit[i] = stringSplit[i].charAt(0).toUpperCase() + stringSplit[i].substring(1);
+    }
+    return stringSplit.join(' ');
   }
   return (
     <div>
@@ -95,17 +103,25 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
             <TableBody>
               {matchHistoryList.map((match: MatchHistory) => (
                 <TableRow key={match.id}>
-                  <TableCell><img src={getHeroImage(match.hero_id)} alt={heroMap[match.hero_id]} width={80} />
-                    {heroMap[match.hero_id]}
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      <img src={getHeroImage(match.hero_id)} alt={heroMap[match.hero_id]} width={80} />
+                      <p>
+                        {heroToUppercase(heroMap[match.hero_id])}
+                      </p>
+                    </div>
                   </TableCell>
                   <TableCell>{match.winner}</TableCell>
                   <TableCell>{match.lobby_type}</TableCell>
                   <TableCell>{formatDuration(match.duration)}</TableCell>
                   <TableCell>{calculateKDA(match.kills, match.deaths, match.assists)}</TableCell>
                   <TableCell>
-                    {getItemImage(match.items).map((link: string) => {
-                      return <img src={link} alt="Item" width={50} />
-                    })}
+                    <div className="flex space-x-2">
+
+                      {getItemImage(match.items).map((link: string) => {
+                        return <img src={link} alt="Item" width={50} />
+                      })}
+                    </div>
                   </TableCell>
                   <TableCell><Link href={`/matchHistory/${id}/${match.id}`}>Show Match</Link></TableCell>
                 </TableRow>
