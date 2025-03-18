@@ -98,7 +98,7 @@ export default function ShowHistory({ matchHistoryList }: { matchHistoryList: Ma
                             {matchHistoryList.map((match: MatchHistory) => (
                                 <TableRow key={match.id}>
                                     <TableCell>
-                                        <div className="flex items-center space-x-2">
+                                        <div className="lg:flex sm:grid sm-grid-column-2 md:grid md-grid-column-2 gap-2 text-center items-center">
                                             <img src={getHeroImage(match.hero_id)} alt={heroMap[match.hero_id]} width={80} />
                                             <p>
                                                 {heroToUppercase(heroMap[match.hero_id])}
@@ -111,7 +111,7 @@ export default function ShowHistory({ matchHistoryList }: { matchHistoryList: Ma
                                     <TableCell>{match.deaths}</TableCell>
                                     <TableCell>{match.assists}</TableCell>
                                     <TableCell>
-                                        <div className="flex space-x-2">
+                                        <div className="lg:grid lg:grid-cols-6 gap-2 md:grid md:grid-cols-3 sm:grid sm:grid-cols-2">
 
                                             {getItemImage(match.items).map((link: string) => {
                                                 return <img src={link} alt="Item" width={50} />
