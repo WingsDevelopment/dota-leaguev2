@@ -111,7 +111,7 @@ export default function ShowHistory({ matchHistoryList }: { matchHistoryList: Ma
                                     <TableCell>{match.deaths}</TableCell>
                                     <TableCell>{match.assists}</TableCell>
                                     <TableCell>
-                                        <div className="lg:grid lg:grid-cols-6 gap-2 md:grid md:grid-cols-3 sm:grid sm:grid-cols-2">
+                                        <div className="lg:grid lg:grid-cols-6 gap-1 md:grid md:grid-cols-3 sm:grid sm:grid-cols-2">
 
                                             {getItemImage(match.items).map((link: string) => {
                                                 return <img src={link} alt="Item" width={50} />
