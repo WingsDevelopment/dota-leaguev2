@@ -44,7 +44,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
   ]);
 
   const matchHistoryData = await matchHistoryRes.json();
-  const matchHistoryList = await matchHistoryData.matchHistory || [];
+  const matchHistoryList = await matchHistoryData.data || [];
   console.log(matchHistoryList,"listaaa")
   return (
     <ShowHistory matchHistoryList={matchHistoryList}/>

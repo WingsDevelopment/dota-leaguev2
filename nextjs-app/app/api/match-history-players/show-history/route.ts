@@ -1,4 +1,5 @@
 // Import necessary utilities
+import { MatchHistory } from "@/app/services/matchHistoryService/matchHistory";
 import { closeDatabase } from "@/db/initDatabase";
 import { getDbInstance } from "@/db/utils";
 import { NextResponse } from "next/server";
@@ -17,28 +18,9 @@ export async function GET(req: Request) {
     }
 
     // Fetch match details and player stats in a single query
-    const matchHistory: Array<Record<string, any>> = await new Promise((resolve, reject) => {
-      db.all(
-        `SELECT 
-            mh.id, mh.match_id, mh.league_id, mh.start_time, mh.duration, mh.game_mode, 
-            mh.lobby_type, mh.region, mh.winner, mh.radiant_score, mh.dire_score, mh.additional_info,
-            mps.hero_id, mps.kills, mps.deaths, mps.assists, mps.items
-         FROM MatchHistory mh
-         JOIN MatchPlayerStats mps ON mh.id = mps.match_history_id
-         WHERE mps.steam_id = ?`,
-        [steamId],
-        (err, rows) => {
-          if (err) {
-            console.error("Error fetching match history:", err);
-            return reject(err);
-          }
-          resolve(rows as any);
-        }
-      );
-    });
-
+    const res = await MatchHistory({steamId})
     closeDatabase(db);
-    return NextResponse.json({ matchHistory });
+    return NextResponse.json(res);
   } catch (error) {
     closeDatabase(db);
     console.error("Error processing request:", error);

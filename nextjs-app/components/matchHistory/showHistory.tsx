@@ -1,32 +1,31 @@
 'use client'
-import { baseUrl } from "@/app/common/constraints";
 import { heroMap, itemMap } from "@/app/matchHistory/[id]/hero_and_items_images";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from "@/components/ui/table";
-import { headers } from "next/headers";
-import Link from "next/link";
+import { formatDuration, getHeroImage, getItemImage, heroToUppercase } from "@/lib/utils";
+
 
 import { useState } from "react";
 
 export interface MatchHistoryProps {
     params: {
         id: string;
-        match: string// Next.js dynamic params are always strings
+        match: string
     };
 }
 export interface MatchHistory {
     id: number;
     match_id: number;
     league_id: number;
-    start_time: number; // Unix timestamp
-    duration: number; // Match duration in seconds
+    start_time: number;
+    duration: number;
     game_mode: string;
     lobby_type: string;
     region: string;
-    winner: "radiant" | "dire"; // Enforce possible values
+    winner: "radiant" | "dire";
     radiant_score: number;
     dire_score: number;
-    additional_info: string; // JSON string, might need parsing
+    additional_info: string;
     hero_id: number,
     kills: number,
     deaths: number,
@@ -36,40 +35,7 @@ export interface MatchHistory {
 export default function ShowHistory({ matchHistoryList }: { matchHistoryList: MatchHistory[] }) {
     const [showIframe, setShowIframe] = useState<number | null>(null);
 
-    const formatDuration = (seconds: number) => {
-        const h = Math.floor(seconds / 3600);
-        const m = Math.floor((seconds % 3600) / 60);
-        const s = seconds % 60;
-        return `${h}h ${m}m ${s}s`;
-    };
-
-    const calculateKDA = (k: number, d: number, a: number) => {
-        const kda = (k + a) / d
-        return kda.toFixed(2);
-    }
-
-    const getHeroImage = (heroId: number) => {
-        const heroName = heroMap[heroId];
-        return `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${heroName}.png`
-    }
-    const getItemImage = (items: string) => {
-        console.log(JSON.parse(items))
-        const itemArray = JSON.parse(items)
-        const itemLink = itemArray.map((itemid: string) => {
-            const num = itemMap[itemid]
-            return `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/items/${num}_lg.png`
-        })
-        console.log(itemLink)
-        return itemLink;
-    }
-
-    const heroToUppercase = (name: string) => {
-        let stringSplit = name.split('_');
-        for (let i = 0; i < stringSplit.length; i++) {
-            stringSplit[i] = stringSplit[i].charAt(0).toUpperCase() + stringSplit[i].substring(1);
-        }
-        return stringSplit.join(' ');
-    }
+    
     return (
         <div>
             <Card>
@@ -89,7 +55,6 @@ export default function ShowHistory({ matchHistoryList }: { matchHistoryList: Ma
                                 <TableHeaderCell>Kill</TableHeaderCell>
                                 <TableHeaderCell>Death</TableHeaderCell>
                                 <TableHeaderCell>Assists</TableHeaderCell>
-
                                 <TableHeaderCell>Items</TableHeaderCell>
                                 <TableHeaderCell>Show MATCH</TableHeaderCell>
                             </TableRow>
@@ -137,8 +102,7 @@ export default function ShowHistory({ matchHistoryList }: { matchHistoryList: Ma
                                                 <iframe
                                                     src={`https://www.opendota.com/matches/${showIframe}`}
                                                     width="100%"
-                                                    height="700"
-                                                    className="rounded-lg"
+                                                    className="rounded-lg h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] min-h-[400px]"
                                                 ></iframe>
                                             </TableCell>
                                         </TableRow>
