@@ -1,19 +1,19 @@
 'use client'
 import { useState } from "react";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHeader,
-    TableHeaderCell,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Modal, ModalClose, ModalContent, ModalDescription, ModalHeader, ModalTrigger } from "../ui/modal";
@@ -37,35 +37,35 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
     const [loading, setLoading] = useState(false);
     const [openModal, setOpenModal] = useState<number | null>(null); // Track which modal is open
 
-    const fetchPlayers = async () => {
-        try {
-            const res = await fetch("api/player/players-read");
-            if (!res.ok) throw new Error("Failed to fetch games");
-            const updatedPlayers = await res.json();
-            setPlayers(updatedPlayers.players);
-        } catch (error) {
-            console.error("Error fetching games", error);
-        }
-    };
+  const fetchPlayers = async () => {
+    try {
+      const res = await fetch("api/player/players-read");
+      if (!res.ok) throw new Error("Failed to fetch games");
+      const updatedPlayers = await res.json();
+      setPlayers(updatedPlayers.players);
+    } catch (error) {
+      console.error("Error fetching games", error);
+    }
+  };
 
-    const sendBanRequest = async (id: number, value: string) => {
-        setLoading(true);
-        try {
-            const res = await fetch("api/player/players-ban-unban", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id, value }),
-            });
+  const sendBanRequest = async (id: number, value: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch("api/player/players-ban-unban", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, value }),
+      });
 
-            if (!res.ok) throw new Error("Failed to update player status");
+      if (!res.ok) throw new Error("Failed to update player status");
 
-            await fetchPlayers(); // Refresh player data
-        } catch (error) {
-            console.error("Error updating player status", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+      await fetchPlayers(); // Refresh player data
+    } catch (error) {
+      console.error("Error updating player status", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
     // Handle banning logic
     const handleBan = async (id: number, value: string) => {
@@ -74,11 +74,11 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
         setOpenModal(null); // Close modal after action
     };
 
-    // Handle unbanning logic
-    const handleUnban = async (id: number) => {
-        if (!confirm("Are you sure you want to unban this player?")) return;
-        await sendBanRequest(id, "unban");
-    };
+  // Handle unbanning logic
+  const handleUnban = async (id: number) => {
+    if (!confirm("Are you sure you want to unban this player?")) return;
+    await sendBanRequest(id, "unban");
+  };
 
     return (
         <div>

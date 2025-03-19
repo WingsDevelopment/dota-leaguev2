@@ -96,7 +96,14 @@ export default function RegisterCrud({
           <CardTitle>
             <h1 className="text-3xl font-bold mb-4">Request Vouch</h1>
           </CardTitle>
-          <CardDescription>Registered Players</CardDescription>
+          <CardDescription>
+            Before clicking approving anyone, make sure to click the steam_id
+            link and make sure the player gave correct profile by checking their
+            profile in steam.
+            <br />
+            If you see on steam error profile not found or similar, please
+            decline that request.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {/* Filter Controls */}
