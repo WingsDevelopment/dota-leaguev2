@@ -134,14 +134,14 @@ export default async function DashboardPage() {
                 </TableHeader>
                 <TableBody>
                   {leaderboard.map((player: any, index: number) => {
+                    // const wins = player.win || 0;
+                    // const losses = player.loss || 0;
+                    // const winPct =
+                    //   wins + losses > 0
+                    //     ? ((wins / (wins + losses)) * 100).toFixed(2)
+                    //     : "0.00";
                     return (
-                      <TableRow
-                        key={player.discord_id}
-                        className="cursor-pointer"
-                        onClick={() =>
-                          (window.location.href = `/matchHistory/${player.steam_id}`)
-                        }
-                      >
+                      <TableRow key={player.discord_id}>
                         <TableCell>{index + 1}</TableCell>
                         <TableCell>{player.mmr}</TableCell>
                         <TableCell>
@@ -156,7 +156,14 @@ export default async function DashboardPage() {
                                 />
                               </Tooltip>
                             )}
-                            <span>{player.name}</span>
+                            <span>
+                              <Link
+                                href={`/matchHistory/${player.steam_id}`}
+                                className="underline text-blue-600"
+                              >
+                                {player.name}
+                              </Link>
+                            </span>
                             {player.discord_id === "662288348114845719" && (
                               <Tooltip tooltip="PI Milioner">
                                 <Image
