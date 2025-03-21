@@ -33,13 +33,11 @@ export function getHeroImage (heroId: number) {
   return `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${heroName}.png`
 }
 export function getItemImage (items: string) {
-  console.log(JSON.parse(items))
   const itemArray = JSON.parse(items)
   const itemLink = itemArray.map((itemid: string) => {
     const num = itemMap[itemid]
-    return `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/items/${num}_lg.png`
+    return [`https://cdn.cloudflare.steamstatic.com/apps/dota2/images/items/${num}_lg.png`,num]
   })
-  console.log(itemLink)
   return itemLink;
 }
 

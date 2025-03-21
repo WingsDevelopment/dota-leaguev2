@@ -7,6 +7,8 @@ import Link from "next/link";
 import { heroMap, itemMap } from "./hero_and_items_images";
 import { useState } from "react";
 import ShowHistory from "@/components/matchHistory/showHistory";
+import { useSession } from "next-auth/react";
+import { auth, ExtendedUser } from "@/auth";
 
 export interface MatchHistoryProps {
   params: {
@@ -34,19 +36,43 @@ export interface MatchHistory {
   items: string
 }
 export default async function MatchHistory({ params }: MatchHistoryProps) {
+  const session = await auth();
+  const discordId = (session?.user as ExtendedUser)?.discordId
   const { id } = params;
   const cookie = headers().get("cookie") || "";
-  const [matchHistoryRes] = await Promise.all([
-    fetch(`${baseUrl}/api/match-history-players/show-history?steam_id=${id}`, { //passovacu steam id preko leaderboards
+  const [matchHistoryRes, isPublicProfile] = await Promise.all([
+    fetch(`${baseUrl}/api/match-history-players/show-history?steam_id=${id}`, {
+      cache: "no-store",
+      headers: { cookie },
+    }),
+    fetch(`${baseUrl}/api/player/is_public_profile?steam_id=${id}`, {
       cache: "no-store",
       headers: { cookie },
     })
   ]);
 
   const matchHistoryData = await matchHistoryRes.json();
+  const isPublicProfileData = await isPublicProfile.json();
   const matchHistoryList = await matchHistoryData.data || [];
-  console.log(matchHistoryList,"listaaa")
-  return (
-    <ShowHistory matchHistoryList={matchHistoryList}/>
-  )
+  const isPublicProfileSetting = await isPublicProfileData.isPublicProfile || [];
+
+  const discord_id = isPublicProfileSetting[0].discord_id
+  const is_public_profile = isPublicProfileSetting[0].is_public_profile
+
+  if (is_public_profile) {
+    return (<>
+      <ShowHistory matchHistoryList={matchHistoryList} discordId={discordId} />
+    </>
+
+    )
+  }else if(discordId !== discord_id){
+    return (
+      <h1>Sorry match History is private</h1>
+    )
+  } else if(discordId === discord_id){
+    return (<>
+      <ShowHistory matchHistoryList={matchHistoryList} discordId={discordId} />
+    </>
+    )
+  }
 }

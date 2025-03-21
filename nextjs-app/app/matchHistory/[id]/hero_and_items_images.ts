@@ -338,7 +338,7 @@ export const heroMap: { [key: number]: string } = {
     "214": "tranquil_boots",
     "215": "shadow_amulet",
     "216": "enchanted_mango",
-    "217": "recipe_ward_dispenser",
+    "217": "observer_and_sentry_wards",
     "218": "ward_dispenser",
     "219": "recipe_travel_boots_2",
     "220": "travel_boots_2",

@@ -32,10 +32,10 @@ export interface MatchHistory {
     assists: number,
     items: string
 }
-export default function ShowHistory({ matchHistoryList }: { matchHistoryList: MatchHistory[] }) {
+export default function ShowHistory({ matchHistoryList,discordId }: { matchHistoryList: MatchHistory[],discordId?:string }) {
     const [showIframe, setShowIframe] = useState<number | null>(null);
-
-    
+    console.log(matchHistoryList)
+    // ako je tvoj discord id i disabled je match histry mozes da vidis u suprotnom ne.
     return (
         <div>
             <Card>
@@ -81,7 +81,7 @@ export default function ShowHistory({ matchHistoryList }: { matchHistoryList: Ma
                                             <div className="lg:grid lg:grid-cols-6 gap-1 md:grid md:grid-cols-3 sm:grid sm:grid-cols-2">
 
                                                 {getItemImage(match.items).map((link: string) => {
-                                                    return <img src={link} alt="Item" width={50} />
+                                                    return <img src={link[0]} alt='Item' title={link[1]} width={50} />
                                                 })}
                                             </div>
                                         </TableCell>
