@@ -36,6 +36,17 @@ def main():
         print(f"Error starting lobby_orchestrator.py: {e}", flush=True)
         bot_process.terminate()
         sys.exit(1)
+    
+    # Reinitialize bot accounts.
+    try:
+        print("Reinitializing bot accounts...", flush=True)
+        subprocess.run([sys.executable, "reinitialize_all_bots.py"] + dev_arg, check=True)
+        print("Bot accounts reinitialized successfully.", flush=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error running reinitialize_all_bots.py: {e}", flush=True)
+        orchestrator_process.terminate()
+        bot_process.terminate()
+        sys.exit(1)
         
     print("All processes started. Press Ctrl+C to stop.", flush=True)
     try:
