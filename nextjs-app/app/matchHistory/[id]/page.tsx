@@ -40,10 +40,16 @@ export interface MatchHistory {
 export default async function MatchHistory({ params }: MatchHistoryProps) {
   const session = await auth();
   const discordId = (session?.user as ExtendedUser)?.discordId
+  const userImage= session?.user?.image ?? undefined
+  const userName= session?.user?.name ?? ""
   const { id } = params;
   const cookie = headers().get("cookie") || "";
   const [matchHistoryRes, isPublicProfile] = await Promise.all([
     fetch(`${baseUrl}/api/match-history-players/show-history?steam_id=${id}`, {
+      cache: "no-store",
+      headers: { cookie },
+    }),
+    fetch(`${baseUrl}/api/player/is_public_profile?steam_id=${id}`, {
       cache: "no-store",
       headers: { cookie },
     }),
@@ -62,7 +68,12 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
 
   if (discordId === discord_id) {
     return (<>
-      <UserProfile is_public_profile={is_public_profile} discordId={discordId} id={id} />
+      <UserProfile 
+      is_public_profile={is_public_profile} 
+      discordId={discordId} id={id} 
+      userImage={userImage} 
+      userName={userName}
+      />
       <ShowHistory matchHistoryList={matchHistoryList} discordId={discordId} />
     </>
 
