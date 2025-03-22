@@ -6,10 +6,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <AdminGuard>
       <div className="flex flex-col">
-        <div className="flex flex-row">
-          <Link href="/admin">Vouches</Link>
-          <Link href="/admin/players">Players</Link>
-          <Link href="/admin/games">Games</Link>
+        <div className="flex flex-row gap-4 p-4">
+          <Link className="underline" href="/admin">
+            Vouches
+          </Link>
+          <Link className="underline" href="/admin/players">
+            Players
+          </Link>
+          <Link className="underline" href="/admin/games">
+            Games
+          </Link>
+          <Link className="underline" href="/admin/steam-bots">
+            Steam bots
+          </Link>
         </div>
         {children}
       </div>

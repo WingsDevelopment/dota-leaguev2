@@ -8,7 +8,10 @@ export default async function Page() {
     <AdminGuard>
       <div className="flex flex-col gap-4">
         <GamesCrud
-          gamesList={await fetcher(`${baseUrl}/api/games-crud/games-crud-read`)}
+          gamesList={
+            (await fetcher(`${baseUrl}/api/games-crud/games-crud-read`))
+              ?.games || []
+          }
         />
       </div>
     </AdminGuard>
