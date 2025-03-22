@@ -24,21 +24,29 @@ export async function banUnbanPlayer({ id, action, banType }: BanUnbanParams) {
     }
 
     // Fetch the player's ban info
-    const player: { banned_until: string | null; games_left: number; games_griefed: number; bbb: number, games_didnt_show: number } | undefined =
-      await new Promise((resolve, reject) => {
-        db.get(
-          `SELECT banned_until, games_left, games_griefed, bbb, games_didnt_show FROM Players WHERE id = ?`,
-          [id],
-          (err, row) => (err ? reject(err) : resolve(row as any))
-        );
-      });
+    const player:
+      | {
+          banned_until: string | null;
+          games_left: number;
+          games_griefed: number;
+          bbb: number;
+          games_didnt_show: number;
+        }
+      | undefined = await new Promise((resolve, reject) => {
+      db.get(
+        `SELECT banned_until, games_left, games_griefed, bbb, games_didnt_show FROM Players WHERE id = ?`,
+        [id],
+        (err, row) => (err ? reject(err) : resolve(row as any))
+      );
+    });
 
     if (!player) {
       closeDatabase(db);
       return { success: false, message: "Player not found" };
     }
 
-    let { banned_until, games_left, games_griefed, bbb, games_didnt_show } = player;
+    let { banned_until, games_left, games_griefed, bbb, games_didnt_show } =
+      player;
     let newBanDate = banned_until ? new Date(banned_until) : null;
 
     if (banType === "1l") {
@@ -59,7 +67,6 @@ export async function banUnbanPlayer({ id, action, banType }: BanUnbanParams) {
           newBanDate.setDate(newBanDate.getDate() + 10);
         }
       }
-
     } else if (banType === "1g") {
       games_griefed += 1;
       if (games_griefed === 1) {
@@ -87,7 +94,6 @@ export async function banUnbanPlayer({ id, action, banType }: BanUnbanParams) {
           newBanDate.setDate(newBanDate.getDate() + 365);
         }
       }
-
     } else if (banType === "bbb") {
       bbb += 1; // Set BBB flag
       // Add 1278.38 days to ban
@@ -100,20 +106,26 @@ export async function banUnbanPlayer({ id, action, banType }: BanUnbanParams) {
         }
       }
     } else if (banType === "1d") {
-      games_didnt_show += 1
+      games_didnt_show += 1;
 
-      // Add 1 hour to the ban date
-      if (newBanDate) {
-        newBanDate.setHours(newBanDate.getHours() + games_didnt_show);
-      } else {
-        newBanDate = new Date();
-        newBanDate.setHours(newBanDate.getHours() + games_didnt_show);
+      // Calculate the total additional days as the sum from 1 to games_didnt_show.
+      // For example, if games_didnt_show is 3, additionalDays = 1+2+3 = 6.
+      const additionalDays = (games_didnt_show * (games_didnt_show + 1)) / 2;
+
+      // Use the later of today or the current banned_until date as the starting point.
+      let baseDate = new Date();
+      if (newBanDate && new Date(newBanDate) > baseDate) {
+        baseDate = new Date(newBanDate);
       }
+      baseDate.setDate(baseDate.getDate() + additionalDays);
+      newBanDate = baseDate;
     }
 
     // Handling the games_didnt_show logic
 
-    const bannedUntilStr = newBanDate ? newBanDate.toISOString().split("T")[0] : null;
+    const bannedUntilStr = newBanDate
+      ? newBanDate.toISOString().split("T")[0]
+      : null;
 
     await new Promise<void>((resolve, reject) => {
       db.run(

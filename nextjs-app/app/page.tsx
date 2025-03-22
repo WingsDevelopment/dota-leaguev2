@@ -156,7 +156,14 @@ export default async function DashboardPage() {
                                 />
                               </Tooltip>
                             )}
-                            <span><Link href={`/matchHistory/${player.steam_id}`}>{player.name}</Link></span>
+                            <span>
+                              <Link
+                                href={`/matchHistory/${player.steam_id}`}
+                                className="underline text-blue-600"
+                              >
+                                {player.name}
+                              </Link>
+                            </span>
                             {player.discord_id === "662288348114845719" && (
                               <Tooltip tooltip="PI Milioner">
                                 <Image
