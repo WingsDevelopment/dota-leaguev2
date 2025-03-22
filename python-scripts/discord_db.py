@@ -37,12 +37,15 @@ def get_player(cursor: Cursor, discord_id: str) -> None:
 
 def update_player_mmr_won(cursor: Cursor, id: str, elo_change: str) -> None:
     cursor.execute(
-        f'''UPDATE Players SET mmr = mmr + ? WHERE id = ?''', (elo_change, id))
-
+        '''UPDATE Players 
+           SET mmr = mmr + ?, wins = wins + 1, streak = streak + 1 
+           WHERE id = ?''', (elo_change, id))
 
 def update_player_mmr_lost(cursor: Cursor, id: str, elo_change: str) -> None:
     cursor.execute(
-        f'''UPDATE Players SET mmr = mmr - ? WHERE id = ?''', (elo_change, id))
+        '''UPDATE Players 
+           SET mmr = mmr - ?, loses = loses + 1, streak = 0 
+           WHERE id = ?''', (elo_change, id))
 
 
 def get_player_rank(cursor: Cursor, id: str) -> None:
