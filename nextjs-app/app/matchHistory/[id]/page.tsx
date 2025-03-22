@@ -9,6 +9,8 @@ import { useState } from "react";
 import ShowHistory from "@/components/matchHistory/showHistory";
 import { useSession } from "next-auth/react";
 import { auth, ExtendedUser } from "@/auth";
+import UserProfile from "@/components/userProfile/userProfile";
+
 
 export interface MatchHistoryProps {
   params: {
@@ -55,23 +57,23 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
   const isPublicProfileData = await isPublicProfile.json();
   const matchHistoryList = await matchHistoryData.data || [];
   const isPublicProfileSetting = await isPublicProfileData.isPublicProfile || [];
-
   const discord_id = isPublicProfileSetting[0].discord_id
   const is_public_profile = isPublicProfileSetting[0].is_public_profile
 
-  if (is_public_profile) {
+  if (discordId === discord_id) {
     return (<>
+      <UserProfile is_public_profile={is_public_profile} discordId={discordId} />
       <ShowHistory matchHistoryList={matchHistoryList} discordId={discordId} />
     </>
 
     )
-  }else if(discordId !== discord_id){
+  } else if (is_public_profile) {
     return (
-      <h1>Sorry match History is private</h1>
-    )
-  } else if(discordId === discord_id){
-    return (<>
       <ShowHistory matchHistoryList={matchHistoryList} discordId={discordId} />
+    )
+  } else {
+    return (<>
+  <h1>Sorry, this match history is private.</h1>
     </>
     )
   }
