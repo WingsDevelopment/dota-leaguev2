@@ -16,8 +16,7 @@ export default async function Page() {
     );
   }
 
-  const [gamesData, registerPlayersRes, playerRes] = await Promise.all([
-    fetcher(`${baseUrl}/api/games-crud/games-crud-read`),
+  const [registerPlayersRes, playerRes] = await Promise.all([
     fetch(`${baseUrl}/api/register-players/register-players-read`, {
       cache: "no-store",
       headers: { cookie },
@@ -38,14 +37,17 @@ export default async function Page() {
   //   playerData
   // });
 
-  const gamesList = gamesData.games || [];
   const registerList = registerPlayersData.registerPlayers || [];
   const playerList = playerData.players || [];
 
   return (
     <div className="flex flex-col gap-4">
       <RegisterCrud registerList={registerList} />
-      <GamesCrud gamesList={gamesList} />
+      <GamesCrud
+        gamesList={
+          (await fetcher(`${baseUrl}/api/games-crud/games-crud-read`))?.games
+        }
+      />
       <PlayerCrud playerList={playerList} />
     </div>
   );
