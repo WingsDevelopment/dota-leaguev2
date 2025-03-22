@@ -57,12 +57,12 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
   const isPublicProfileData = await isPublicProfile.json();
   const matchHistoryList = await matchHistoryData.data || [];
   const isPublicProfileSetting = await isPublicProfileData.isPublicProfile || [];
-  const discord_id = isPublicProfileSetting[0].discord_id
-  const is_public_profile = isPublicProfileSetting[0].is_public_profile
+  const discord_id = isPublicProfileSetting[0]?.discord_id;
+  const is_public_profile = isPublicProfileSetting[0]?.is_public_profile ?? false;
 
   if (discordId === discord_id) {
     return (<>
-      <UserProfile is_public_profile={is_public_profile} discordId={discordId} />
+      <UserProfile is_public_profile={is_public_profile} discordId={discordId} id={id} />
       <ShowHistory matchHistoryList={matchHistoryList} discordId={discordId} />
     </>
 

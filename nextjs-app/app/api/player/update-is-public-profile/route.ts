@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
     const { checked, discord_id } = await req.json()
-    console.log(checked,discord_id,"UPDATE MATCH KURAC")
     if (!discord_id) {
         return NextResponse.json(
             { error: "Missing registrationId or requestType" },

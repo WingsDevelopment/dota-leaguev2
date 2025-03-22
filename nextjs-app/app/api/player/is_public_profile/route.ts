@@ -10,6 +10,7 @@ export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
     const steamid = url.searchParams.get("steam_id");
+    console.log("Requested Steam ID:", steamid);
     const isPublicProfile: Array<Record<string, any>> = await new Promise(
       (resolve, reject) => {
         db.all(`SELECT discord_id, is_public_profile FROM Players WHERE steam_id = ?`, [steamid], (err, rows) => {
