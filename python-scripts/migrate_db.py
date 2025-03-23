@@ -63,9 +63,9 @@ def add_games_didnt_show_migration(cursor):
     cursor.execute("PRAGMA table_info(Players)")
     columns = [col[1] for col in cursor.fetchall()]
     if 'games_didnt_show' not in columns:
-        cursor.execute("ALTER TABLE Player ADD COLUMN games_didnt_show INTEGER DEFAULT 0")
+        cursor.execute("ALTER TABLE Players ADD COLUMN games_didnt_show INTEGER DEFAULT 0")
         print("Migration applied: Added 'games_didnt_show' column with default 0.")
-        cursor.execute("UPDATE Player SET games_didnt_show = 0 WHERE games_didnt_show IS NULL")
+        cursor.execute("UPDATE Players SET games_didnt_show = 0 WHERE games_didnt_show IS NULL")
         print("Existing rows updated with 0 for 'games_didnt_show'.")
     else:
         print("No migration needed: 'games_didnt_show' column already exists.")
