@@ -38,12 +38,12 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Game not found" }, { status: 404 });
     }
 
-    if (actualGame.status !== status) {
-      return NextResponse.json(
-        { error: "Game status mismatch. Possible tampering detected." },
-        { status: 403 }
-      );
-    }
+    // if (actualGame.status !== status) {
+    //   return NextResponse.json(
+    //     { error: "Game status mismatch. Possible tampering detected." },
+    //     { status: 403 }
+    //   );
+    // }
 
     // Start a transaction.
     await new Promise((resolve, reject) =>

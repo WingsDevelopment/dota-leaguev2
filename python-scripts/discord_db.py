@@ -55,7 +55,8 @@ def get_player_rank(cursor: Cursor, id: str) -> None:
 
 def reset_all_player_mmr(cursor: Cursor) -> None:
     cursor.execute(
-        f'''UPDATE Players SET mmr = 1000''')
+        '''UPDATE Players SET mmr = 1000, wins = 0, loses = 0, streak = 0'''
+    )
 
 
 def get_if_player_played_game(cursor: Cursor, id: str) -> None:
