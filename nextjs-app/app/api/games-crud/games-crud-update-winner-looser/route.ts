@@ -35,12 +35,10 @@ export async function PUT(req: NextRequest) {
     );
 
     if (!actualGame) {
-      
       return NextResponse.json({ error: "Game not found" }, { status: 404 });
     }
 
     if (actualGame.status !== status) {
-      
       return NextResponse.json(
         { error: "Game status mismatch. Possible tampering detected." },
         { status: 403 }
@@ -76,7 +74,6 @@ export async function PUT(req: NextRequest) {
       await new Promise((resolve, reject) =>
         db.run("ROLLBACK", (err) => (err ? reject(err) : resolve(null)))
       );
-      
       return NextResponse.json(
         { error: "No players found for this game" },
         { status: 404 }
@@ -91,7 +88,6 @@ export async function PUT(req: NextRequest) {
       await new Promise((resolve, reject) =>
         db.run("ROLLBACK", (err) => (err ? reject(err) : resolve(null)))
       );
-      
       return NextResponse.json(
         { error: "Insufficient players to calculate Elo" },
         { status: 400 }
@@ -112,24 +108,43 @@ export async function PUT(req: NextRequest) {
       team_won === 0 ? 1 : -1
     );
 
-    // Update MMR for each player based on the match result.
+    // Update MMR, wins, and loses for each player based on the match result.
     await Promise.all(
       players.map(({ player_id, team }) => {
         return new Promise((resolve, reject) => {
-          db.run(
-            `UPDATE Players SET mmr = mmr + ? WHERE id = ?`,
-            [team === team_won ? eloChange : -eloChange, player_id],
-            (err) => {
-              if (err) {
-                console.error(
-                  `Error updating MMR for player ${player_id}:`,
-                  err
-                );
-                return reject(err);
+          if (team === team_won) {
+            // For the winning team, increase mmr and wins.
+            db.run(
+              `UPDATE Players SET mmr = mmr + ?, wins = wins + 1, streak = streak + 1 WHERE id = ?`,
+              [eloChange, player_id],
+              (err) => {
+                if (err) {
+                  console.error(
+                    `Error updating winning player ${player_id}:`,
+                    err
+                  );
+                  return reject(err);
+                }
+                resolve(null);
               }
-              resolve(null);
-            }
-          );
+            );
+          } else {
+            // For the losing team, decrease mmr and increase loses.
+            db.run(
+              `UPDATE Players SET mmr = mmr - ?, loses = loses + 1, streak = 0 WHERE id = ?`,
+              [eloChange, player_id],
+              (err) => {
+                if (err) {
+                  console.error(
+                    `Error updating losing player ${player_id}:`,
+                    err
+                  );
+                  return reject(err);
+                }
+                resolve(null);
+              }
+            );
+          }
         });
       })
     );
@@ -148,13 +163,13 @@ export async function PUT(req: NextRequest) {
         }
       );
     });
+    closeDatabase(db);
 
     // Commit the transaction.
     await new Promise((resolve, reject) =>
       db.run("COMMIT", (err) => (err ? reject(err) : resolve(null)))
     );
 
-    
     return NextResponse.json({
       success: true,
       message: "MMR updated and game marked as OVER",
@@ -165,12 +180,11 @@ export async function PUT(req: NextRequest) {
     await new Promise((resolve, reject) =>
       db.run("ROLLBACK", (err) => (err ? reject(err) : resolve(null)))
     );
-    
+    closeDatabase(db);
+
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
     );
-  }finally{
-    closeDatabase(db);
   }
 }
