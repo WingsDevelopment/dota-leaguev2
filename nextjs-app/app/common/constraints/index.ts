@@ -1,5 +1,4 @@
-import { ExtendedUser } from "./../../../auth";
-import { auth } from "@/auth";
+import { ExtendedUser, auth } from "@/auth";
 import path from "path";
 
 export const baseUrl =
