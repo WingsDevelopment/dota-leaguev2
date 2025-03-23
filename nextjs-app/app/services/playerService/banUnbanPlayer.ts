@@ -96,10 +96,18 @@ export async function banUnbanPlayer({ id, action, banType }: BanUnbanParams) {
       }
     } else if (banType === "bbb") {
       bbb += 1; // Set BBB flag
+      console.log(bbb,"bad behaviour ban")
       // Add 1278.38 days to ban
       if (bbb === 1) {
         if (newBanDate) {
           newBanDate.setDate(newBanDate.getDate() + 14);
+        } else {
+          newBanDate = new Date();
+          newBanDate.setDate(newBanDate.getDate() + 14);
+        }
+      }else if( bbb>=2){
+        if (newBanDate) {
+          newBanDate.setDate(newBanDate.getDate() + 548);
         } else {
           newBanDate = new Date();
           newBanDate.setDate(newBanDate.getDate() + 548);
@@ -108,8 +116,6 @@ export async function banUnbanPlayer({ id, action, banType }: BanUnbanParams) {
     } else if (banType === "1d") {
       games_didnt_show += 1;
 
-      // Calculate the total additional days as the sum from 1 to games_didnt_show.
-      // For example, if games_didnt_show is 3, additionalDays = 1+2+3 = 6.
       const additionalDays = (games_didnt_show * (games_didnt_show + 1)) / 2;
 
       // Use the later of today or the current banned_until date as the starting point.
