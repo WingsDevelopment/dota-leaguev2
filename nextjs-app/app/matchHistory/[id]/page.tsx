@@ -52,47 +52,35 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
   const session = await auth();
   const discordId = (session?.user as ExtendedUser)?.discordId
   const userImage= session?.user?.image ?? undefined
-  const userName= session?.user?.name ?? ""
   const { id } = params;
   const cookie = headers().get("cookie") || "";
   // todo: we should fetcher instead
-  const [matchHistoryRes, isPublicProfile] = await Promise.all([
+  const [matchHistoryRes, playerRes] = await Promise.all([
     fetch(`${baseUrl}/api/match-history-players/show-history?steam_id=${id}`, {
       cache: "no-store",
       headers: { cookie },
     }),
-    fetch(`${baseUrl}/api/player/is_public_profile?steam_id=${id}`, {
+    fetch(`${baseUrl}/api/player/get-player-by-steam-id?steam_id=${id}`, {
       cache: "no-store",
       headers: { cookie },
     }),
-    fetch(`${baseUrl}/api/player/is_public_profile?steam_id=${id}`, {
-      cache: "no-store",
-      headers: { cookie },
-    })
   ]);
 
   const matchHistoryData = await matchHistoryRes.json();
-  const isPublicProfileData = await isPublicProfile.json();
+  const playerData = await playerRes.json();
   const matchHistoryList = (await matchHistoryData.data) || [];
-  const isPublicProfileSetting =
-    (await isPublicProfileData.isPublicProfile) || [];
-  const discord_id = isPublicProfileSetting[0]?.discord_id;
-  const is_public_profile =
-    isPublicProfileSetting[0]?.is_public_profile ?? false;
-
-  if (discordId === discord_id) {
+  const playerList = await playerData?.data || [];
+  if (discordId === playerList[0]?.discord_id) {
     return (<>
       <UserProfile 
-      is_public_profile={is_public_profile} 
-      discordId={discordId} id={id} 
+      user={playerList[0]}
       userImage={userImage} 
-      userName={userName}
       />
       <ShowHistory matchHistoryList={matchHistoryList} discordId={discordId} />
     </>
 
     )
-  } else if (is_public_profile) {
+  } else if (playerList[0]?.is_public_profile) {
     return (
       <ShowHistory matchHistoryList={matchHistoryList} discordId={discordId} />
     );

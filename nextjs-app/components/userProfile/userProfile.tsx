@@ -5,23 +5,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 interface UserProfileProps {
-    is_public_profile: boolean;
-    discordId?: string; // Add discord_id here
-    id: string;
+    user: {
+        is_public_profile: boolean;
+        discord_id: string; // Add discord_id here
+        id: string;
+        name: string,
+        wins: number,
+        loses: number,
+        streak: number,
+        mmr: number,
+        steam_id: string,
+        likes:number,
+        dislikes:number,
+        vouched_date:Date
+    }
     userImage?: string,
-    userName: string,
 }
-export default function UserProfile({ is_public_profile, discordId, id, userImage, userName }: UserProfileProps) {
+export default function UserProfile({ user, userImage }: UserProfileProps) {
 
-    const [check, setCheck] = useState<boolean>(!!is_public_profile);
+    const [check, setCheck] = useState<boolean>(!!user.is_public_profile);
     const [loading, setLoading] = useState(false);
-
+console.log(user.steam_id,"steam id")
     const fetchIsPublic = async () => {
         try {
-            const res = await fetch(`/api/player/is_public_profile?steam_id=${id}`);
+            const res = await fetch(`/api/player/get-player-by-steam-id?steam_id=${user.steam_id}`);
             if (!res.ok) throw new Error("Failed to fetch games");
             const isPublicProfile = await res.json();
-            setCheck(Boolean(isPublicProfile.isPublicProfile[0].is_public_profile));
+            setCheck(Boolean(isPublicProfile.data[0].is_public_profile));
         } catch (error) {
             console.error("Error fetching Match History View", error);
         }
@@ -36,7 +46,7 @@ export default function UserProfile({ is_public_profile, discordId, id, userImag
             const res = await fetch("/api/player/update-is-public-profile", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ checked: checkedNum, discord_id: discordId }),
+                body: JSON.stringify({ checked: checkedNum, discord_id: user.discord_id }),
             });
             if (!res.ok) {
                 throw new Error("Failed to Cancel the game!");
@@ -49,7 +59,11 @@ export default function UserProfile({ is_public_profile, discordId, id, userImag
             setLoading(false)
         }
     }
-  };
+    const wins = Number(user?.wins) || 0;
+    const loses = Number(user?.loses) || 0;
+
+    const totalGames = wins + loses;
+    const winRate = totalGames > 0 ? (wins / totalGames) * 100 : 0;
 
     return (
         <>
@@ -58,7 +72,7 @@ export default function UserProfile({ is_public_profile, discordId, id, userImag
                 <div className="h-20 w-20 bg-gray-200 rounded-full overflow-hidden border-2 border-gray-300 shadow-md">
                     <img
                         src={userImage ?? ""}
-                        alt={userName ?? "User"}
+                        alt={user.name ?? "User"}
                         className="object-cover h-full w-full"
                     />
                 </div>
@@ -67,7 +81,7 @@ export default function UserProfile({ is_public_profile, discordId, id, userImag
                 <div className="flex items-center space-x-4">
                     {/* User Name */}
                     <div className="font-semibold text-lg">
-                        {userName || "Anonymous User"}
+                        {user.name || "Anonymous User"}
                     </div>
 
                     {/* Match History Public Switch */}
@@ -81,7 +95,7 @@ export default function UserProfile({ is_public_profile, discordId, id, userImag
                 </SwitchWrapper>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-6">
                 {/* Total Wins Card */}
                 <Card className="shadow-lg hover:shadow-xl transition-all duration-200">
                     <CardHeader>
@@ -89,7 +103,7 @@ export default function UserProfile({ is_public_profile, discordId, id, userImag
                         <CardDescription></CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-xl font-semibold">51</p>
+                        <p className="text-xl font-semibold">{user.wins}</p>
                     </CardContent>
                 </Card>
 
@@ -100,7 +114,17 @@ export default function UserProfile({ is_public_profile, discordId, id, userImag
                         <CardDescription></CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-xl font-semibold">51</p>
+                        <p className="text-xl font-semibold">{user.loses}</p>
+                    </CardContent>
+                </Card>
+
+                <Card className="shadow-lg hover:shadow-xl transition-all duration-200">
+                    <CardHeader>
+                        <CardTitle>Winrate</CardTitle>
+                        <CardDescription></CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-xl font-semibold">{winRate} %</p>
                     </CardContent>
                 </Card>
 
@@ -111,7 +135,44 @@ export default function UserProfile({ is_public_profile, discordId, id, userImag
                         <CardDescription></CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-xl font-semibold">51</p>
+                        <p className="text-xl font-semibold">{user.streak}</p>
+                    </CardContent>
+                </Card>
+
+                <Card className="shadow-lg hover:shadow-xl transition-all duration-200">
+                    <CardHeader>
+                        <CardTitle>MMR</CardTitle>
+                        <CardDescription></CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-xl font-semibold">{user.mmr}</p>
+                    </CardContent>
+                </Card>
+                <Card className="shadow-lg hover:shadow-xl transition-all duration-200">
+                    <CardHeader>
+                        <CardTitle>Likes</CardTitle>
+                        <CardDescription></CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-xl font-semibold">{user.likes}</p>
+                    </CardContent>
+                </Card>
+                <Card className="shadow-lg hover:shadow-xl transition-all duration-200">
+                    <CardHeader>
+                        <CardTitle>Dislikes</CardTitle>
+                        <CardDescription></CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-xl font-semibold">{user.dislikes}</p>
+                    </CardContent>
+                </Card>
+                <Card className="shadow-lg hover:shadow-xl transition-all duration-200">
+                    <CardHeader>
+                        <CardTitle>Joined</CardTitle>
+                        <CardDescription></CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-xl font-semibold">{user.name}</p>
                     </CardContent>
                 </Card>
             </div>
