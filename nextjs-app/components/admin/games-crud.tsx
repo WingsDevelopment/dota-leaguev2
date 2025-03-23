@@ -73,10 +73,6 @@ export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
       setLoading(false);
       return alert("Game not found");
     }
-    if (game.status !== "STARTED") {
-      setLoading(false);
-      return alert(`${game.status} IS NOT A VALID GAME STATUS!!!`);
-    }
     try {
       const res = await fetch(
         "api/games-crud/games-crud-update-winner-looser",
