@@ -46,7 +46,7 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
 
   const fetchPlayers = async () => {
     try {
-      const res = await fetch("api/player/players-read");
+      const res = await fetch("/api/player/players-read");
       if (!res.ok) throw new Error("Failed to fetch games");
       const updatedPlayers = await res.json();
       setPlayers(updatedPlayers.players);
@@ -58,7 +58,7 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
   const sendBanRequest = async (id: number, value: string) => {
     setLoading(true);
     try {
-      const res = await fetch("api/player/players-ban-unban", {
+      const res = await fetch("/api/player/players-ban-unban", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, value }),

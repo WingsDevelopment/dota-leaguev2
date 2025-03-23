@@ -53,7 +53,7 @@ export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
 
   const fetchGames = async () => {
     try {
-      const res = await fetch("api/games-crud/games-crud-read");
+      const res = await fetch("/api/games-crud/games-crud-read");
       if (!res.ok) throw new Error("Failed to fetch games");
       const updatedGames = await res.json();
       setGames(updatedGames.games);
@@ -75,7 +75,7 @@ export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
     }
     try {
       const res = await fetch(
-        "api/games-crud/games-crud-update-winner-looser",
+        "/api/games-crud/games-crud-update-winner-looser",
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -142,7 +142,7 @@ export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
       return alert(`${game.status} IS NOT A VALID GAME STATUS!!!`);
     }
     try {
-      const res = await fetch("api/games-crud/games-crud-update-cancel", {
+      const res = await fetch("/api/games-crud/games-crud-update-cancel", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: gameId, status: game.status }),
