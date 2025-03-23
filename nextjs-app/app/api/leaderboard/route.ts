@@ -5,11 +5,10 @@ import { closeDatabase } from "@/db/initDatabase";
 export async function GET() {
   const db = await getDbInstance();
   try {
-
     const leaderboard: Array<Record<string, any>> = await new Promise(
       (resolve, reject) => {
         db.all(
-          `SELECT discord_id, name, mmr, steam_id, captain
+          `SELECT *
            FROM Players
            ORDER BY mmr DESC`,
           [],
@@ -25,7 +24,6 @@ export async function GET() {
     );
 
     // Close the database connection.
-
 
     return NextResponse.json({ leaderboard });
   } catch (error) {

@@ -30,6 +30,14 @@ make sure you have python installed
 
 # Deploying docs
 
+create .env file
+
+- `nano .env.python`
+- paste content
+- Press Ctrl+O – This writes out (saves) the file.
+- Press Enter – This confirms the file name.
+- Press Ctrl+X – This exits the Nano editor.
+
 ssl sertificate hack:
 after generating pulling on server run:
 

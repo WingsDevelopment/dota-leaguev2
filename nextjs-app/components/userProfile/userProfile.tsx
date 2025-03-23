@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { useEffect, useState } from "react";
 import { Switch, SwitchLabel, SwitchWrapper } from "../ui/slider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
@@ -49,6 +49,7 @@ export default function UserProfile({ is_public_profile, discordId, id, userImag
             setLoading(false)
         }
     }
+  };
 
     return (
         <>

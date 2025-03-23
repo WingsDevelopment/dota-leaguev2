@@ -92,13 +92,23 @@ export async function deleteGame({
         console.log(
           `Updating player ${player_id} (team ${team}): applying adjustment ${adjustment}`
         );
-        await new Promise<void>((resolve, reject) => {
-          db.run(
-            `UPDATE Players SET mmr = mmr + ? WHERE id = ?`,
-            [adjustment, player_id],
-            (err) => (err ? reject(err) : resolve())
-          );
-        });
+        if (team === result) {
+          await new Promise<void>((resolve, reject) => {
+            db.run(
+              `UPDATE Players SET mmr = mmr + ?, wins = wins - 1 WHERE id = ?`,
+              [adjustment, player_id],
+              (err) => (err ? reject(err) : resolve())
+            );
+          });
+        } else {
+          await new Promise<void>((resolve, reject) => {
+            db.run(
+              `UPDATE Players SET mmr = mmr + ?, loses = loses - 1 WHERE id = ?`,
+              [adjustment, player_id],
+              (err) => (err ? reject(err) : resolve())
+            );
+          });
+        }
       }
     } else {
       console.log(

@@ -42,7 +42,7 @@ export default function RegisterCrud({
 
   const fetchVouch = async () => {
     try {
-      const res = await fetch("api/register-players/register-players-read");
+      const res = await fetch("/api/register-players/register-players-read");
       if (!res.ok) throw new Error("Failed to fetch vouch list");
       const updatedVouchList = await res.json();
 
