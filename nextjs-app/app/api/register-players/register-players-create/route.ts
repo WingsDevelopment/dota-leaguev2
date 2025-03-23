@@ -8,6 +8,7 @@ export async function PUT(req: NextRequest) {
   const { steam_id, mmr } = await req.json();
   const session = await auth();
   const { discordId, name } = (session?.user || {}) as ExtendedUser;
+
   if (!steam_id || !mmr) {
     return NextResponse.json(
       { error: "Missing required fields" },
@@ -47,7 +48,7 @@ export async function PUT(req: NextRequest) {
     });
 
     if (playerExists) {
-      
+
       return NextResponse.json({
         message: "Player already exists in Players table, no action needed.",
       });
@@ -65,18 +66,17 @@ export async function PUT(req: NextRequest) {
       );
     });
 
-    
     return NextResponse.json({
       message: "Player added to RegisterPlayers with status PENDING.",
     });
   } catch (error) {
-    
+
     console.error("Error processing request:", error);
     return NextResponse.json(
       { error: `Internal Server Error ${error}` },
       { status: 500 }
     );
-  }finally{
+  } finally {
     closeDatabase(db);
   }
 }

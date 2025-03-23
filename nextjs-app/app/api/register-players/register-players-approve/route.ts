@@ -96,8 +96,8 @@ export async function POST(req: NextRequest) {
       // Insert into Players with mmr 1000
       await new Promise((resolve, reject) => {
         db.run(
-          "INSERT INTO Players (discord_id, steam_id, name, mmr) VALUES (?, ?, ?, 1000)",
-          [registration.discord_id, registration.steam_id, registration.name],
+          "INSERT INTO Players (discord_id, steam_id, name, mmr, vouched_date) VALUES (?, ?, ?, 1000, ?)",
+          [registration.discord_id, registration.steam_id, registration.name, new Date().toISOString()],
           function (err) {
             if (err) reject(err);
             resolve(this.lastID);
