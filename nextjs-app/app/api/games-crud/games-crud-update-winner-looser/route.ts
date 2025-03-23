@@ -38,13 +38,6 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Game not found" }, { status: 404 });
     }
 
-    // if (actualGame.status !== status) {
-    //   return NextResponse.json(
-    //     { error: "Game status mismatch. Possible tampering detected." },
-    //     { status: 403 }
-    //   );
-    // }
-
     // Start a transaction.
     await new Promise((resolve, reject) =>
       db.run("BEGIN TRANSACTION", (err) => (err ? reject(err) : resolve(null)))
@@ -113,7 +106,7 @@ export async function PUT(req: NextRequest) {
       players.map(({ player_id, team }) => {
         return new Promise((resolve, reject) => {
           if (team === team_won) {
-            // For the winning team, increase mmr and wins.
+            // For the winning team, increase mmr, wins, and streak.
             db.run(
               `UPDATE Players SET mmr = mmr + ?, wins = wins + 1, streak = streak + 1 WHERE id = ?`,
               [eloChange, player_id],
@@ -129,7 +122,7 @@ export async function PUT(req: NextRequest) {
               }
             );
           } else {
-            // For the losing team, decrease mmr and increase loses.
+            // For the losing team, decrease mmr, increase loses and reset streak.
             db.run(
               `UPDATE Players SET mmr = mmr - ?, loses = loses + 1, streak = 0 WHERE id = ?`,
               [eloChange, player_id],
@@ -163,12 +156,14 @@ export async function PUT(req: NextRequest) {
         }
       );
     });
-    closeDatabase(db);
 
     // Commit the transaction.
     await new Promise((resolve, reject) =>
       db.run("COMMIT", (err) => (err ? reject(err) : resolve(null)))
     );
+
+    // Now close the database connection.
+    closeDatabase(db);
 
     return NextResponse.json({
       success: true,
