@@ -110,36 +110,33 @@ export default function RulesPage() {
 
         <section id="didnt-show-ban" className="mb-12">
           <h1 className="text-2xl font-bold mb-4">Didn't Show Ban</h1>
-          <p>
-            Failing to show up at the scheduled time results in penalties.
-          </p>
+          <p>Failing to show up at the scheduled time results in penalties.</p>
           <p>The following ban durations apply for missing a game:</p>
           <ul className="list-disc ml-6 mt-2 space-y-1">
             <li>
               <strong>1 missed game:</strong> 1-day ban
             </li>
             <li>
-              <strong>2 or more missed games:</strong> added to the previous count (1 missed: 1 day, 2 missed: 2 days and so on.)
+              <strong>2 or more missed games:</strong> added to the previous
+              count (1 missed: 1 day, 2 missed: 2 days and so on.)
             </li>
           </ul>
         </section>
 
         <section id="leave-ban" className="mb-12">
           <h1 className="text-2xl font-bold mb-4">Leave Ban</h1>
-          <p>
-            Leaving a game prematurely results in penalties.
-          </p>
+          <p>Leaving a game prematurely results in penalties.</p>
           <p>The following ban durations apply for leaving a game:</p>
           <ul className="list-disc ml-6 mt-2 space-y-1">
             <li>
               <strong>1 leave:</strong> 1-day ban
             </li>
             <li>
-              <strong>2 or more leaves:</strong> results in a 10-day stacking ban
+              <strong>2 or more leaves:</strong> results in a 10-day stacking
+              ban
             </li>
           </ul>
         </section>
-
 
         <section id="grif-ban" className="mb-12">
           <h1 className="text-2xl font-bold mb-4">Grief Ban</h1>
@@ -177,9 +174,8 @@ export default function RulesPage() {
             Bad Behavior Ban(BBB) durations
           </h1>
           <p>
-            Non grif bans are tied to time rather than seasons.{" "}
-            <strong>The minimum ban period is 2 weeks</strong>, with a{" "}
-            <strong>maximum of 1.5 years</strong>.
+            First (BBB) ban period is <strong> 2 weeks</strong>, and a{" "}
+            <strong> 1.5 years</strong> every other time.
           </p>
         </section>
       </main>
