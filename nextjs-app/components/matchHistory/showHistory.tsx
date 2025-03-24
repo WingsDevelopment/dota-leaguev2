@@ -86,7 +86,7 @@ export default function ShowHistory({ matchHistoryList,discordId }: { matchHisto
                                                 </p>
                                             </div>
                                         </TableCell>
-                                        <TableCell>{match.winner}</TableCell>
+                                        <TableCell>{match.result}</TableCell>
                                         <TableCell>{formatDuration(match.duration)}</TableCell>
                                         <TableCell>{match.kills}</TableCell>
                                         <TableCell>{match.deaths}</TableCell>

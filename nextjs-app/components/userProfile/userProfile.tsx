@@ -2,8 +2,7 @@
 import { useEffect, useState } from "react";
 import { Switch, SwitchLabel, SwitchWrapper } from "../ui/slider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import LikesAndDislikes from "../likesAndDislikes/likesAndDislikes";
 interface UserProfileProps {
     user: {
         is_public_profile: boolean;
@@ -18,15 +17,19 @@ interface UserProfileProps {
         likes: number,
         dislikes: number,
         vouched_date: string
-    }
-    userImage?: string,
-    discordId?: string
+    },
+    ld:{
+        likes:number,
+        dislikes:number,
+    },
+    discordId?: string,
+    userSteamId: string
 }
-export default function UserProfile({ user, userImage, discordId }: UserProfileProps) {
-
+export default function UserProfile({ user, discordId, userSteamId,ld }: UserProfileProps) {
+    if (!user) return
     const [check, setCheck] = useState<boolean>(!!user.is_public_profile);
     const [loading, setLoading] = useState(false);
-    console.log(user.steam_id, "steam id")
+
     const fetchIsPublic = async () => {
         try {
             const res = await fetch(`/api/player/get-player-by-steam-id?steam_id=${user.steam_id}`);
@@ -101,6 +104,9 @@ export default function UserProfile({ user, userImage, discordId }: UserProfileP
 
                     {/* Match History Public Switch */}
                 </div>
+
+                <LikesAndDislikes userSteamId={userSteamId} otherPlayerSteamId={user.steam_id} />
+
             </div>
             {
                 discordId === user.discord_id ? (
@@ -174,7 +180,7 @@ export default function UserProfile({ user, userImage, discordId }: UserProfileP
                         <CardDescription></CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-xl font-semibold">Likes</p>
+                        <p className="text-xl font-semibold">{ld.likes}</p>
                     </CardContent>
                 </Card>
                 <Card className="shadow-lg hover:shadow-xl transition-all duration-200">
@@ -183,7 +189,7 @@ export default function UserProfile({ user, userImage, discordId }: UserProfileP
                         <CardDescription></CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-xl font-semibold">Dislikes</p>
+                        <p className="text-xl font-semibold">{ld.dislikes}</p>
                     </CardContent>
                 </Card>
                 <Card className="shadow-lg hover:shadow-xl transition-all duration-200">
