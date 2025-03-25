@@ -8,12 +8,6 @@
 
 # 🛠️ DEV DOCUMENTATION
 
-## 🐳 Docker Start System
-
-```bash
-docker-compose up --build
-```
-
 ## 💻 Frontend Dev (Next.js)
 
 Make sure Node.js is installed.
@@ -45,6 +39,12 @@ python run_all.py dev
 ---
 
 # 🚀 DEPLOYMENT DOCS
+
+## 🐳 Docker Start System
+
+```bash
+docker-compose up --build
+```
 
 ### 🧪 Environment Setup
 
