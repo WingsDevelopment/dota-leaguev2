@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { Switch, SwitchLabel, SwitchWrapper } from "../ui/slider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import LikesAndDislikes from "../likesAndDislikes/likesAndDislikes";
-interface UserProfileProps {
+import { getAvatarUrl, mapUserDataToViewModel } from "@/lib/utils";
+export interface UserProfileProps {
     user: {
         is_public_profile: boolean;
         discord_id: string; // Add discord_id here
@@ -18,14 +19,14 @@ interface UserProfileProps {
         dislikes: number,
         vouched_date: string
     },
-    ld:{
-        likes:number,
-        dislikes:number,
+    ld: {
+        likes: number,
+        dislikes: number,
     },
     discordId?: string,
     userSteamId: string
 }
-export default function UserProfile({ user, discordId, userSteamId,ld }: UserProfileProps) {
+export default function UserProfile({ user, discordId, userSteamId, ld }: UserProfileProps) {
     if (!user) return
     const [check, setCheck] = useState<boolean>(!!user.is_public_profile);
     const [loading, setLoading] = useState(false);
@@ -63,25 +64,8 @@ export default function UserProfile({ user, discordId, userSteamId,ld }: UserPro
             setLoading(false)
         }
     }
-    const wins = Number(user?.wins) || 0;
-    const loses = Number(user?.loses) || 0;
-
-    const totalGames = wins + loses;
-    const winRate = totalGames > 0 ? (wins / totalGames) * 100 : 0;
-
-    const formattedDate = user.vouched_date
-        ? new Date(user.vouched_date).toLocaleString("de-DE", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: false, // 24-hour format
-        })
-        : "Not Available"; // Fallback text if no date
-
-    const avatarUrl = `https://api.dicebear.com/7.x/identicon/svg?seed=${user.discord_id}`;
+    
+    const {winRate,formattedDate}= mapUserDataToViewModel(user)
 
     return (
         <>
@@ -89,7 +73,7 @@ export default function UserProfile({ user, discordId, userSteamId,ld }: UserPro
                 {/* Avatar Image */}
                 <div className="h-20 w-20 bg-gray-200 rounded-full overflow-hidden border-2 border-gray-300 shadow-md">
                     <img
-                        src={avatarUrl}
+                        src={getAvatarUrl(user.discord_id)}
                         alt={user.name ?? "User"}
                         className="object-cover h-full w-full"
                     />
@@ -104,8 +88,11 @@ export default function UserProfile({ user, discordId, userSteamId,ld }: UserPro
 
                     {/* Match History Public Switch */}
                 </div>
-
-                <LikesAndDislikes userSteamId={userSteamId} otherPlayerSteamId={user.steam_id} />
+                {discordId === user.discord_id ? (
+                    <></>
+                ) : (
+                    <LikesAndDislikes userSteamId={userSteamId} otherPlayerSteamId={user.steam_id} />
+                )}
 
             </div>
             {

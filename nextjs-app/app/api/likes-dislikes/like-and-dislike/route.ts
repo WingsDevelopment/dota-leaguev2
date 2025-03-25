@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLikesAndDislikes } from "@/app/services/likesAndDislikesService/likesAndDislikes";
+import { putLikesAndDislikes } from "@/app/services/likesAndDislikesService/likesAndDislikes";
 
 export async function POST(req: Request) {
 
@@ -9,6 +9,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing Variable" }, { status: 400 });
   }
 
-  const res = await getLikesAndDislikes({ userSteamId, otherPlayerSteamId, type });
+  const res = await putLikesAndDislikes({ userSteamId, otherPlayerSteamId, type });
   return NextResponse.json(res);
 }

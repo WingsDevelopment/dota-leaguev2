@@ -8,7 +8,7 @@ interface getPlayerBySteamId {
     type: string
 }
 
-export async function getLikesAndDislikes({ userSteamId, otherPlayerSteamId, type }: getPlayerBySteamId) {
+export async function putLikesAndDislikes({ userSteamId, otherPlayerSteamId, type }: getPlayerBySteamId) {
     const db = await getDbInstance();
     try {
         const existingVote: Array<Record<string, any>> = await new Promise((resolve, reject) => {

@@ -9,7 +9,6 @@ interface getPlayerBySteamId {
 export async function getPlayerLikesAndDislikes({ steamId }: getPlayerBySteamId) {
     const db = await getDbInstance();
     try {
-        console.log(steamId,"aaaaaaaaaaaaaaa")
         const likeDislikeRows: Array<Record<string, any>> = await new Promise((resolve, reject) => {
             db.all(
                 `SELECT likes_dislikes FROM likeDislike WHERE other_player_steam_id = ?`,

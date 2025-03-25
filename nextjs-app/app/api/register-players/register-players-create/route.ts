@@ -48,7 +48,7 @@ export async function PUT(req: NextRequest) {
     });
 
     if (playerExists) {
-
+      closeDatabase(db);
       return NextResponse.json({
         message: "Player already exists in Players table, no action needed.",
       });
@@ -65,18 +65,16 @@ export async function PUT(req: NextRequest) {
         }
       );
     });
-
+    closeDatabase(db);
     return NextResponse.json({
       message: "Player added to RegisterPlayers with status PENDING.",
     });
   } catch (error) {
-
+    closeDatabase(db);
     console.error("Error processing request:", error);
     return NextResponse.json(
       { error: `Internal Server Error ${error}` },
       { status: 500 }
     );
-  } finally {
-    closeDatabase(db);
   }
 }
