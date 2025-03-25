@@ -4,6 +4,8 @@
 - 🥇 Season 1: `https://dota-league.vercel.app/`
 - 🥈 Season 2: `https://radekomsa.site/`
 
+First side project with 100+ active users!
+
 ---
 
 # 🛠️ DEV DOCUMENTATION
