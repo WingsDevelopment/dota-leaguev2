@@ -1,10 +1,27 @@
+# 🎮 DOTA LEAGUE HOSTING PLATFORM
+
+Welcome to the **Dota 2 League Hosting Platform**, a side project with **100+ active users**!
+
+### 🧩 How It Works
+
+- Players **join a queue** on Discord.
+- Once **10 players** are in queue, a **Steam bot**:
+  - Creates a lobby
+  - Invites all players
+- The **Discord bot** notifies players.
+- When all players join:
+  - The lobby starts **automatically**
+  - The match is tracked and **scored**
+- MMR is updated live.
+- In **Season 2**, enjoy:
+  - 🧠 Full match history
+  - 📊 Detailed stats per game
+
 # 🌐 PRODUCTION LINKS
 
 - 🏆 Dota League Hosting Platform: `https://www.dota-league-hosting.xyz/`
 - 🥇 Season 1: `https://dota-league.vercel.app/`
 - 🥈 Season 2: `https://radekomsa.site/`
-
-First side project with 100+ active users!
 
 ---
 
