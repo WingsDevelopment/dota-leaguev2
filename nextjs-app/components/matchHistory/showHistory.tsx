@@ -84,7 +84,7 @@ export default function ShowHistory({
               {matchHistoryList.map((match: MatchHistory) => (
                 <>
                   <TableRow key={match.id}>
-                    <TableCell>
+                    <TableCell data-cy={`hero-id-${match.hero_id}`}>
                       <div className="lg:flex sm:grid sm-grid-column-2 md:grid md-grid-column-2 gap-2 text-center items-center">
                         <img
                           src={getHeroImage(match.hero_id)}
@@ -102,6 +102,13 @@ export default function ShowHistory({
                     <TableCell>
                       <div className="lg:grid lg:grid-cols-6 gap-1 md:grid md:grid-cols-3 sm:grid sm:grid-cols-2">
                         {getItemImage(match.items).map((link: string) => {
+                          if (
+                            !link ||
+                            !link[0] ||
+                            !link[1] ||
+                            link[1] === "ability_base"
+                          )
+                            return <div />;
                           return (
                             <img
                               src={link[0]}

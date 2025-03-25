@@ -124,6 +124,7 @@ export const heroMap: { [key: number]: string } = {
   136: "marci",
   137: "primal_beast",
   138: "muerta",
+  139: "ring_master",
 };
 export const itemMap: Record<string, string> = {
   "0": "ability_base",
