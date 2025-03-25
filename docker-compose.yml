@@ -53,13 +53,8 @@ services:
       - "traefik.http.routers.nextjs.tls=true"
       - "traefik.http.routers.nextjs.tls.certresolver=letsencrypt"
       - "traefik.http.services.nextjs.loadbalancer.server.port=3000"
-    environment:
-      - DATABASE_PATH=/app/db/league.db
-      - NEXTAUTH_URL=https://radekomsa.site
-      - AUTH_SECRET=5nfxJAUzLoY+m53Qdm/mRXFurIZi0MSDA7+uNBcR9LQ=
-      - AUTH_DISCORD_ID=1342432214910238730
-      - AUTH_DISCORD_SECRET=6lEc2TH-RYu28Fgt10BqXIXrjlvlpby8
-      - ADMIN_IDS=261319928320098304,662288348114845719,246806085111906304,441698961992974353,328855745187807233,182607011165241345
+    env_file:
+      - .env.nextjs
     volumes:
       - ./db:/app/db
     depends_on:
