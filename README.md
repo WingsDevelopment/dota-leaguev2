@@ -33,10 +33,13 @@ make sure you have python installed
 create .env file
 
 - `nano .env.python`
+- `nano .env.nextjs`
 - paste content
 - Press Ctrl+O – This writes out (saves) the file.
 - Press Enter – This confirms the file name.
 - Press Ctrl+X – This exits the Nano editor.
+- list all ls -la
+- read content: `cat .env.nextjs`
 
 ssl sertificate hack:
 after generating pulling on server run:
