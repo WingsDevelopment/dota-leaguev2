@@ -1,11 +1,5 @@
 # Docker start system
 
-dev:
-
-todo
-
-prod:
-
 - `docker-compose up --build`
 
 # FE dev
@@ -17,7 +11,7 @@ make sure you have node installed
 - `npm i`
 - `npm run dev`
 
-# Scripts
+# Scripts dev
 
 make sure you have python installed
 
@@ -25,8 +19,8 @@ make sure you have python installed
 - `pip install -r requirements.txt`
 - deps check: `pip list`
 - if first time run: `discord_db.py`
-- `python3 run_all.py`
-- or `python run_all.py`
+- `python3 run_all.py dev`
+- or `python run_all.py dev`
 
 # Deploying docs
 
