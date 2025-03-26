@@ -240,13 +240,20 @@ class DraftView(View):
             # Set a fallback name
             if hasattr(p, 'display_name'):
                 player['discord_username'] = p.display_name
+                print(f"[DEBUG] Using Discord display name for discord_username: {p.display_name}")
+            elif player.get('name'):
+                # First fallback: Use the name from the DB record (if available)
+                player['discord_username'] = player['name']
+                print(f"[DEBUG] Using DB name for discord_username: {player['name']}")
             else:
                 # fallback
                 user = self.bot.get_user(p.id)
                 if user:
                     player['discord_username'] = user.display_name
+                    print(f"[DEBUG] Using bot-fetched user display name for discord_username: {user.display_name}")
                 else:
                     player['discord_username'] = "UnknownMember"
+                    print("[DEBUG] Defaulting discord_username to 'UnknownMember'")
             # Add more stats from DB
             _add_stats_to_player(player)
             players.append(player)
