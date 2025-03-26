@@ -7,7 +7,7 @@ export async function GET(req: Request) {
 
   const url = new URL(req.url);
   const steamId =String(url.searchParams.get("steam_id"));
-    console.log(steamId,"STEAM ID IN ROUTE")
+
   if (!steamId) {
     return NextResponse.json({ error: "Missing steam ID" }, { status: 400 });
   }

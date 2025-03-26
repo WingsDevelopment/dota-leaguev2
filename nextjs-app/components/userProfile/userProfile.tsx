@@ -25,8 +25,9 @@ export interface UserProfileProps {
     },
     discordId?: string,
     userSteamId: string
+    isUserLiked: number
 }
-export default function UserProfile({ user, discordId, userSteamId, ld }: UserProfileProps) {
+export default function UserProfile({ user, discordId, userSteamId, ld, isUserLiked }: UserProfileProps) {
     if (!user) return
     const [check, setCheck] = useState<boolean>(!!user.is_public_profile);
     const [loading, setLoading] = useState(false);
@@ -64,8 +65,8 @@ export default function UserProfile({ user, discordId, userSteamId, ld }: UserPr
             setLoading(false)
         }
     }
-    
-    const {winRate,formattedDate}= mapUserDataToViewModel(user)
+
+    const { winRate, formattedDate } = mapUserDataToViewModel(user)
 
     return (
         <>
@@ -91,7 +92,7 @@ export default function UserProfile({ user, discordId, userSteamId, ld }: UserPr
                 {discordId === user.discord_id ? (
                     <></>
                 ) : (
-                    <LikesAndDislikes userSteamId={userSteamId} otherPlayerSteamId={user.steam_id} />
+                    <LikesAndDislikes userSteamId={userSteamId} otherPlayerSteamId={user.steam_id} isUserLiked={isUserLiked}/>
                 )}
 
             </div>

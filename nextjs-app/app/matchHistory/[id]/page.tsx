@@ -36,20 +36,34 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
   const session = await auth();
   const discordId = (session?.user as ExtendedUser)?.discordId
   const { id } = params;
+  const [
+    matchHistoryRes,
+    playerRes,
+    userSteamIdRes,
+    likesAndDislikesRes,
+  ] = await Promise.all([
+    fetcher(`${baseUrl}/api/match-history-players/show-history?steam_id=${id}`),
+    fetcher(`${baseUrl}/api/player/get-player-by-steam-id?steam_id=${id}`),
+    fetcher(`${baseUrl}/api/player/get-player-by-discord-id?discord_id=${discordId}`),
+    fetcher(`${baseUrl}/api/likes-dislikes/get-likes-and-dislikes?steam_id=${id}`),
+  ]);
 
-  const matchHistoryList=(await fetcher(`${baseUrl}/api/match-history-players/show-history?steam_id=${id}`))?.data || []
-  const playerList=(await fetcher(`${baseUrl}/api/player/get-player-by-steam-id?steam_id=${id}`))?.data || []
-  const userSteamId=(await fetcher(`${baseUrl}/api/player/get-player-by-discord-id?discord_id=${discordId}`))?.data || []
-  const likesAndDislikes=(await fetcher(`${baseUrl}/api/likes-dislikes/get-likes-and-dislikes?steam_id=${id}`))?.data || []
-  
- if (playerList[0]?.is_public_profile) {
+
+  const matchHistoryList = matchHistoryRes?.data || [];
+  const playerList = playerRes?.data || [];
+  const userSteamId = userSteamIdRes?.data || [];
+  const likesAndDislikes = likesAndDislikesRes?.data || [];
+  const isUserLikedOrDisliked = (await fetcher(`${baseUrl}/api/likes-dislikes/is-user-liked-or-disliked?steam_id=${id}&user_steam_id=${userSteamId[0].steam_id}`))?.data || [];
+
+  if (playerList[0]?.is_public_profile) {
     return (
       <>
         <UserProfile
-        ld={likesAndDislikes}
-        userSteamId={userSteamId[0].steam_id}
-        discordId={discordId}
-        user={playerList[0]}
+          isUserLiked={isUserLikedOrDisliked[0].likes_dislikes ?? null}
+          ld={likesAndDislikes}
+          userSteamId={userSteamId[0].steam_id}
+          discordId={discordId}
+          user={playerList[0]}
         />
         <ShowHistory matchHistoryList={matchHistoryList} discordId={discordId} />
       </>
@@ -58,10 +72,11 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
     return (
       <>
         <UserProfile
-        ld={likesAndDislikes}
-        userSteamId={userSteamId[0].steam_id}
-        discordId={discordId}
-        user={playerList[0]}
+          isUserLiked={isUserLikedOrDisliked[0].likes_dislikes}
+          ld={likesAndDislikes}
+          userSteamId={userSteamId[0].steam_id}
+          discordId={discordId}
+          user={playerList[0]}
         />
         <h1 className="text-3xl font-bold text-center mt-20">
           Sorry, this match history is private.
