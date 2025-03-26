@@ -218,9 +218,6 @@ async def help(ctx: Context):
                   description="Commands", color=0xeee657)
     embed.add_field(name="/help", value="Show this message", inline=False)
     embed.add_field(name="/stats", value="Show my stats", inline=False)
-    embed.add_field(name="/signup", value="Signup for the game", inline=False)
-    embed.add_field(name="/signupdraft",
-                    value="Signup for the game", inline=False)
     embed.add_field(name="/leave", value="Leave the queue", inline=False)
     embed.add_field(name="/autoscore",
                     value="Attempt to score a game via Steam API(do not spam)", inline=False)
@@ -519,64 +516,6 @@ async def autoscore_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
         await ctx.reply(f"Please wait {error.retry_after:.1f} seconds before using autoscore again.", delete_after=10)
 
-@bot.hybrid_command("signup", description="Signup for the game")
-async def signup(ctx: Context):
-    global RENDER
-    author: Member = ctx.message.author  # type: ignore
-    try:
-        execute_function_single_row_return('get_player_id', author.id)
-        player = execute_function_single_row_return("get_player", author.id)
-        banned_until_str = player.get('banned_until')
-        if banned_until_str:
-            try:
-                banned_until = datetime.datetime.fromisoformat(banned_until_str)  # Convert only if not None
-                if banned_until > datetime.datetime.now():
-                    await ctx.reply(f'You are banned until {banned_until}', mention_author=True, delete_after=10)
-                    return
-            except ValueError:
-                print(f"Warning: Invalid date format in banned_until for {author.id}: {banned_until_str}")
-    except ValueError:
-        await ctx.reply('You need to signup for the leage', mention_author=True, delete_after=10)
-        return
-    if author not in bot.sigedUpPlayerPool:  # type: ignore
-        bot.sigedUpPlayerPool.append(author)  # type: ignore
-        await ctx.reply('You successfully signed up for a game', mention_author=True, delete_after=10)
-        RENDER['queue'] = True
-        await _check_pool_size_and_start(ctx)
-    else:
-        await ctx.reply('You have already signed up for the game', mention_author=True, delete_after=10)
-
-
-@bot.hybrid_command("signupdraft", description="Signup for the game")
-async def signup(ctx: Context):
-    global RENDER
-    author: Member = ctx.message.author  # type: ignore
-    try:
-        execute_function_single_row_return('get_player_id', author.id)
-        player = execute_function_single_row_return("get_player", author.id)
-        banned_until_str = player.get('banned_until')
-        if banned_until_str:
-            try:
-                banned_until = datetime.datetime.fromisoformat(banned_until_str)  # Convert only if not None
-                if banned_until > datetime.datetime.now():
-                    await ctx.reply(f'You are banned until {banned_until}', mention_author=True, delete_after=10)
-                    return
-            except ValueError:
-                print(f"Warning: Invalid date format in banned_until for {author.id}: {banned_until_str}")
-        # get_player
-        # player != undefined && player.bannedDateTime === undefined && player.bannedDateTime < datetime.now() moze dalje
-    except ValueError:
-        await ctx.reply('You need to signup for the leage', mention_author=True, delete_after=10)
-        return
-    if author not in bot.sigedUpDraftPlayerPool:  # type: ignore
-        bot.sigedUpDraftPlayerPool.append(author)  # type: ignore
-        await ctx.reply('You successfully signed up for a game', mention_author=True, delete_after=10)
-        RENDER['queue_draft'] = True
-        await _check_pool_size_and_start_draft(ctx)
-    else:
-        await ctx.reply('You have already signed up for the game', mention_author=True, delete_after=10)
-
-
 @bot.hybrid_command("stats", description="Show my stats")
 async def stats(ctx: Context):
     author: Member = ctx.message.author  # type: ignore
@@ -781,25 +720,60 @@ async def _create_leaderboard_embed():
 
     return embed
 
+def remove_duplicates(queue: List[Member]) -> bool:
+    """
+    Removes duplicate members (by id) from the provided queue.
+    Returns True if duplicates were found and removed.
+    """
+    seen = set()
+    new_queue = []
+    duplicates_found = False
+    for member in queue:
+        if member.id in seen:
+            duplicates_found = True
+        else:
+            seen.add(member.id)
+            new_queue.append(member)
+    if duplicates_found:
+        # Replace original queue contents with the deduplicated list.
+        queue[:] = new_queue
+    return duplicates_found
+
 async def _check_pool_size_and_start(ctx: Context):
     global RENDER
+    # First check for and remove any duplicates from the normal queue.
+    if remove_duplicates(bot.sigedUpPlayerPool):
+        RENDER['queue'] = True
+        RENDER['queue_draft'] = True
+        # Rerender the queue console; do not start a match.
+        await _rerender_queue_console_if_needed()
+        return
+
     if len(bot.sigedUpPlayerPool) >= LOBBY_SIZE:  # type: ignore
         for player in bot.sigedUpPlayerPool[:LOBBY_SIZE]:
             if player in bot.sigedUpDraftPlayerPool:
                 bot.sigedUpDraftPlayerPool.remove(player)
 
-        platers_for_lobby = bot.sigedUpPlayerPool[:LOBBY_SIZE]
+        players_for_lobby = bot.sigedUpPlayerPool[:LOBBY_SIZE]
         bot.sigedUpPlayerPool = bot.sigedUpPlayerPool[LOBBY_SIZE:]
 
         RENDER['queue'] = True
         RENDER['queue_draft'] = True
 
-        await _create_game(ctx, platers_for_lobby)
+        await _create_game(ctx, players_for_lobby)
 
 async def _check_pool_size_and_start_draft(ctx: Context = None):
     global RENDER
+    # First check for and remove any duplicates from the draft queue.
+    if remove_duplicates(bot.sigedUpDraftPlayerPool):
+        RENDER['queue_draft'] = True
+        RENDER['queue'] = True
+        # Rerender the queue console; do not start a match.
+        await _rerender_queue_console_if_needed()
+        return
+
     if len(bot.sigedUpDraftPlayerPool) >= LOBBY_SIZE:  # type: ignore
-        draft_view = DraftView(bot,ctx, bot.sigedUpDraftPlayerPool[:LOBBY_SIZE], _create_a_draft_game)
+        draft_view = DraftView(bot, ctx, bot.sigedUpDraftPlayerPool[:LOBBY_SIZE], _create_a_draft_game)
         draft_view_content = draft_view.create_view_embed()
 
         for player in bot.sigedUpDraftPlayerPool[:LOBBY_SIZE]:
@@ -812,9 +786,9 @@ async def _check_pool_size_and_start_draft(ctx: Context = None):
 
         await bot.draft_channel.send(embed=draft_view_content, view=draft_view)
         if ctx:
-            await ctx.reply(f'''Game created, chekout <#{bot.draft_channel.id}>''', delete_after=10)  # type: ignore
+            await ctx.reply(f'''Game created, check out <#{bot.draft_channel.id}>''', delete_after=10)  # type: ignore
         else:
-            await bot.command_channel.send(f'''Game created, chekout <#{bot.draft_channel.id}>''', delete_after=10)
+            await bot.command_channel.send(f'''Game created, check out <#{bot.draft_channel.id}>''', delete_after=10)
 
 def _create_queue_embed():
     embed = Embed(title="Players in queue",
