@@ -1,11 +1,13 @@
 import { getDbInstance } from "@/db/utils";
 import { closeDatabase } from "@/db/initDatabase";
-import { NextResponse } from "next/server";
 
 interface getPlayerBySteamId {
     steamId: string;
 }
-
+enum LikeType {
+    zero = 0,
+    one = 1
+}
 export async function getPlayerLikesAndDislikes({ steamId }: getPlayerBySteamId) {
     const db = await getDbInstance();
     try {
@@ -27,9 +29,9 @@ export async function getPlayerLikesAndDislikes({ steamId }: getPlayerBySteamId)
         let dislikes = 0;
 
         likeDislikeRows.forEach((row) => {
-            if (row.likes_dislikes === 1) {
+            if (row.likes_dislikes === LikeType.one) {
                 likes++;
-            } else if (row.likes_dislikes === 0) {
+            } else if (row.likes_dislikes === LikeType.zero) {
                 dislikes++;
             }
         });
@@ -39,6 +41,6 @@ export async function getPlayerLikesAndDislikes({ steamId }: getPlayerBySteamId)
     } catch (error) {
         console.error("Error processing likes/dislikes:", error);
         closeDatabase(db);
-        return { success: false, message: "Internal Server Error" };
+        return { success: false, message: "Error processing likes/dislikes" };
     }
 }
