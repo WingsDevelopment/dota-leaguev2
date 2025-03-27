@@ -7,6 +7,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { MainNav } from "../components/dashboard/main-nav";
+import SocialLinks from "../components/ui/social-links";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -37,6 +38,7 @@ export default function RootLayout({
               <MainNav className="mx-6" />
             </div>
             <div className="p-2 md:p-20">{children}</div>
+            <SocialLinks /> {/* This will render the fixed social icons */}
           </ThemeProvider>
         </SessionProvider>
       </body>

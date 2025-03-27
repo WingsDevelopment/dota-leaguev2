@@ -27,25 +27,31 @@ export function calculateElo(
 export function formatDuration(seconds: number) {
   const duration = intervalToDuration({ start: 0, end: seconds * 1000 });
   return `${duration.hours ?? 0}h ${duration.minutes ?? 0}m ${duration.seconds ?? 0}s`;
-};
+}
 
 export function getHeroImage(heroId: number) {
   const heroName = heroMap[heroId];
-  return `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${heroName}.png`
+  return `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${heroName}.png`;
 }
 export function getItemImage(items: string) {
-  const itemArray = JSON.parse(items)
+  const itemArray = JSON.parse(items);
   const itemLink = itemArray.map((itemid: string) => {
-    const num = itemMap[itemid]
-    return [`https://cdn.cloudflare.steamstatic.com/apps/dota2/images/items/${num}_lg.png`, num]
-  })
+    const num = itemMap[itemid];
+    return [
+      `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/items/${num}_lg.png`,
+      num,
+    ];
+  });
   return itemLink;
 }
 
-export function heroToUppercase(name: string) {
-  let stringSplit = name.split('_');
+export function heroToUppercase(name?: string) {
+  if (!name) return "Unknown";
+
+  let stringSplit = name.split("_");
   for (let i = 0; i < stringSplit.length; i++) {
-    stringSplit[i] = stringSplit[i].charAt(0).toUpperCase() + stringSplit[i].substring(1);
+    stringSplit[i] =
+      stringSplit[i].charAt(0).toUpperCase() + stringSplit[i].substring(1);
   }
   return stringSplit.join(' ');
 }

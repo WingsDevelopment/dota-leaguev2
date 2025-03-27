@@ -21,7 +21,7 @@ export interface MatchHistory {
   game_mode: string;
   lobby_type: string;
   region: string;
-  winner: "radiant" | "dire"; // Enforce possible values
+  winner: 'radiant' | 'dire'; // Enforce possible values
   radiant_score: number;
   dire_score: number;
   additional_info: string; // JSON string, might need parsing

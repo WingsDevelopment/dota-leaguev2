@@ -1,175 +1,249 @@
-# Docker start system
+# 🎮 DOTA LEAGUE HOSTING PLATFORM
 
-dev:
+Welcome to the **Dota 2 League Hosting Platform**, a side project with **100+ active users**!
 
-todo
+### 🧩 How It Works
 
-prod:
+- Players **join a queue** on Discord.
+- Once **10 players** are in queue, a **Steam bot**:
+  - Creates a lobby
+  - Invites all players
+- The **Discord bot** notifies players.
+- When all players join:
+  - The lobby starts **automatically**
+  - The match is tracked and **scored**
+- MMR is updated live.
+- In **Season 2**, enjoy:
+  - 🧠 Full match history
+  - 📊 Detailed stats per game
 
-- `docker-compose up --build`
+# 🌐 PRODUCTION LINKS
 
-# FE dev
+- 🏆 Dota League Hosting Platform: `https://www.dota-league-hosting.xyz/`
+- 🥇 Season 1: `https://dota-league.vercel.app/`
+- 🥈 Season 2: `https://radekomsa.site/`
 
-make sure you have node installed
+---
 
-- go to /nextjs-app
+# 🛠️ DEV DOCUMENTATION
 
-- `npm i`
-- `npm run dev`
+## 💻 Frontend Dev (Next.js)
 
-# Scripts
+Make sure Node.js is installed.
 
-make sure you have python installed
+```bash
+cd nextjs-app
+npm install
+npm run dev
+```
 
-- go to /python-scripts
-- `pip install -r requirements.txt`
-- deps check: `pip list`
-- if first time run: `discord_db.py`
-- `python3 run_all.py`
-- or `python run_all.py`
+## 🐍 Python Scripts Dev
 
-# Deploying docs
+Make sure Python is installed.
 
-create .env file
+```bash
+cd python-scripts
+pip install -r requirements.txt       # Install dependencies
+pip list                              # Check installed packages
 
-- `nano .env.python`
-- paste content
-- Press Ctrl+O – This writes out (saves) the file.
-- Press Enter – This confirms the file name.
-- Press Ctrl+X – This exits the Nano editor.
+# First time setup
+python3 discord_db.py
 
-ssl sertificate hack:
-after generating pulling on server run:
+# Run the scripts
+python3 run_all.py dev
+# Or if using 'python' directly
+python run_all.py dev
+```
 
-- `chmod 600 ./letsencrypt/acme.json`
-  from project root.
+---
 
-other docker commands
+# 🚀 DEPLOYMENT DOCS
 
-delete all:
+## 🐳 Docker Start System
 
-- `docker-compose down -v`
+```bash
+docker-compose up --build
+```
 
-use prune to free up memory.
+### 🧪 Environment Setup
 
-- `docker system prune -a --volumes`
+Create environment files:
 
-db is being copied from local if exist btw.
+```bash
+nano .env.python
+nano .env.nextjs
+```
 
-# discord-bot
+Paste the contents, then:
 
-DiscordBot for hosting a dota 2 league
+- `Ctrl+O` → Save
+- `Enter` → Confirm filename
+- `Ctrl+X` → Exit nano
 
-# How to setup discord bot
+List files to verify:
 
-Step 1: Create a Discord Bot Account
-Go to the Discord Developer Portal:
-🔗 Discord Developer Portal
+```bash
+ls -la
+cat .env.nextjs
+```
 
-Click "New Application"
+### 🔒 SSL Certificate Fix
 
-Give your bot a name and click Create.
-Navigate to "Bot" Tab
+After generating the SSL cert on the server:
 
-Click on "Bot" on the left sidebar.
-Click "Add Bot" and confirm.
-Copy the Bot Token
+```bash
+chmod 600 ./letsencrypt/acme.json
+```
 
-Click "Reset Token" → Copy the token.
-(This token is required for your bot to function.)
-Step 2: Invite the Bot to Your Server
-Go to "OAuth2" → "URL Generator"
-Select "bot" under Scopes
-Select Permissions (Example: Administrator, or just Send Messages, Manage Messages, Read Messages)
-Copy the Generated URL and Open it in Your Browser
-Select Your Server and Click "Authorize"
-Your bot should now appear in the server (offline for now).
+Run from the project root.
 
-- ignore if you dont have website
-  update your oauth2 urls.
-  add redirect urls in oauth2:
-  https://radekomsa.site/api/auth/callback/discord/callback/discord
-  https://radekomsa.site/api/auth/callback/discord
-- end of ignore
+### 🧹 Other Docker Commands
 
-go to bot tab:
-store secret key (TOKEN)
+Delete all containers and volumes:
 
-enable this also in bot tab:
+```bash
+docker-compose down -v
+```
 
-Enable these: ✅ Presence Intent
-✅ Server Members Intent
-✅ Message Content Intent
+Free up memory:
 
-# How to get channel ids
+```bash
+docker system prune -a --volumes
+```
 
-How to Get the Correct Discord Channel IDs?
-You need to enable Developer Mode in Discord to get the actual channel IDs.
+ℹ️ Note: DB is copied from local if it exists.
 
-Step 1: Enable Developer Mode in Discord
-Open Discord.
-Go to User Settings → Advanced.
-Toggle Developer Mode to ON.
-Step 2: Get Channel IDs
-Right-click on the channel (e.g., leaderboard, admin, default, etc.).
-Click "Copy ID".
-Paste the ID into your .env file.
+---
 
-# Initialize your DB
+# 🤖 DISCORD BOT
 
-`python3 discord_db.py`
+DiscordBot for hosting a Dota 2 League.
 
-# Create role on dc
+## ⚙️ How to Set Up the Discord Bot
 
-Create role to dc, assign yourself to that role and set rolename in league_settings.yaml
+### Step 1: Create a Discord Bot
 
-# DISCORD OAUTH SETTINGS
+1. Go to the [Discord Developer Portal](https://discord.com/developers/applications)
+2. Click **New Application** → Give it a name → **Create**
+3. Go to the **Bot** tab → Click **Add Bot** → Confirm
+4. Click **Reset Token** → **Copy** the token
 
-You can find the values for:
+✅ Enable in Bot Tab:
 
-AUTH_SECRET
-AUTH_DISCORD_ID
-AUTH_DISCORD_SECRET
+- Presence Intent
+- Server Members Intent
+- Message Content Intent
 
-1. Generating AUTH_SECRET
-   Run the following command in your terminal inside the project directory:
+---
 
+### Step 2: Invite the Bot to Your Server
+
+1. Go to **OAuth2 > URL Generator**
+2. Select `bot` under Scopes
+3. Add permissions (e.g., Administrator, Send/Manage Messages)
+4. Copy the generated URL → Open in browser → Select server → Authorize
+
+### 🔁 (Optional) Website Integration
+
+If using a frontend:
+
+Update **OAuth2 Redirect URLs** in the Discord Developer Portal:
+
+```
+https://radekomsa.site/api/auth/callback/discord/callback/discord
+https://radekomsa.site/api/auth/callback/discord
+```
+
+---
+
+## 🔑 Discord OAuth Settings
+
+### 1. Generating `AUTH_SECRET`
+
+```bash
 npx auth secret
-This will generate a secret key, which you should add to your .env.local file like this:
+```
 
-AUTH_SECRET=your_generated_secret_here 2. Finding AUTH_DISCORD_ID and AUTH_DISCORD_SECRET
-These come from your Discord Developer Portal:
+Add to `.env.local`:
 
-Go to Discord Developer Portal.
-Log in and select your application (or create one if you haven't).
-In the "OAuth2" section, copy:
-Client ID → This is your AUTH_DISCORD_ID
-Client Secret → This is your AUTH_DISCORD_SECRET
-Paste them into your .env.local file:
-AUTH_DISCORD_ID=your_discord_client_id_here
-AUTH_DISCORD_SECRET=your_discord_client_secret_here 3. Setting Up the .env.local File
-Now your .env.local file should look like this:
+```env
+AUTH_SECRET=your_generated_secret
+```
 
-# Certificate for (HTTPS) commands
+### 2. Getting Discord Client Info
 
+From the [Discord Developer Portal](https://discord.com/developers/applications):
+
+```env
+AUTH_DISCORD_ID=your_discord_client_id
+AUTH_DISCORD_SECRET=your_discord_client_secret
+```
+
+---
+
+# 📢 CHANNEL SETUP
+
+## How to Get Discord Channel IDs
+
+1. Enable Developer Mode in Discord:
+   - User Settings → Advanced → Enable Developer Mode
+2. Right-click a channel → Copy ID → Paste into `.env`
+
+---
+
+## 🗃️ Database Setup
+
+Initialize:
+
+```bash
+python3 discord_db.py
+```
+
+---
+
+## 🎭 Discord Role Management
+
+1. Create a role on Discord
+2. Assign it to yourself
+3. Set `rolename` in `league_settings.yaml`
+
+---
+
+# 📦 .env File Permissions for HTTPS
+
+```bash
 mkdir -p letsencrypt
-chmod 600 letsencrypt/acme.json
 touch letsencrypt/acme.json
 chmod 600 letsencrypt/acme.json
+```
 
-# Add admin to league
+---
 
-Copy paste whole steam profile url to https://www.dota2.com/league/17791/admins
+# 👑 Add Admin to League
 
-# Read db ubuntu
+Paste full Steam profile URL into:
 
-- sqlite3 league.db
-- sqlite> .tables
-- sqlite> .headers on
-- sqlite> .mode column
-- sqlite> SELECT \* FROM MatchHistory;
-- sqlite> .exit
+```
+https://www.dota2.com/league/17791/admins
+```
 
-# Read python logs
+---
 
-- docker-compose logs -f python
+# 🧾 Read DB on Ubuntu
+
+```bash
+sqlite3 league.db
+sqlite> .tables
+sqlite> .headers on
+sqlite> .mode column
+sqlite> SELECT * FROM MatchHistory;
+sqlite> .exit
+```
+
+---
+
+# 📜 Read Python Logs
+
+```bash
+docker-compose logs -f python
+```

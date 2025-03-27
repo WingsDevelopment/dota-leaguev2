@@ -70,28 +70,28 @@ export default async function DashboardPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Radekomsa wins</CardTitle>
-                  <CardDescription>todo</CardDescription>
+                  <CardDescription>Coming soon..</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm">todo</p>
+                  <p className="text-sm">Coming soon..</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader>
                   <CardTitle>Top heroes</CardTitle>
-                  <CardDescription>todo</CardDescription>
+                  <CardDescription>Coming soon..</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm">todo</p>
+                  <p className="text-sm">Coming soon..</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader>
                   <CardTitle>Active Now</CardTitle>
-                  <CardDescription>todo</CardDescription>
+                  <CardDescription>Coming soon..</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm">todo</p>
+                  <p className="text-sm">Coming soon..</p>
                 </CardContent>
               </Card>
             </div>

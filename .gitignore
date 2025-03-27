@@ -11,3 +11,4 @@ python-scripts/__pycache__/utility.cpython-313.pyc
 nextjs-app/db/league.db
 league_settings_dev.yaml
 .env.python
+.env.nextjs

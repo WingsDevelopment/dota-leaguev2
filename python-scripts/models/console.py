@@ -74,7 +74,7 @@ class ConsoleView(View):
         except ValueError:
             await self.console_channel.send(f'<@{user.id}> You need to signup for the leage', delete_after=5)
             return
-        if user not in self.bot.sigedUpDraftPlayerPool:  # type: ignore
+        if not any(member.id == user.id for member in self.bot.sigedUpDraftPlayerPool):  # type: ignore
             self.bot.sigedUpDraftPlayerPool.append(user)  # type: ignore
             await self.console_channel.send(f'<@{user.id}> You successfully signed up for a draft game', delete_after=5)
             self.RENDER['queue_draft'] = True
