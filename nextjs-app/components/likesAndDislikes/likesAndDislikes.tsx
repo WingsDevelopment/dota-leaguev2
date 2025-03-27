@@ -1,4 +1,5 @@
 'use client'
+import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { useState } from "react";
 import { Button } from "react-day-picker";
 
@@ -6,9 +7,10 @@ interface LikesAndDislikes {
     userSteamId: string;
     otherPlayerSteamId: string;
     isUserLiked: number
+    fetchLD: () => Promise<void>
 }
 
-export default function LikesAndDislikes({ userSteamId, otherPlayerSteamId, isUserLiked }: LikesAndDislikes) {
+export default function LikesAndDislikes({ userSteamId, otherPlayerSteamId, isUserLiked, fetchLD }: LikesAndDislikes) {
     const [loading, setLoading] = useState(false);
     const [isLiked, setIsLiked] = useState(isUserLiked)
 
@@ -28,14 +30,13 @@ export default function LikesAndDislikes({ userSteamId, otherPlayerSteamId, isUs
                 return;
             }
             setIsLiked(data.data[0].likes_dislikes)
-
+            fetchLD()
         } catch (error) {
             console.error("Couldn't get user likes/dislikes.")
         }
     }
     const likeAndDislike = async (type: string) => {
-        const confirmation = confirm("Are you sure you want to like this person?");
-        if (!confirmation) return;
+
         setLoading(true);
 
         try {
@@ -50,14 +51,11 @@ export default function LikesAndDislikes({ userSteamId, otherPlayerSteamId, isUs
                 return;
             }
             fetchData();
-            alert("Vote recorded successfully!");
         } catch (error) {
             console.error("Failed to update likes and dislikes.", error);
         } finally {
             setLoading(false)
         }
-        //provjerimo da li je vec lajkovano u api
-        //ako jeste vratimo error da je lajkovano/dislajkovano
     }
 
     const getButtonStyles = (type: "like" | "dislike", isLiked: number | null) => {
@@ -77,14 +75,14 @@ export default function LikesAndDislikes({ userSteamId, otherPlayerSteamId, isUs
                 className={getButtonStyles("like", isLiked)}
                 disabled={loading}
             >
-                {isLiked === 1 ? "Liked" : "Like"}
+                <ThumbsUp size={20} className={isLiked === 1 ? "text-white" : "text-gray-300"} />
             </button>
             <button
                 onClick={() => likeAndDislike(isLiked === 0 ? "disliked" : "dislike")}
                 className={getButtonStyles("dislike", isLiked)}
                 disabled={loading}
             >
-                {isLiked === 0 ? "Disliked" : "Dislike"}
+                <ThumbsDown size={20} className={isLiked === 0 ? "text-white" : "text-gray-300"} />
             </button>
         </>
     )

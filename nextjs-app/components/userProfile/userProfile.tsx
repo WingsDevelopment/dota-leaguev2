@@ -29,8 +29,23 @@ export interface UserProfileProps {
 }
 export default function UserProfile({ user, discordId, userSteamId, ld, isUserLiked }: UserProfileProps) {
     if (!user) return
+
     const [check, setCheck] = useState<boolean>(!!user.is_public_profile);
     const [loading, setLoading] = useState(false);
+    const [likesDislikes, setLikesDislikes] = useState(ld)
+    useEffect(()=>{
+        // slusa na promjene likesDislikes
+    },[likesDislikes])
+    const fetchLD = async () => {
+        try {
+            const res = await fetch(`/api/likes-dislikes/get-likes-and-dislikes?steam_id=${user.steam_id}`);
+            if (!res.ok) throw new Error("Failed to fetch likes and dislikes");
+            const data = await res.json();
+            setLikesDislikes(data.data)
+        } catch (error) {
+
+        }
+    }
 
     const fetchIsPublic = async () => {
         try {
@@ -67,7 +82,7 @@ export default function UserProfile({ user, discordId, userSteamId, ld, isUserLi
     }
 
     const { winRate, formattedDate } = mapUserDataToViewModel(user)
-
+    // fetchLD()
     return (
         <>
             <div className="flex items-center space-x-6">
@@ -92,7 +107,11 @@ export default function UserProfile({ user, discordId, userSteamId, ld, isUserLi
                 {discordId === user.discord_id ? (
                     <></>
                 ) : (
-                    <LikesAndDislikes userSteamId={userSteamId} otherPlayerSteamId={user.steam_id} isUserLiked={isUserLiked}/>
+                    <LikesAndDislikes
+                        userSteamId={userSteamId}
+                        otherPlayerSteamId={user.steam_id}
+                        isUserLiked={isUserLiked}
+                        fetchLD={fetchLD} />
                 )}
 
             </div>
@@ -168,7 +187,7 @@ export default function UserProfile({ user, discordId, userSteamId, ld, isUserLi
                         <CardDescription></CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-xl font-semibold">{ld.likes}</p>
+                        <p className="text-xl font-semibold">{likesDislikes.likes}</p>
                     </CardContent>
                 </Card>
                 <Card className="shadow-lg hover:shadow-xl transition-all duration-200">
@@ -177,7 +196,7 @@ export default function UserProfile({ user, discordId, userSteamId, ld, isUserLi
                         <CardDescription></CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-xl font-semibold">{ld.dislikes}</p>
+                        <p className="text-xl font-semibold">{likesDislikes.dislikes}</p>
                     </CardContent>
                 </Card>
                 <Card className="shadow-lg hover:shadow-xl transition-all duration-200">
