@@ -89,6 +89,39 @@ def add_additional_player_table_columns(cursor):
         else:
             print(f"No migration needed: '{column}' column already exists.")
 
+def remove_likes_dislikes_players(cursor):
+    cursor.execute("PRAGMA table_info(Players)")
+    columns_info = cursor.fetchall()
+    columns = [col[1] for col in columns_info]         
+    if 'likes' in columns or 'dislikes' in columns:
+        columns_to_keep = [col for col in columns_info if col[1] not in ['likes', 'dislikes']]
+        column_definitions = ", ".join(f"{col[1]} {col[2]}" for col in columns_to_keep)
+        cursor.execute(f"CREATE TABLE Players_new ({column_definitions});")
+        columns_to_copy = [col[1] for col in columns_to_keep]
+        columns_to_copy_str = ", ".join(columns_to_copy)
+        cursor.execute(f"""
+        INSERT INTO Players_new ({columns_to_copy_str})
+        SELECT {columns_to_copy_str} FROM Players;
+        """)
+        cursor.execute("DROP TABLE Players;")
+        cursor.execute("ALTER TABLE Players_new RENAME TO Players;")
+
+        print("Migration applied: Removed 'likes' and 'dislikes' columns.")
+    else:
+        print("No migration needed: 'likes' and 'dislikes' columns do not exist.")
+
+def create_like_dislike_table(cursor):
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS likeDislike (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        steam_id INTEGER DEFAULT NULL,
+        likes_dislikes BOOLEAN DEFAULT NULL,
+        other_player_steam_id INTEGER DEFAULT NULL
+    );
+    """)
+
+    print("Migration applied: Created 'likeDislike' table if it did not exist.")
+
 def create_match_history_table_migration(cursor):
     # Reuse the function from discord_db.py
     create_match_history_table(cursor)
@@ -112,7 +145,9 @@ def run_migrations(db_path):
         ("create_match_player_stats_table", create_match_player_stats_table_migration),
         ("add_banned_until", add_banned_until_migration),
         ("add_games_didnt_show",add_games_didnt_show_migration),
-        ("add_additional_player_table_columns",add_additional_player_table_columns)
+        ("add_additional_player_table_columns",add_additional_player_table_columns),
+        ("remove_likes_dislikes_players_columns",remove_likes_dislikes_players),
+        ("create_like_dislike_table",create_like_dislike_table)
     ]
     
     for migration_name, migration_func in migrations:

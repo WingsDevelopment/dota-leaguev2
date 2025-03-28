@@ -1,9 +1,9 @@
-import { baseUrl } from '@/app/common/constraints';
-import { headers } from 'next/headers';
-import { heroMap, itemMap } from './hero_and_items_images';
-import ShowHistory from '@/components/matchHistory/showHistory';
-import { auth, ExtendedUser } from '@/auth';
-import UserProfile from '@/components/userProfile/userProfile';
+import { baseUrl } from "@/app/common/constraints";
+import { headers } from "next/headers";
+import ShowHistory from "@/components/matchHistory/showHistory";
+import { auth, ExtendedUser } from "@/auth";
+import UserProfile from "@/components/userProfile/userProfile";
+import { fetcher } from "@/lib/fetch";
 
 export interface MatchHistoryProps {
   params: {
@@ -11,6 +11,7 @@ export interface MatchHistoryProps {
     match: string; // Next.js dynamic params are always strings
   };
 }
+
 export interface MatchHistory {
   id: number;
   match_id: number;
@@ -30,54 +31,56 @@ export interface MatchHistory {
   assists: number;
   items: string;
 }
+
 export default async function MatchHistory({ params }: MatchHistoryProps) {
   const session = await auth();
-  const discordId = (session?.user as ExtendedUser)?.discordId;
+  const discordId = (session?.user as ExtendedUser)?.discordId
   const { id } = params;
-  const cookie = headers().get('cookie') || '';
-  // todo: we should fetcher instead
-  const [matchHistoryRes, isPublicProfile] = await Promise.all([
-    fetch(`${baseUrl}/api/match-history-players/show-history?steam_id=${id}`, {
-      cache: 'no-store',
-      headers: { cookie },
-    }),
-    fetch(`${baseUrl}/api/player/is_public_profile?steam_id=${id}`, {
-      cache: 'no-store',
-      headers: { cookie },
-    }),
+  const [
+    matchHistoryRes,
+    playerRes,
+    userSteamIdRes,
+    likesAndDislikesRes,
+  ] = await Promise.all([
+    fetcher(`${baseUrl}/api/match-history-players/show-history?steam_id=${id}`),
+    fetcher(`${baseUrl}/api/player/get-player-by-steam-id?steam_id=${id}`),
+    fetcher(`${baseUrl}/api/player/get-player-by-discord-id?discord_id=${discordId}`),
+    fetcher(`${baseUrl}/api/likes-dislikes/get-likes-and-dislikes?steam_id=${id}`),
   ]);
 
-  const matchHistoryData = await matchHistoryRes.json();
-  const isPublicProfileData = await isPublicProfile.json();
-  const matchHistoryList = (await matchHistoryData.data) || [];
-  const isPublicProfileSetting =
-    (await isPublicProfileData.isPublicProfile) || [];
-  const discord_id = isPublicProfileSetting[0]?.discord_id;
-  const is_public_profile =
-    isPublicProfileSetting[0]?.is_public_profile ?? false;
 
-  if (discordId === discord_id) {
+  const matchHistoryList = matchHistoryRes?.data || [];
+  const playerList = playerRes?.data || [];
+  const userSteamId = userSteamIdRes?.data || [];
+  const likesAndDislikes = likesAndDislikesRes?.data || [];
+  const isUserLikedOrDisliked = (await fetcher(`${baseUrl}/api/likes-dislikes/is-user-liked-or-disliked?steam_id=${id}&user_steam_id=${userSteamId[0].steam_id}`))?.data || [];
+
+  if (playerList[0]?.is_public_profile) {
     return (
       <>
         <UserProfile
-          is_public_profile={is_public_profile}
+          isUserLiked={isUserLikedOrDisliked[0].likes_dislikes ?? null}
+          ld={likesAndDislikes}
+          userSteamId={userSteamId[0].steam_id}
           discordId={discordId}
-          id={id}
+          user={playerList[0]}
         />
-        <ShowHistory
-          matchHistoryList={matchHistoryList}
-          discordId={discordId}
-        />
+        <ShowHistory matchHistoryList={matchHistoryList} discordId={discordId} />
       </>
-    );
-  } else if (is_public_profile) {
-    return (
-      <ShowHistory matchHistoryList={matchHistoryList} discordId={discordId} />
     );
   } else {
     return (
       <>
-        <h1>Sorry, this match history is private.</h1>
+        <UserProfile
+          isUserLiked={isUserLikedOrDisliked[0].likes_dislikes}
+          ld={likesAndDislikes}
+          userSteamId={userSteamId[0].steam_id}
+          discordId={discordId}
+          user={playerList[0]}
+        />
+        <h1 className="text-3xl font-bold text-center mt-20">
+          Sorry, this match history is private.
+        </h1>
       </>
     );
   }

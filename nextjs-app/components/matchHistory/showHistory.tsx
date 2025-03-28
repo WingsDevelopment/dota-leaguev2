@@ -1,7 +1,6 @@
 "use client";
 import {
   heroMap,
-  itemMap,
 } from "@/app/matchHistory/[id]/hero_and_items_images";
 import {
   Card,
