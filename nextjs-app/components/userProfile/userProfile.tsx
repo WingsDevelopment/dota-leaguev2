@@ -36,6 +36,7 @@ export default function UserProfile({ user, discordId, userSteamId, ld, isUserLi
     useEffect(()=>{
         // slusa na promjene likesDislikes
     },[likesDislikes])
+
     const fetchLD = async () => {
         try {
             const res = await fetch(`/api/likes-dislikes/get-likes-and-dislikes?steam_id=${user.steam_id}`);
