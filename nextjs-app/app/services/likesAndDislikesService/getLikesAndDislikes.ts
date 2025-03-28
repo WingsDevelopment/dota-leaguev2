@@ -5,8 +5,8 @@ interface getPlayerBySteamId {
     steamId: string;
 }
 enum LikeType {
-    zero = 0,
-    one = 1
+    LIKE = 0,
+    DISLIKE = 1
 }
 export async function getPlayerLikesAndDislikes({ steamId }: getPlayerBySteamId) {
     const db = await getDbInstance();
@@ -29,9 +29,9 @@ export async function getPlayerLikesAndDislikes({ steamId }: getPlayerBySteamId)
         let dislikes = 0;
 
         likeDislikeRows.forEach((row) => {
-            if (row.likes_dislikes === LikeType.one) {
+            if (row.likes_dislikes === LikeType.LIKE) {
                 likes++;
-            } else if (row.likes_dislikes === LikeType.zero) {
+            } else if (row.likes_dislikes === LikeType.DISLIKE) {
                 dislikes++;
             }
         });
