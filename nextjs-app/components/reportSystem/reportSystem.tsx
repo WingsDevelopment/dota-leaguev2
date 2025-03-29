@@ -19,6 +19,7 @@ export default function ReportSystem({ userSteamId, discordId }: ReportSystem) {
         handleSubmit,
         register,
         reset,
+        watch,
         formState: { errors },
     } = useForm<ReportsFormValues>({
         defaultValues: {
@@ -30,6 +31,14 @@ export default function ReportSystem({ userSteamId, discordId }: ReportSystem) {
     const handleReport = () => {
         setOpenModal(null)
     }
+
+    const maxLength = 256;
+    const reportText = watch("report", "");
+    //reportSystem
+    // type 
+    // matchId
+    // userReason
+    // reviewed 
     return (
         <>
             <Modal
@@ -70,13 +79,18 @@ export default function ReportSystem({ userSteamId, discordId }: ReportSystem) {
 
                             <label htmlFor="report">Report:</label>
                             <textarea
-                                {...register("report", { required: true })}
+                                {...register("report", { required: true, maxLength: maxLength })}
                                 id="report"
                                 name="report"
                                 rows={4}
                                 className="p-2 border rounded w-full"
+                                maxLength={maxLength}
+                                placeholder="Describe the issue..."
                             ></textarea>
-                            {errors.report && <p className="text-red-500">Report is required</p>}
+                            {errors.report?.type === "required" && <p className="text-red-500">Report is required</p>}
+                            {errors.report?.type === "maxLength" && <p className="text-red-500">Report must be under {maxLength} characters</p>}
+
+                            <p className="text-gray-500 text-sm mt-1">{maxLength - reportText.length} characters left</p>
 
                             <Button type="submit" className="mt-4">
                                 Submit Report
