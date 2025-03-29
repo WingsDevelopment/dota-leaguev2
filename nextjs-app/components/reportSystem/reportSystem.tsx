@@ -43,8 +43,10 @@ export default function ReportSystem({ userSteamId, otherPlayerSteamId }: Report
                 }),
             });
             if (!res.ok) {
+                alert(`Player reported successfully.`);
                 throw new Error("Failed to submit the report.");
             }
+            alert(`Player reported successfully.`);
             setOpenModal(null)
         } catch (error) {
             console.error("Failed to submit the report.")
@@ -53,7 +55,7 @@ export default function ReportSystem({ userSteamId, otherPlayerSteamId }: Report
         }
     }
 
-    const maxLength = 256;
+    const maxLength = 512;
     const reportText = watch("report", "");
     return (
         <>

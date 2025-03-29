@@ -130,7 +130,7 @@ def create_user_report_table(cursor):
         other_player_steam_id INTEGER DEFAULT NULL, 
         type TEXT NOT NULL,
         match_id INTEGER DEFAULT NULL,
-        report TEXT NOT NULL CHECK (LENGTH(report) <= 256),
+        report TEXT NOT NULL CHECK (LENGTH(report) <= 512),
         reviewed BOOLEAN DEFAULT 0,
         time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );

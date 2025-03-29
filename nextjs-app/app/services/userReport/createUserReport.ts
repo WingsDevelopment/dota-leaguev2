@@ -27,25 +27,6 @@ export async function createUserReport({ user_steam_id, other_player_steam_id, t
     }
 
     try {
-        await new Promise<void>((resolve, reject) => {
-            db.run(
-                `CREATE TABLE IF NOT EXISTS UserReport (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            steam_id INTEGER DEFAULT NULL,
-            other_player_steam_id INTEGER DEFAULT NULL, 
-            type TEXT NOT NULL,
-            match_id INTEGER DEFAULT NULL,
-            report TEXT NOT NULL CHECK (LENGTH(report) <= 256),
-            reviewed BOOLEAN DEFAULT 0,
-            time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )`,
-                function (err) {
-                    if (err) return reject(err);
-                    resolve();
-                }
-            );
-        });
-
         await new Promise((resolve, reject) => {
             db.run(
                 `INSERT INTO UserReport (steam_id, other_player_steam_id, type, report, match_id) VALUES (?, ?, ?, ?, ?)`,

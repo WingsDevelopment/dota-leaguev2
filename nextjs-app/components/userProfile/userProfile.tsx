@@ -108,14 +108,22 @@ export default function UserProfile({ user, discordId, userSteamId, ld, isUserLi
                 </div>
                 {discordId === user.discord_id ? (
                     <></>
-                ) : (<>
-                    <LikesAndDislikes
-                        userSteamId={userSteamId}
-                        otherPlayerSteamId={user.steam_id}
-                        isUserLiked={isUserLiked}
-                        fetchLD={fetchLD} />
-                    <ReportSystem otherPlayerSteamId={user.steam_id} userSteamId={userSteamId} />
-                </>
+                ) : (
+                    <>
+                        {!discordId ? (
+                            <></>
+                        ) : (<>
+                            <LikesAndDislikes
+                                userSteamId={userSteamId}
+                                otherPlayerSteamId={user.steam_id}
+                                isUserLiked={isUserLiked}
+                                fetchLD={fetchLD} />
+                            <ReportSystem otherPlayerSteamId={user.steam_id} userSteamId={userSteamId} />
+
+                        </>
+
+                        )}
+                    </>
                 )}
 
             </div>

@@ -11,14 +11,8 @@ export async function PUT(req: NextRequest) {
             { status: 400 }
         );
     }
-
-    if (type !== "GRIEF" && type !== "BAD BEHAVIOUR") {
-        return NextResponse.json(
-            { error: "Faulty report type." },
-            { status: 400 }
-        );
-    }
-    if (report.length > 256) {
+    
+    if (report.length > 512) {
         return NextResponse.json(
             { error: "Report text exceeds 256 characters." },
             { status: 400 }

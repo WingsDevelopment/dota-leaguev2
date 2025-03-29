@@ -16,6 +16,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <Link className="underline" href="/admin/games">
             Games
           </Link>
+          <Link className="underline" href="/admin/reports">
+            User Reports
+          </Link>
           <Link className="underline" href="/admin/steam-bots">
             Steam bots
           </Link>
