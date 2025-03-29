@@ -4,6 +4,7 @@ import { Switch, SwitchLabel, SwitchWrapper } from "../ui/slider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import LikesAndDislikes from "../likesAndDislikes/likesAndDislikes";
 import { getAvatarUrl, mapUserDataToViewModel } from "@/lib/utils";
+import ReportSystem from "../reportSystem/reportSystem";
 export interface UserProfileProps {
     user: {
         is_public_profile: boolean;
@@ -33,9 +34,9 @@ export default function UserProfile({ user, discordId, userSteamId, ld, isUserLi
     const [check, setCheck] = useState<boolean>(!!user.is_public_profile);
     const [loading, setLoading] = useState(false);
     const [likesDislikes, setLikesDislikes] = useState(ld)
-    useEffect(()=>{
+    useEffect(() => {
         // slusa na promjene likesDislikes
-    },[likesDislikes])
+    }, [likesDislikes])
     const fetchLD = async () => {
         try {
             const res = await fetch(`/api/likes-dislikes/get-likes-and-dislikes?steam_id=${user.steam_id}`);
@@ -85,6 +86,7 @@ export default function UserProfile({ user, discordId, userSteamId, ld, isUserLi
     // fetchLD()
     return (
         <>
+
             <div className="flex items-center space-x-6">
                 {/* Avatar Image */}
                 <div className="h-20 w-20 bg-gray-200 rounded-full overflow-hidden border-2 border-gray-300 shadow-md">
@@ -106,12 +108,14 @@ export default function UserProfile({ user, discordId, userSteamId, ld, isUserLi
                 </div>
                 {discordId === user.discord_id ? (
                     <></>
-                ) : (
+                ) : (<>
                     <LikesAndDislikes
                         userSteamId={userSteamId}
                         otherPlayerSteamId={user.steam_id}
                         isUserLiked={isUserLiked}
                         fetchLD={fetchLD} />
+                    <ReportSystem discordId={discordId} userSteamId={userSteamId} />
+                </>
                 )}
 
             </div>
