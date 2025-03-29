@@ -127,19 +127,19 @@ export default async function DashboardPage() {
                     <TableHeaderCell>#</TableHeaderCell>
                     <TableHeaderCell>MMR</TableHeaderCell>
                     <TableHeaderCell>Name</TableHeaderCell>
-                    {/* <TableHeaderCell>Win</TableHeaderCell>
-                <TableHeaderCell>Loss</TableHeaderCell>
-                <TableHeaderCell>Win%</TableHeaderCell> */}
+                    <TableHeaderCell>Win</TableHeaderCell>
+                    <TableHeaderCell>Loss</TableHeaderCell>
+                    <TableHeaderCell>Win%</TableHeaderCell>
                   </tr>
                 </TableHeader>
                 <TableBody>
                   {leaderboard.map((player: any, index: number) => {
-                    // const wins = player.win || 0;
-                    // const losses = player.loss || 0;
-                    // const winPct =
-                    //   wins + losses > 0
-                    //     ? ((wins / (wins + losses)) * 100).toFixed(2)
-                    //     : "0.00";
+                    const wins = player.win || 0;
+                    const losses = player.loss || 0;
+                    const winPct =
+                      wins + losses > 0
+                        ? `${((wins / (wins + losses)) * 100).toFixed(2)}%`
+                        : "/";
                     return (
                       <TableRow key={player.discord_id}>
                         <TableCell>{index + 1}</TableCell>
@@ -174,11 +174,35 @@ export default async function DashboardPage() {
                                 />
                               </Tooltip>
                             )}
+                            {player.streak > 6 && (
+                              <Tooltip
+                                tooltip={
+                                  String("Komsija Radetov").substring(
+                                    0,
+                                    player.streak
+                                  ) +
+                                  "*".repeat(
+                                    Math.max(
+                                      0,
+                                      String("Komsija Radetov").length -
+                                        player.streak
+                                    )
+                                  )
+                                }
+                              >
+                                <Image
+                                  src="/streak.svg"
+                                  alt="Komsija Radetov"
+                                  width={24}
+                                  height={24}
+                                />
+                              </Tooltip>
+                            )}
                           </div>
                         </TableCell>
-                        {/* <TableCell>{wins}</TableCell>
-                    <TableCell>{losses}</TableCell>
-                    <TableCell>{winPct}%</TableCell> */}
+                        <TableCell>{wins}</TableCell>
+                        <TableCell>{losses}</TableCell>
+                        <TableCell>{winPct}</TableCell>
                       </TableRow>
                     );
                   })}

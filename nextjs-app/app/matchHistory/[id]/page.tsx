@@ -21,7 +21,7 @@ export interface MatchHistory {
   game_mode: string;
   lobby_type: string;
   region: string;
-  winner: 'radiant' | 'dire'; // Enforce possible values
+  winner: "radiant" | "dire"; // Enforce possible values
   radiant_score: number;
   dire_score: number;
   additional_info: string; // JSON string, might need parsing
@@ -34,30 +34,36 @@ export interface MatchHistory {
 
 export default async function MatchHistory({ params }: MatchHistoryProps) {
   const session = await auth();
-  const discordId = (session?.user as ExtendedUser)?.discordId
+  const discordId = (session?.user as ExtendedUser)?.discordId;
   const { id } = params;
-  const [
-    matchHistoryRes,
-    playerRes,
-    userSteamIdRes,
-    likesAndDislikesRes,
-  ] = await Promise.all([
-    fetcher(`${baseUrl}/api/match-history-players/show-history?steam_id=${id}`),
-    fetcher(`${baseUrl}/api/player/get-player-by-steam-id?steam_id=${id}`),
-    fetcher(`${baseUrl}/api/player/get-player-by-discord-id?discord_id=${discordId}`),
-    fetcher(`${baseUrl}/api/likes-dislikes/get-likes-and-dislikes?steam_id=${id}`),
-  ]);
-
+  const [matchHistoryRes, playerRes, userSteamIdRes, likesAndDislikesRes] =
+    await Promise.all([
+      fetcher(
+        `${baseUrl}/api/match-history-players/show-history?steam_id=${id}`
+      ),
+      fetcher(`${baseUrl}/api/player/get-player-by-steam-id?steam_id=${id}`),
+      fetcher(
+        `${baseUrl}/api/player/get-player-by-discord-id?discord_id=${discordId}`
+      ),
+      fetcher(
+        `${baseUrl}/api/likes-dislikes/get-likes-and-dislikes?steam_id=${id}`
+      ),
+    ]);
 
   const matchHistoryList = matchHistoryRes?.data || [];
   const playerList = playerRes?.data || [];
   const userSteamId = userSteamIdRes?.data || [];
   const likesAndDislikes = likesAndDislikesRes?.data || [];
-  const isUserLikedOrDisliked = (await fetcher(`${baseUrl}/api/likes-dislikes/is-user-liked-or-disliked?steam_id=${id}&user_steam_id=${userSteamId[0].steam_id}`))?.data || [];
+  const isUserLikedOrDisliked =
+    (
+      await fetcher(
+        `${baseUrl}/api/likes-dislikes/is-user-liked-or-disliked?steam_id=${id}&user_steam_id=${userSteamId[0].steam_id}`
+      )
+    )?.data || [];
 
   if (playerList[0]?.is_public_profile) {
     return (
-      <>
+      <div className="flex flex-col gap-8">
         <UserProfile
           isUserLiked={isUserLikedOrDisliked[0].likes_dislikes ?? null}
           ld={likesAndDislikes}
@@ -65,12 +71,15 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
           discordId={discordId}
           user={playerList[0]}
         />
-        <ShowHistory matchHistoryList={matchHistoryList} discordId={discordId} />
-      </>
+        <ShowHistory
+          matchHistoryList={matchHistoryList}
+          discordId={discordId}
+        />
+      </div>
     );
   } else {
     return (
-      <>
+      <div className="flex flex-col gap-8">
         <UserProfile
           isUserLiked={isUserLikedOrDisliked[0].likes_dislikes}
           ld={likesAndDislikes}
@@ -81,7 +90,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
         <h1 className="text-3xl font-bold text-center mt-20">
           Sorry, this match history is private.
         </h1>
-      </>
+      </div>
     );
   }
 }
