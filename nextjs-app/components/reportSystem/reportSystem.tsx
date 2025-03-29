@@ -5,7 +5,7 @@ import { useState } from "react";
 
 export interface ReportSystem {
     userSteamId: string,
-    discordId?: string
+    otherPlayerSteamId: string
 }
 interface ReportsFormValues {
     type: string;
@@ -13,7 +13,7 @@ interface ReportsFormValues {
     report: string
 }
 // Uzece steamId/userId da znamo ko je koga reportao
-export default function ReportSystem({ userSteamId, discordId }: ReportSystem) {
+export default function ReportSystem({ userSteamId, otherPlayerSteamId }: ReportSystem) {
     const [openModal, setOpenModal] = useState<number | null>(null);
     const {
         handleSubmit,
@@ -23,31 +23,48 @@ export default function ReportSystem({ userSteamId, discordId }: ReportSystem) {
         formState: { errors },
     } = useForm<ReportsFormValues>({
         defaultValues: {
-            type: "grief",
             matchId: "",
             report: "",
         },
     });
-    const handleReport = () => {
-        setOpenModal(null)
+
+    const handleReport = async (data: ReportsFormValues) => {
+        const confirmation = confirm("Are you sure you want to report this player?");
+        if (!confirmation) return;
+        try {
+            const res = await fetch("/api/report-system/create-report", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  user_steam_id: userSteamId,
+                  other_player_steam_id: otherPlayerSteamId,
+                  type: data.type,
+                  report:data.report,
+                  match_id:data.matchId
+                }),
+              });
+            if(!res.ok){
+                throw new Error("Failed to submit the report.");
+            }
+            setOpenModal(null)
+        } catch (error) {
+            console.error("Failed to submit the report.")
+        }finally{
+            setOpenModal(null)
+        }
     }
 
     const maxLength = 256;
     const reportText = watch("report", "");
-    //reportSystem
-    // type 
-    // matchId
-    // userReason
-    // reviewed 
     return (
         <>
             <Modal
-                open={openModal === Number(discordId)}
+                open={openModal === Number(userSteamId)}
                 onOpenChange={(isOpen) =>
-                    isOpen ? setOpenModal(Number(discordId)) : setOpenModal(null)
+                    isOpen ? setOpenModal(Number(userSteamId)) : setOpenModal(null)
                 }
             >
-                <ModalTrigger className="bg-red-500 hover:bg-red-600 text-black px-4 py-2 rounded font-bold flex items-center gap-2" onClick={() => setOpenModal(Number(discordId))}>
+                <ModalTrigger className="bg-red-500 hover:bg-red-600 text-black px-4 py-2 rounded font-bold flex items-center gap-2" onClick={() => setOpenModal(Number(userSteamId))}>
                     <span className="text-red-600 text-xl">❗</span> Report a Player
                 </ModalTrigger>
                 <ModalContent>
@@ -62,9 +79,10 @@ export default function ReportSystem({ userSteamId, discordId }: ReportSystem) {
                                     {...register("type", { required: true })}
                                     id="type"
                                     className="p-2 border rounded"
+                                    defaultValue="GRIEF"
                                 >
-                                    <option value="grief">Grief</option>
-                                    <option value="bb">Bad Behaviour</option>
+                                    <option value="GRIEF">Grief</option>
+                                    <option value="BAD BEHAVIOUR">Bad Behaviour</option>
                                 </select>
                                 {errors.type && <p className="text-red-500">Type is required</p>}
                             </div>

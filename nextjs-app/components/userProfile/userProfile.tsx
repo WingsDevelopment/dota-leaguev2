@@ -114,7 +114,7 @@ export default function UserProfile({ user, discordId, userSteamId, ld, isUserLi
                         otherPlayerSteamId={user.steam_id}
                         isUserLiked={isUserLiked}
                         fetchLD={fetchLD} />
-                    <ReportSystem discordId={discordId} userSteamId={userSteamId} />
+                    <ReportSystem otherPlayerSteamId={user.steam_id} userSteamId={userSteamId} />
                 </>
                 )}
 
