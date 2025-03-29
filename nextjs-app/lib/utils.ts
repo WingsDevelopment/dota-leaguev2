@@ -65,7 +65,7 @@ export function mapUserDataToViewModel(user:UserProfileProps["user"]) {
   const loses = Number(user?.loses) || 0;
 
   const totalGames = wins + loses;
-  const winRate = totalGames > 0 ? (wins / totalGames) * 100 : 0;
+  const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
 
   const formattedDate = user.vouched_date
     ? new Date(user.vouched_date).toLocaleString("de-DE", {

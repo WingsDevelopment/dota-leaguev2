@@ -5,8 +5,8 @@ import { NextResponse } from "next/server";
 enum VoteType {
     LIKE = "like",
     DISLIKE = "dislike",
-    LIKED = "liked",
-    DISLIKED = "disliked"
+    UNLIKE = "liked",
+    UNDISLIKE = "disliked"
 }
 
 interface PlayerVote {
@@ -37,10 +37,10 @@ export async function putLikesAndDislikes({ userSteamId, otherPlayerSteamId, typ
         if (existingVote.length > 0) {
             const currentVote = existingVote[0].likes_dislikes;
 
-            if (type === VoteType.LIKED && currentVote !== 1) {
+            if (type === VoteType.UNLIKE && currentVote !== 1) {
                 throw new Error("Invalid action: Cannot remove a like when no like exists.");
             }
-            if (type === VoteType.DISLIKED && currentVote !== 0) {
+            if (type === VoteType.UNDISLIKE && currentVote !== 0) {
                 throw new Error("Invalid action: Cannot remove a dislike when no dislike exists.");
             }
 
@@ -52,7 +52,7 @@ export async function putLikesAndDislikes({ userSteamId, otherPlayerSteamId, typ
             }
 
 
-            if (type === VoteType.LIKED || type === VoteType.DISLIKED) {
+            if (type === VoteType.UNLIKE || type === VoteType.UNDISLIKE) {
                 await new Promise((resolve, reject) => {
                     db.run(
                         `UPDATE likeDislike SET likes_dislikes = NULL WHERE steam_id = ? AND other_player_steam_id = ?`,
@@ -85,7 +85,7 @@ export async function putLikesAndDislikes({ userSteamId, otherPlayerSteamId, typ
             }
         } else {
 
-            if (type === VoteType.LIKED || type === VoteType.DISLIKED) {
+            if (type === VoteType.UNLIKE || type === VoteType.UNDISLIKE) {
                 throw new Error("Invalid action: No existing vote to remove.");
             }
 
