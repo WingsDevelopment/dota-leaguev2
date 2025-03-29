@@ -177,17 +177,21 @@ export default async function DashboardPage() {
                             {player.streak > 5 && (
                               <Tooltip
                                 tooltip={
-                                  String("Komsija Radetov").substring(
-                                    0,
-                                    player.streak
-                                  ) +
-                                  "*".repeat(
-                                    Math.max(
+                                  <div>
+                                    {String("Komsija Radetov").substring(
                                       0,
-                                      String("Komsija Radetov").length -
-                                        player.streak
-                                    )
-                                  )
+                                      player.streak
+                                    ) +
+                                      "*".repeat(
+                                        Math.max(
+                                          0,
+                                          String("Komsija Radetov").length -
+                                            player.streak
+                                        )
+                                      )}{" "}
+                                    <br />
+                                    Streak: {player.streak}
+                                  </div>
                                 }
                               >
                                 <Image

@@ -54,20 +54,24 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
   const playerList = playerRes?.data || [];
   const userSteamId = userSteamIdRes?.data || [];
   const likesAndDislikes = likesAndDislikesRes?.data || [];
-  const isUserLikedOrDisliked =
-    (
-      await fetcher(
-        `${baseUrl}/api/likes-dislikes/is-user-liked-or-disliked?steam_id=${id}&user_steam_id=${userSteamId[0].steam_id}`
-      )
-    )?.data || [];
 
-  if (playerList[0]?.is_public_profile) {
+  const userSteamIdValue = userSteamId[0]?.steam_id || null;
+  const isUserLikedOrDisliked = userSteamIdValue
+    ? (
+        await fetcher(
+          `${baseUrl}/api/likes-dislikes/is-user-liked-or-disliked?steam_id=${id}&user_steam_id=${userSteamIdValue}`
+        )
+      )?.data
+    : [];
+
+  const isOwnProfile = playerList[0]?.discordId === discordId;
+  if (playerList[0]?.is_public_profile || isOwnProfile) {
     return (
       <div className="flex flex-col gap-8">
         <UserProfile
-          isUserLiked={isUserLikedOrDisliked[0].likes_dislikes ?? null}
+          isUserLiked={isUserLikedOrDisliked[0]?.likes_dislikes ?? null}
           ld={likesAndDislikes}
-          userSteamId={userSteamId[0].steam_id}
+          userSteamId={userSteamIdValue}
           discordId={discordId}
           user={playerList[0]}
         />
@@ -81,9 +85,9 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
     return (
       <div className="flex flex-col gap-8">
         <UserProfile
-          isUserLiked={isUserLikedOrDisliked[0].likes_dislikes}
+          isUserLiked={isUserLikedOrDisliked[0]?.likes_dislikes}
           ld={likesAndDislikes}
-          userSteamId={userSteamId[0].steam_id}
+          userSteamId={userSteamIdValue}
           discordId={discordId}
           user={playerList[0]}
         />
