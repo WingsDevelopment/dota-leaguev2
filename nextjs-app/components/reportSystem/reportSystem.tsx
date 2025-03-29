@@ -9,7 +9,7 @@ export interface ReportSystem {
 }
 interface ReportsFormValues {
     type: string;
-    matchId?: string;
+    matchId?: number;
     report: string
 }
 // Uzece steamId/userId da znamo ko je koga reportao
@@ -23,7 +23,6 @@ export default function ReportSystem({ userSteamId, otherPlayerSteamId }: Report
         formState: { errors },
     } = useForm<ReportsFormValues>({
         defaultValues: {
-            matchId: "",
             report: "",
         },
     });
@@ -36,20 +35,20 @@ export default function ReportSystem({ userSteamId, otherPlayerSteamId }: Report
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  user_steam_id: userSteamId,
-                  other_player_steam_id: otherPlayerSteamId,
-                  type: data.type,
-                  report:data.report,
-                  match_id:data.matchId
+                    user_steam_id: userSteamId,
+                    other_player_steam_id: otherPlayerSteamId,
+                    type: data.type,
+                    report: data.report,
+                    match_id: data.matchId
                 }),
-              });
-            if(!res.ok){
+            });
+            if (!res.ok) {
                 throw new Error("Failed to submit the report.");
             }
             setOpenModal(null)
         } catch (error) {
             console.error("Failed to submit the report.")
-        }finally{
+        } finally {
             setOpenModal(null)
         }
     }
@@ -88,13 +87,19 @@ export default function ReportSystem({ userSteamId, otherPlayerSteamId }: Report
                             </div>
 
                             <input
-                                {...register("matchId")}
+                                {...register("matchId", {
+                                    setValueAs: (value) => (value === "" ? undefined : Number(value)), // Convert empty string to undefined
+                                    validate: (value) =>
+                                        value === undefined || !isNaN(value) || "Match ID must be a number",
+                                })}
                                 type="text"
                                 name="matchId"
                                 placeholder="Match ID (optional)"
                                 className="p-2 border rounded w-full mb-2"
                             />
-
+                            {errors.matchId && (
+                                <p className="text-red-500 text-sm">{errors.matchId.message}</p>
+                            )}
                             <label htmlFor="report">Report:</label>
                             <textarea
                                 {...register("report", { required: true, maxLength: maxLength })}

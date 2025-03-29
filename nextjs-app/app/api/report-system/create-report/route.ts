@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDbInstance } from "@/db/utils";
-import { closeDatabase } from "@/db/initDatabase";
+import { createUserReport } from "@/app/services/userReport/createUserReport";
 
 export async function PUT(req: NextRequest) {
 
@@ -8,55 +7,30 @@ export async function PUT(req: NextRequest) {
 
     if (!user_steam_id || !other_player_steam_id || !type || !report) {
         return NextResponse.json(
-            { error: "Missing required fields" },
+            { error: "Missing required fields." },
             { status: 400 }
         );
     }
 
-    const db = await getDbInstance();
-
-    try {
-        await new Promise<void>((resolve, reject) => {
-            db.run(
-                `CREATE TABLE IF NOT EXISTS UserReport (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        steam_id INTEGER DEFAULT NULL,
-        other_player_steam_id INTEGER DEFAULT NULL, 
-        type TEXT NOT NULL,
-        match_id INTEGER DEFAULT NULL,
-        report TEXT NOT NULL CHECK (LENGTH(report) <= 256),
-        reviewed BOOLEAN DEFAULT 0,
-        time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`,
-                function (err) {
-                    if (err) return reject(err);
-                    resolve();
-                }
-            );
-        });
-
-        await new Promise((resolve, reject) => {
-            db.run(
-                `INSERT INTO UserReport (steam_id, other_player_steam_id, type, report) VALUES (?, ?, ?, ?)`,
-                [user_steam_id, other_player_steam_id, type, report],
-                function (err) {
-                    if (err) return reject(err);
-                    resolve(this.lastID);
-                }
-            );
-        });
-
-        closeDatabase(db);
-        return NextResponse.json({
-            message: "Report added.",
-        });
-
-    } catch (error) {
-        closeDatabase(db);
-        console.error("Error adding the report:", error);
+    if (type !== "GRIEF" && type !== "BAD BEHAVIOUR") {
         return NextResponse.json(
-            { error: `Error adding the report: ${error}` },
-            { status: 500 }
+            { error: "Faulty report type." },
+            { status: 400 }
         );
     }
+    if (report.length > 256) {
+        return NextResponse.json(
+            { error: "Report text exceeds 256 characters." },
+            { status: 400 }
+        );
+    }
+    if (match_id !== undefined && match_id !== null && (isNaN(match_id) || typeof match_id !== "number")) {
+        return NextResponse.json(
+            { error: "Match ID must be a valid number." },
+            { status: 400 }
+        );
+    }
+    const res = await createUserReport({ user_steam_id, other_player_steam_id, type, report, match_id });
+    return NextResponse.json(res);
+
 }
