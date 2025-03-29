@@ -134,8 +134,8 @@ export default async function DashboardPage() {
                 </TableHeader>
                 <TableBody>
                   {leaderboard.map((player: any, index: number) => {
-                    const wins = player.win || 0;
-                    const losses = player.loss || 0;
+                    const wins = player.wins || 0;
+                    const losses = player.loses || 0;
                     const winPct =
                       wins + losses > 0
                         ? `${((wins / (wins + losses)) * 100).toFixed(2)}%`
@@ -174,7 +174,7 @@ export default async function DashboardPage() {
                                 />
                               </Tooltip>
                             )}
-                            {player.streak > 6 && (
+                            {player.streak > 5 && (
                               <Tooltip
                                 tooltip={
                                   String("Komsija Radetov").substring(
