@@ -7,7 +7,7 @@ import asyncio
 import yaml
 import requests
 
-from discord import Intents, Message, Member, Embed
+from discord import Intents, Message, Member, Embed, Object
 from discord.ext import commands
 from discord.ext.commands import Bot, Context
 
@@ -45,6 +45,7 @@ with open(yaml_path) as f:
     ADMIN_ROLE = league_settings.get('discord_league_admin_role_name', '')
     STARTING_MMR = league_settings.get('league_starting_mmr', 1000)
     LOBBY_SIZE = league_settings.get('lobby_size', 10)
+    DISCORD_SERVER_ID = league_settings.get('discord_server_id', 10)
 
 TOKEN: str = os.getenv('TOKEN', '')
 STEAM_API_TOKEN = os.getenv('STEAM_API_TOKEN', '')
@@ -165,7 +166,7 @@ async def on_ready():
     # Clear any previously registered global slash commands.
     # await bot.tree.clear_commands(guild=None)
     # Sync the command tree so that your updated commands are registered.
-    await bot.tree.sync()
+    await bot.tree.sync(guild=Object(id=DISCORD_SERVER_ID))
 
     global RENDER
 
@@ -219,6 +220,8 @@ async def help(ctx: Context):
     embed.add_field(name="/help", value="Show this message", inline=False)
     embed.add_field(name="/stats", value="Show my stats", inline=False)
     embed.add_field(name="/leave", value="Leave the queue", inline=False)
+    embed.add_field(name="/autoscorematch", 
+                    value="Attempt to score a game via Steam API(do not spam)", inline=False)
     embed.add_field(name="/autoscore",
                     value="Attempt to score a game via Steam API(do not spam)", inline=False)
     embed.add_field(name="/preferredrole", value="Set your preferred rolse eg., 123 or 34 or 5 or 345 etc.", inline=False)
@@ -254,49 +257,137 @@ async def vouch(ctx: Context, discord_id: str, steam_id: str, nickname: str):
         await ctx.reply(f'<@{discord_id}> has been vouched for with nickname "{nickname}"', delete_after=10)
 
 @commands.has_role(ADMIN_ROLE)
-@bot.hybrid_command("score", description="Score a match")
-async def score(ctx: Context, game_id: str, score: str, steam_match_id: str):
-    global RENDER
-    if score not in ['dire', 'radiant']:
-        #i dont trust the users to type 0 for radiant and 1 for dire
-        await ctx.reply('Score needs to be the name of the winning team(radiant or dire)', delete_after=10)
-    else:
-        result = 0 if score == 'radiant' else 1
-        try:
-            game = execute_function_single_row_return('get_game', game_id)
-        except ValueError:
-            await ctx.reply('Game with id {} does not exist'.format(game_id), delete_after=10)
-            return
-        if game['status'] == 'OVER':
-            await ctx.reply('Game already scored', delete_after=10)
-            return
-        
-        execute_function_no_return(
-            'score_game', game_id, result, steam_match_id)
-        
-        players = execute_function_with_return(
-            'get_all_players_from_game', game_id)
+@bot.hybrid_command("score", description="Score a match (autoscorematch)")
+async def score(ctx: Context, steam_match_id: str):
+    match_id = steam_match_id
+    _log("AutoscoreMatch command invoked")
+    try:
+        await asyncio.wait_for(autoscorematch_lock.acquire(), timeout=0.01)
+    except asyncio.TimeoutError:
+        await ctx.reply("AutoscoreMatch already in progress", delete_after=10)
+        return
 
-        team_one = [player['mmr'] for player in players if player['team'] == 0]
-        team_two = [player['mmr'] for player in players if player['team'] == 1]
-        team_one_avg_mmr = round(
-            sum(team_one)/len(team_one)) if len(team_one) > 0 else 0
-        team_two_avg_mmr = round(
-            sum(team_two)/len(team_two)) if len(team_two) > 0 else 0
-        if len(team_one) > 0 and len(team_two) > 0:
-            elo_change = calculate_elo(
-                team_one_avg_mmr, team_two_avg_mmr, 1 if result == 0 else -1)
+    try:
+        # Ensure league id is set.
+        if LEAGUE_ID == 0:
+            await ctx.reply('League id not set. AutoscoreMatch cannot be used', delete_after=10)
+            return
+
+        _log(f"Retrieving match history for league ID {LEAGUE_ID}...")
+        matches = api.get_match_history(league_id=LEAGUE_ID)
+        _log("Match history retrieved!")
+
+        if not matches['matches']:
+            await ctx.reply(f'No matches found in a league with id {LEAGUE_ID}', delete_after=10)
+            return
+
+        # Try to find the match in match history.
+        match = next((m for m in matches['matches'] if str(m['match_id']) == match_id), None)
+        if match is None:
+            # Instead of failing, log and proceed with an empty player list.
+            _log(f"Match {match_id} not found in match history. Proceeding with empty player list.")
+            match = {"match_id": match_id, "players": []}
+
+        # Retrieve active games and map game_id to their players.
+        try:
+            active_games = execute_function_with_return('get_active_games')
+        except ValueError:
+            active_games = []
+        active_game_players_dict = {}
+        for game in active_games:
+            players_in_game = execute_function_with_return('get_all_players_from_game', game['id'])
+            active_game_players_dict[game['id']] = [
+                (int(player['steam_id']), player['team']) for player in players_in_game
+            ]
+            _log(f"Active game {game['id']} has players: {active_game_players_dict[game['id']]}")
+
+        # Build player list from match info.
+        match_players = []
+        for player in match.get('players', []):
+            team = 0 if player.get('side') == 'radiant' else 1
+            steam_id = player.get('steam_account', {}).get('id64')
+            if steam_id is not None:
+                match_players.append((steam_id, team))
+        _log(f"Match players from match history: {match_players}")
+
+        # Compare match players with active games.
+        matching_games = []
+        for game_id_key, game_players in active_game_players_dict.items():
+            if set(game_players) == set(match_players):
+                matching_games.append(game_id_key)
+        if matching_games:
+            game_id_used = matching_games[0]
+            _log(f"Found matching active game {game_id_used} for match {match_id}")
         else:
-            elo_change = 25  # only applys to testing when the queue size is one
-        for player in players:
-            if player['team'] == result:  # if players has the same team as the one that won
+            _log("No matching active game found; creating a new game record.")
+            game_id_used = execute_insert_and_return_id('add_game', 'NORMAL')
+            lobby_name = GAME_NAME + str(game_id_used)
+            lobby_password = get_random_password()
+            execute_function_no_return('add_game_args', game_id_used, lobby_name, lobby_password)
+            # Add players from the match into the new game record.
+            for steam_id, team in match_players:
+                try:
+                    # Lookup the internal player record using the steam ID.
+                    player_record = execute_function_single_row_return('get_player_by_steam', steam_id)
+                    player_id = player_record['id']
+                    execute_function_no_return('add_player_to_game', game_id_used, player_id, team)
+                except ValueError:
+                    _log(f"Player with steam_id {steam_id} not found in database. Skipping.", level="ERROR")
+                    # Optionally, add code to create the player record here.
+
+        # Check if this match has already been processed.
+        try:
+            scored_games = execute_function_with_return('get_scored_games_with_steam_match_id')
+            processed_ids = [str(game['steam_match_id']) for game in scored_games]
+        except ValueError:
+            processed_ids = []
+        if match_id in processed_ids:
+            await ctx.reply(f"Match with id {match_id} has already been processed", delete_after=10)
+            return
+
+        # Determine winning team using the OpenDota API helper.
+        winner = get_match_winner(match_id)
+        _log(f"Winner for match {match_id}: {winner}")
+        if winner not in ['radiant', 'dire']:
+            await ctx.reply(f"Could not determine winner for match {match_id}", delete_after=10)
+            return
+        result = 0 if winner == 'radiant' else 1
+
+        # Score the game record: update status to 'OVER' and record the match id.
+        execute_function_no_return('score_game', game_id_used, result, match_id)
+        _log(f"Game {game_id_used} scored with result {winner} for match {match_id}")
+
+        # Retrieve players from the game to update Elo ratings.
+        game_players = execute_function_with_return('get_all_players_from_game', game_id_used)
+        team_zero = [p['mmr'] for p in game_players if p['team'] == 0]
+        team_one = [p['mmr'] for p in game_players if p['team'] == 1]
+        team_zero_avg = round(sum(team_zero)/len(team_zero)) if team_zero else 0
+        team_one_avg = round(sum(team_one)/len(team_one)) if team_one else 0
+        if team_zero and team_one:
+            elo_change = calculate_elo(team_zero_avg, team_one_avg, 1 if result == 0 else -1)
+        else:
+            elo_change = 25  # Default value if one team is empty (e.g. during testing)
+        for player in game_players:
+            if player['team'] == result:
                 execute_function_no_return('update_player_mmr_won', player['id'], elo_change)
             else:
                 execute_function_no_return('update_player_mmr_lost', player['id'], elo_change)
 
-        await ctx.reply('Game scored, {} won game {}'.format(score, game_id))
-        RENDER['leaderboard'] = True
+        # Fetch detailed match info and store match history.
+        try:
+            match_details = get_match_info(match_id)
+            store_match_history(match_details, LEAGUE_ID, match.get('players', []))
+            _log(f"Stored match history for match {match_id}")
+        except Exception as e:
+            _log(f"Error storing match history for match {match_id}: {e}", level="ERROR")
 
+        await ctx.reply(f"Match {match_id} autoscored successfully with winner {winner}")
+
+    except Exception as e:
+        await ctx.reply(f"AutoscoreMatch encountered an error: {e}", delete_after=10)
+    finally:
+        _log("Unlocking autoscorematch lock...")
+        autoscorematch_lock.release()
 
 @commands.has_role(ADMIN_ROLE)
 @bot.hybrid_command("rehost", description="Try to rehost a game")
@@ -511,10 +602,142 @@ async def autoscore(ctx: Context):
         _log(f"Unlocking autoscore lock...")
         autoscore_lock.release()
 
+autoscorematch_lock = asyncio.Lock()
+
+@bot.hybrid_command("autoscorematch", description="Score a specific match by its match id (active game comparison)")
+async def autoscorematch(ctx: Context, match_id: str):
+    _log("AutoscoreMatch command invoked")
+    try:
+        await asyncio.wait_for(autoscorematch_lock.acquire(), timeout=0.01)
+    except asyncio.TimeoutError:
+        await ctx.reply("AutoscoreMatch already in progress", delete_after=10)
+        return
+
+    try:
+        # Ensure league id is set.
+        if LEAGUE_ID == 0:
+            await ctx.reply('League id not set. AutoscoreMatch cannot be used', delete_after=10)
+            return
+
+        _log(f"Retrieving match history for league ID {LEAGUE_ID}...")
+        matches = api.get_match_history(league_id=LEAGUE_ID)
+        _log("Match history retrieved!")
+
+        if not matches['matches']:
+            await ctx.reply(f'No matches found in a league with id {LEAGUE_ID}', delete_after=10)
+            return
+
+        # Try to find the match in match history.
+        match = next((m for m in matches['matches'] if str(m['match_id']) == match_id), None)
+        if match is None:
+            # Instead of failing, log and proceed with an empty player list.
+            _log(f"Match {match_id} not found in match history. Proceeding with empty player list.")
+            match = {"match_id": match_id, "players": []}
+
+        # Retrieve active games and map game_id to their players.
+        try:
+            active_games = execute_function_with_return('get_active_games')
+        except ValueError:
+            active_games = []
+        active_game_players_dict = {}
+        for game in active_games:
+            players_in_game = execute_function_with_return('get_all_players_from_game', game['id'])
+            active_game_players_dict[game['id']] = [
+                (int(player['steam_id']), player['team']) for player in players_in_game
+            ]
+            _log(f"Active game {game['id']} has players: {active_game_players_dict[game['id']]}")
+
+        # Build player list from match info.
+        match_players = []
+        for player in match.get('players', []):
+            team = 0 if player.get('side') == 'radiant' else 1
+            steam_id = player.get('steam_account', {}).get('id64')
+            if steam_id is not None:
+                match_players.append((steam_id, team))
+        _log(f"Match players from match history: {match_players}")
+
+        # Compare match players with active games.
+        matching_games = []
+        for game_id_key, game_players in active_game_players_dict.items():
+            if set(game_players) == set(match_players):
+                matching_games.append(game_id_key)
+        if matching_games:
+            game_id_used = matching_games[0]
+            _log(f"Found matching active game {game_id_used} for match {match_id}")
+        else:
+            _log("No matching active game found; creating a new game record.")
+            game_id_used = execute_insert_and_return_id('add_game', 'NORMAL')
+            lobby_name = GAME_NAME + str(game_id_used)
+            lobby_password = get_random_password()
+            execute_function_no_return('add_game_args', game_id_used, lobby_name, lobby_password)
+            # Add players from the match (if any) into the new game record.
+            for steam_id, team in match_players:
+                execute_function_no_return('add_player_to_game', game_id_used, steam_id, team)
+
+        # Check if this match has already been processed.
+        try:
+            scored_games = execute_function_with_return('get_scored_games_with_steam_match_id')
+            processed_ids = [str(game['steam_match_id']) for game in scored_games]
+        except ValueError:
+            processed_ids = []
+        if match_id in processed_ids:
+            await ctx.reply(f"Match with id {match_id} has already been processed", delete_after=10)
+            return
+
+        # Determine winning team using the OpenDota API helper.
+        winner = get_match_winner(match_id)
+        _log(f"Winner for match {match_id}: {winner}")
+        if winner not in ['radiant', 'dire']:
+            await ctx.reply(f"Could not determine winner for match {match_id}", delete_after=10)
+            return
+        result = 0 if winner == 'radiant' else 1
+
+        # Score the game record.
+        execute_function_no_return('score_game', game_id_used, result, match_id)
+        _log(f"Game {game_id_used} scored with result {winner} for match {match_id}")
+
+        # Retrieve players from the game to update Elo ratings.
+        game_players = execute_function_with_return('get_all_players_from_game', game_id_used)
+        team_zero = [p['mmr'] for p in game_players if p['team'] == 0]
+        team_one = [p['mmr'] for p in game_players if p['team'] == 1]
+        team_zero_avg = round(sum(team_zero)/len(team_zero)) if team_zero else 0
+        team_one_avg = round(sum(team_one)/len(team_one)) if team_one else 0
+        if team_zero and team_one:
+            elo_change = calculate_elo(team_zero_avg, team_one_avg, 1 if result == 0 else -1)
+        else:
+            elo_change = 25  # Default value if one team is empty (e.g. during testing)
+        for player in game_players:
+            if player['team'] == result:
+                execute_function_no_return('update_player_mmr_won', player['id'], elo_change)
+            else:
+                execute_function_no_return('update_player_mmr_lost', player['id'], elo_change)
+
+        # Fetch detailed match info and store match history.
+        try:
+            match_details = get_match_info(match_id)
+            store_match_history(match_details, LEAGUE_ID, match.get('players', []))
+            _log(f"Stored match history for match {match_id}")
+        except Exception as e:
+            _log(f"Error storing match history for match {match_id}: {e}", level="ERROR")
+
+        await ctx.reply(f"Match {match_id} autoscored successfully with winner {winner}")
+
+    except Exception as e:
+        await ctx.reply(f"AutoscoreMatch encountered an error: {e}", delete_after=10)
+    finally:
+        _log("Unlocking autoscorematch lock...")
+        autoscorematch_lock.release()
+
+
 @autoscore.error
 async def autoscore_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
         await ctx.reply(f"Please wait {error.retry_after:.1f} seconds before using autoscore again.", delete_after=10)
+
+@autoscorematch.error
+async def autoscorematch_error(ctx, error):
+    if isinstance(error, commands.CommandOnCooldown):
+        await ctx.reply(f"Please wait {error.retry_after:.1f} seconds before using autoscorematch again.", delete_after=10)
 
 @bot.hybrid_command("stats", description="Show my stats")
 async def stats(ctx: Context):

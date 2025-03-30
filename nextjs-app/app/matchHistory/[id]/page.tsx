@@ -65,7 +65,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
     : [];
 
   const isOwnProfile = playerList[0]?.discordId === discordId;
-  if (playerList[0]?.is_public_profile || isOwnProfile) {
+  if (playerList[0]?.is_public_profile || !isOwnProfile) {
     return (
       <div className="flex flex-col gap-8">
         <UserProfile
