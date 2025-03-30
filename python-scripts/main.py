@@ -254,13 +254,15 @@ async def vouch(ctx: Context, discord_id: str, steam_id: str, nickname: str):
         execute_function_no_return('add_player', discord_id, steam_id, nickname, STARTING_MMR)
         await ctx.reply(f'<@{discord_id}> has been vouched for with nickname "{nickname}"', delete_after=10)
 
+autoscore_lock = asyncio.Lock()
+
 @commands.has_role(ADMIN_ROLE)
 @bot.hybrid_command("score", description="Score a match (autoscorematch)")
 async def score(ctx: Context, steam_match_id: str):
     match_id = steam_match_id
     _log("AutoscoreMatch command invoked")
     try:
-        await asyncio.wait_for(autoscorematch_lock.acquire(), timeout=0.01)
+        await asyncio.wait_for(autoscore_lock.acquire(), timeout=0.01)
     except asyncio.TimeoutError:
         await ctx.reply("AutoscoreMatch already in progress", delete_after=10)
         return
@@ -395,7 +397,7 @@ async def score(ctx: Context, steam_match_id: str):
         await ctx.reply(f"AutoscoreMatch encountered an error: {e}", delete_after=10)
     finally:
         _log("Unlocking autoscorematch lock...")
-        autoscorematch_lock.release()
+        autoscore_lock.release()
 
 @commands.has_role(ADMIN_ROLE)
 @bot.hybrid_command("rehost", description="Try to rehost a game")
@@ -504,7 +506,6 @@ async def unmark_captain(ctx: Context, discord_id: str):
     await ctx.reply(f'Player <@{discord_id}> unmarked as captain')
 
 
-autoscore_lock = asyncio.Lock()
 @bot.hybrid_command("autoscore", description="Attempt to score a game")
 @commands.cooldown(rate=1, per=60, type=commands.BucketType.user)
 async def autoscore(ctx: Context):
