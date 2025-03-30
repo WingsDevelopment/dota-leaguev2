@@ -139,19 +139,25 @@ export default function ReportsCrud({ reportList }: { reportList: Report[] }) {
                       {report.other_player_steam_id}
                     </TableCell>
                     <TableCell>{report.type}</TableCell>
-                    <TableCell>{report.match_id}</TableCell>
+                    <TableCell>{report.match_id !== null ? report.match_id : "Match ID is not provided."}</TableCell>
                     <TableCell>{report.report}</TableCell>
                     <TableCell>{report.reviewed === 1 ? "Reviewed" : "Unreviewed"}</TableCell>
                     <TableCell>
                       {report.time}
                     </TableCell>
                     <TableCell>
-                      <Button
-                        disabled={loading}
-                        onClick={() => handleSolve(report.id)}
-                      >
-                        Solve
-                      </Button>
+                      {
+                        report.reviewed === 0 ? (
+                          <Button
+                            disabled={loading}
+                            onClick={() => handleSolve(report.id)}
+                          >
+                            Solve
+                          </Button>
+                        ) : (
+                          <></>
+                        )
+                      }
                     </TableCell>
                   </TableRow>
                 ))}
