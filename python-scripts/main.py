@@ -220,8 +220,6 @@ async def help(ctx: Context):
     embed.add_field(name="/help", value="Show this message", inline=False)
     embed.add_field(name="/stats", value="Show my stats", inline=False)
     embed.add_field(name="/leave", value="Leave the queue", inline=False)
-    embed.add_field(name="/autoscorematch", 
-                    value="Attempt to score a game via Steam API(do not spam)", inline=False)
     embed.add_field(name="/autoscore",
                     value="Attempt to score a game via Steam API(do not spam)", inline=False)
     embed.add_field(name="/preferredrole", value="Set your preferred rolse eg., 123 or 34 or 5 or 345 etc.", inline=False)
@@ -612,17 +610,10 @@ async def autoscore(ctx: Context):
         _log(f"Unlocking autoscore lock...")
         autoscore_lock.release()
 
-autoscorematch_lock = asyncio.Lock()
-
 @autoscore.error
 async def autoscore_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
         await ctx.reply(f"Please wait {error.retry_after:.1f} seconds before using autoscore again.", delete_after=10)
-
-@autoscorematch.error
-async def autoscorematch_error(ctx, error):
-    if isinstance(error, commands.CommandOnCooldown):
-        await ctx.reply(f"Please wait {error.retry_after:.1f} seconds before using autoscorematch again.", delete_after=10)
 
 @bot.hybrid_command("stats", description="Show my stats")
 async def stats(ctx: Context):
