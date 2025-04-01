@@ -10,11 +10,18 @@ export async function POST(req: NextRequest) {
   const { id, value } = await req.json();
 
   if (!id || !value) {
-    return NextResponse.json({ error: "Missing player ID or ban value" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing player ID or ban value" },
+      { status: 400 }
+    );
   }
 
   const action = value === "unban" ? "unban" : "ban";
-  const response = await banUnbanPlayer({ id, action, banType: value });
+  const response = await banUnbanPlayer({
+    steam_id: id,
+    action,
+    banType: value,
+  });
 
   return NextResponse.json(response);
 }
