@@ -135,8 +135,6 @@ def create_match_player_stats_table_migration(cursor):
 def migrate_players_autoincrement(cursor):
     # Desired extra columns with definitions we want to enforce.
     desired_columns = {
-        "likes": "INTEGER DEFAULT 0",
-        "dislikes": "INTEGER DEFAULT 0",
         "is_public_profile": "BOOLEAN DEFAULT 1",
         "wins": "INTEGER DEFAULT 0",
         "loses": "INTEGER DEFAULT 0",
