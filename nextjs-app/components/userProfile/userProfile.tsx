@@ -34,8 +34,6 @@ export default function UserProfile({ user, discordId, userSteamId, ld, isUserLi
     const [check, setCheck] = useState<boolean>(!!user.is_public_profile);
     const [loading, setLoading] = useState(false);
     const [likesDislikes, setLikesDislikes] = useState(ld)
-    useEffect(() => {
-    }, [likesDislikes])
 
     useEffect(() => {
         fetchLD()

@@ -77,9 +77,9 @@ export default function LikesAndDislikes({
         const baseStyles = "px-4 py-2 text-white rounded transition shadow-sm";
 
         if (isLiked === 1 && type === "like")
-            return `${baseStyles} bg-red-500 shadow-red-500/50`;
-        if (isLiked === 0 && type === "dislike")
             return `${baseStyles} bg-blue-500 shadow-blue-500/50`;
+        if (isLiked === 0 && type === "dislike")
+            return `${baseStyles} bg-red-500 shadow-red-500/50`;
 
         // If isLiked is null or undefined, both buttons should be gray
         return `${baseStyles} bg-gray-500 hover:bg-gray-600`;
@@ -97,8 +97,8 @@ export default function LikesAndDislikes({
     return (
         <>
             <button
-                onClick={() => likeAndDislike(isLiked === 0 ? "disliked" : "dislike")}
-                className={getButtonStyles("dislike", isLiked)}
+                onClick={() => likeAndDislike(isLiked === 1 ? "liked" : "like")}
+                className={getButtonStyles("like", isLiked)}
                 disabled={loading}
             >
                 <ThumbsUp
@@ -107,8 +107,8 @@ export default function LikesAndDislikes({
                 />
             </button>
             <button
-                onClick={() => likeAndDislike(isLiked === 1 ? "liked" : "like")}
-                className={getButtonStyles("like", isLiked)}
+                onClick={() => likeAndDislike(isLiked === 0 ? "disliked" : "dislike")}
+                className={getButtonStyles("dislike", isLiked)}
                 disabled={loading}
             >
                 <ThumbsDown
