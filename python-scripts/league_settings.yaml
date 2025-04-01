@@ -5,3 +5,4 @@ game_name_prefix: radekomsaLeague
 discord_league_admin_role_name: ADMINS
 league_starting_mmr: 1000
 lobby_timeout: 300 #seconds
+discord_server_id: 1041325389278089306

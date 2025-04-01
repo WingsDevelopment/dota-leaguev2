@@ -34,6 +34,10 @@ def get_player(cursor: Cursor, discord_id: str) -> None:
     cursor.execute(
         'SELECT * FROM Players WHERE discord_id = ?', (discord_id, ))
 
+def get_player_by_steam(cursor: Cursor, steam_id: str) -> None:
+    cursor.execute('SELECT * FROM Players WHERE steam_id = ?', (steam_id,))
+
+
 
 def update_player_mmr_won(cursor: Cursor, id: str, elo_change: str) -> None:
     cursor.execute(
@@ -308,7 +312,7 @@ def create_match_player_stats_table(cursor: Cursor) -> None:
 
 def create_tables(cursor: Connection) -> None:
     cursor.execute('''CREATE TABLE IF NOT EXISTS Players
-                            (id INTEGER PRIMARY KEY,
+                            (id INTEGER PRIMARY KEY AUTOINCREMENT,
                             discord_id TEXT  ,
                             steam_id TEXT,
                             name TEXT,

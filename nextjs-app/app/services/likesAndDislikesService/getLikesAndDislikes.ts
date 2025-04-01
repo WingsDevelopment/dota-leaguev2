@@ -5,8 +5,8 @@ interface getPlayerBySteamId {
     steamId: string;
 }
 enum LikeType {
-    LIKE = 0,
-    DISLIKE = 1
+    LIKE = 1,
+    DISLIKE = 0
 }
 export async function getPlayerLikesAndDislikes({ steamId }: getPlayerBySteamId) {
     const db = await getDbInstance();

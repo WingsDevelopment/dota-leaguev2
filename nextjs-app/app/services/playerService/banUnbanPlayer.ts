@@ -2,20 +2,25 @@ import { getDbInstance } from "@/db/utils";
 import { closeDatabase } from "@/db/initDatabase";
 
 interface BanUnbanParams {
-  id: number;
+  steam_id: number;
   action: "ban" | "unban";
   banType?: "1l" | "1g" | "bbb" | "1d"; // Only required for bans
 }
 
-export async function banUnbanPlayer({ id, action, banType }: BanUnbanParams) {
+export async function banUnbanPlayer({
+  steam_id,
+  action,
+  banType,
+}: BanUnbanParams) {
   const db = await getDbInstance();
+  console.log({ steam_id });
 
   try {
     if (action === "unban") {
       await new Promise<void>((resolve, reject) => {
         db.run(
-          `UPDATE Players SET banned_until = NULL WHERE id = ?`,
-          [id],
+          `UPDATE Players SET banned_until = NULL WHERE steam_id = ?`,
+          [steam_id],
           (err) => (err ? reject(err) : resolve())
         );
       });
@@ -34,8 +39,8 @@ export async function banUnbanPlayer({ id, action, banType }: BanUnbanParams) {
         }
       | undefined = await new Promise((resolve, reject) => {
       db.get(
-        `SELECT banned_until, games_left, games_griefed, bbb, games_didnt_show FROM Players WHERE id = ?`,
-        [id],
+        `SELECT banned_until, games_left, games_griefed, bbb, games_didnt_show FROM Players WHERE steam_id = ?`,
+        [String(steam_id)],
         (err, row) => (err ? reject(err) : resolve(row as any))
       );
     });
@@ -96,7 +101,7 @@ export async function banUnbanPlayer({ id, action, banType }: BanUnbanParams) {
       }
     } else if (banType === "bbb") {
       bbb += 1; // Set BBB flag
-      console.log(bbb,"bad behaviour ban")
+      console.log(bbb, "bad behaviour ban");
       // Add 1278.38 days to ban
       if (bbb === 1) {
         if (newBanDate) {
@@ -105,7 +110,7 @@ export async function banUnbanPlayer({ id, action, banType }: BanUnbanParams) {
           newBanDate = new Date();
           newBanDate.setDate(newBanDate.getDate() + 14);
         }
-      }else if( bbb>=2){
+      } else if (bbb >= 2) {
         if (newBanDate) {
           newBanDate.setDate(newBanDate.getDate() + 548);
         } else {
@@ -135,14 +140,24 @@ export async function banUnbanPlayer({ id, action, banType }: BanUnbanParams) {
 
     await new Promise<void>((resolve, reject) => {
       db.run(
-        `UPDATE Players SET banned_until = ?, games_left = ?, games_griefed = ?, bbb = ?, games_didnt_show = ? WHERE id = ?`,
-        [bannedUntilStr, games_left, games_griefed, bbb, games_didnt_show, id],
+        `UPDATE Players SET banned_until = ?, games_left = ?, games_griefed = ?, bbb = ?, games_didnt_show = ? WHERE steam_id = ?`,
+        [
+          bannedUntilStr,
+          games_left,
+          games_griefed,
+          bbb,
+          games_didnt_show,
+          String(steam_id),
+        ],
         (err) => (err ? reject(err) : resolve())
       );
     });
 
     closeDatabase(db);
-    return { success: true, message: `Player ${id} updated successfully` };
+    return {
+      success: true,
+      message: `Player ${steam_id} updated successfully`,
+    };
   } catch (error) {
     console.error("Error processing ban/unban:", error);
     closeDatabase(db);

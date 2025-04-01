@@ -44,7 +44,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-
     return NextResponse.json({ message: "Imported leaderboard successfully." });
   } catch (error) {
     console.error("Import error:", error);

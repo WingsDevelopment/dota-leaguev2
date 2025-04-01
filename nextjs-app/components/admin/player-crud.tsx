@@ -42,7 +42,7 @@ interface Player {
 export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
   const [players, setPlayers] = useState(playerList);
   const [loading, setLoading] = useState(false);
-  const [openModal, setOpenModal] = useState<number | null>(null); // Track which modal is open
+  const [openModal, setOpenModal] = useState<number | "none">("none"); // Track which modal is open
 
   const fetchPlayers = async () => {
     try {
@@ -78,7 +78,7 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
   const handleBan = async (id: number, value: string) => {
     if (!confirm("Are you sure you want to ban this player?")) return;
     await sendBanRequest(id, value);
-    setOpenModal(null); // Close modal after action
+    setOpenModal("none"); // Close modal after action
   };
 
   // Handle unbanning logic
@@ -133,27 +133,37 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
 
                     <TableCell>
                       <Modal
-                        open={openModal === player.id}
+                        open={openModal === player.steam_id}
                         onOpenChange={(isOpen) =>
-                          isOpen ? setOpenModal(player.id) : setOpenModal(null)
+                          isOpen
+                            ? setOpenModal(player.steam_id)
+                            : setOpenModal("none")
                         }
                       >
                         <ModalTrigger onClick={() => setOpenModal(player.id)}>
                           Ban Player
                         </ModalTrigger>
                         <ModalContent>
-                          <ModalHeader>Ban Player</ModalHeader>
+                          <ModalHeader>Ban Player {player.name}</ModalHeader>
                           <ModalDescription>
-                            <Button onClick={() => handleBan(player.id, "1d")}>
+                            <Button
+                              onClick={() => handleBan(player.steam_id, "1d")}
+                            >
                               1 Game Didn't Show
                             </Button>
-                            <Button onClick={() => handleBan(player.id, "1l")}>
+                            <Button
+                              onClick={() => handleBan(player.steam_id, "1l")}
+                            >
                               1 Game Left
                             </Button>
-                            <Button onClick={() => handleBan(player.id, "1g")}>
+                            <Button
+                              onClick={() => handleBan(player.steam_id, "1g")}
+                            >
                               1 Game Griefed
                             </Button>
-                            <Button onClick={() => handleBan(player.id, "bbb")}>
+                            <Button
+                              onClick={() => handleBan(player.steam_id, "bbb")}
+                            >
                               Bad Behaviour Ban
                             </Button>
                           </ModalDescription>
@@ -161,7 +171,7 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
                           <div className="mt-4 flex justify-end">
                             <ModalClose
                               className="bg-red-600 text-white px-4 py-2 rounded"
-                              onClick={() => setOpenModal(null)}
+                              onClick={() => setOpenModal("none")}
                             >
                               Close
                             </ModalClose>
@@ -173,7 +183,7 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
                     <TableCell>
                       <Button
                         disabled={loading}
-                        onClick={() => handleUnban(player.id)}
+                        onClick={() => handleUnban(player.steam_id)}
                       >
                         Unban Player
                       </Button>

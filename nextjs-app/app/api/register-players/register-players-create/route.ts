@@ -23,7 +23,7 @@ export async function PUT(req: NextRequest) {
         `CREATE TABLE IF NOT EXISTS RegisterPlayers (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           status TEXT NOT NULL,
-          steam_id TEXT NOT NULL UNIQUE,
+          steam_id TEXT NOT NULL,
           discord_id TEXT NOT NULL,
           name TEXT NOT NULL,
           mmr INTEGER NOT NULL
