@@ -537,4 +537,4 @@ def print_data_base(filter: List[str] = []):
 
 if __name__ == '__main__':
     ensure_database_exists()
-    print_data_base()
+    # print_data_base()

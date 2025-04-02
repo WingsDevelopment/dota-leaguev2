@@ -166,6 +166,7 @@ async def on_ready():
     # Clear any previously registered global slash commands.
     # await bot.tree.clear_commands(guild=None)
     # Sync the command tree so that your updated commands are registered.
+    # await bot.tree.clear_commands(guild=Object(id=DISCORD_SERVER_ID))
     await bot.tree.sync(guild=Object(id=DISCORD_SERVER_ID))
 
     global RENDER
