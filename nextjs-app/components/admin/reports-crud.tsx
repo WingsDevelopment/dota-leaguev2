@@ -22,7 +22,8 @@ type ReportStatus = "ALL" | "REVIEWED" | "UNREVIEWED"
 
 interface Report {
   id: number,
-  steam_id: number,
+  reporter_name: string,
+  reported_name: string,
   other_player_steam_id: number,
   type: string,
   match_id: number,
@@ -120,8 +121,8 @@ export default function ReportsCrud({ reportList }: { reportList: Report[] }) {
               <TableHeader>
                 <tr>
                   <TableHeaderCell>Id</TableHeaderCell>
-                  <TableHeaderCell>Reporter (steam_id)</TableHeaderCell>
-                  <TableHeaderCell>Reported (steam_id)</TableHeaderCell>
+                  <TableHeaderCell>Reporter</TableHeaderCell>
+                  <TableHeaderCell>Reported</TableHeaderCell>
                   <TableHeaderCell>Type</TableHeaderCell>
                   <TableHeaderCell>Match Id</TableHeaderCell>
                   <TableHeaderCell>Report Text</TableHeaderCell>
@@ -134,9 +135,9 @@ export default function ReportsCrud({ reportList }: { reportList: Report[] }) {
                 {filteredReportList.map((report) => (
                   <TableRow key={report.id}>
                     <TableCell>{report.id}</TableCell>
-                    <TableCell>{report.steam_id}</TableCell>
+                    <TableCell>{report.reporter_name}</TableCell>
                     <TableCell>
-                      {report.other_player_steam_id}
+                      {report.reported_name}
                     </TableCell>
                     <TableCell>{report.type}</TableCell>
                     <TableCell>{report.match_id !== null ? report.match_id : "Match ID is not provided."}</TableCell>

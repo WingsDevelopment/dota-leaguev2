@@ -10,15 +10,17 @@ export async function getUserReports() {
     const reports: Array<Record<string, any>> = await new Promise(
       (resolve, reject) => {
         db.all(`SELECT 
-    id,
-    CAST(steam_id AS TEXT) AS steam_id, 
-    CAST(other_player_steam_id AS TEXT) AS other_player_steam_id, 
-    type, 
-    match_id, 
-    report, 
-    reviewed, 
-    time 
-FROM UserReport`, [], (err, rows) => {
+    ur.id,
+    p1.name AS reporter_name, 
+    p2.name AS reported_name, 
+    ur.type, 
+    ur.match_id, 
+    ur.report, 
+    ur.reviewed, 
+    ur.time
+FROM UserReport ur
+LEFT JOIN Players p1 ON ur.steam_id = p1.steam_id
+LEFT JOIN Players p2 ON ur.other_player_steam_id = p2.steam_id;`, [], (err, rows) => {
           if (err) {
             console.error("Error executing query:", err);
             return reject(err);
