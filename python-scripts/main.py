@@ -7,7 +7,7 @@ import asyncio
 import yaml
 import requests
 
-from discord import Intents, Message, Member, Embed, Object
+from discord import Intents, Message, Member, Embed, Object, app_commands
 from discord.ext import commands
 from discord.ext.commands import Bot, Context
 
@@ -164,12 +164,8 @@ bot.sigedUpDraftPlayerPool: List[Member] = []  # type: ignore
 @bot.event
 async def on_ready():
     # Clear any previously registered global slash commands.
-    # await bot.tree.clear_commands(guild=None)
     # Sync the command tree so that your updated commands are registered.
-    bot.tree.clear_commands(guild=Object(id=int(DISCORD_SERVER_ID)))
     await bot.tree.sync(guild=Object(id=int(DISCORD_SERVER_ID)))
-
-
 
     global RENDER
 
@@ -220,6 +216,7 @@ async def help(ctx: Context):
     embed.add_field(name="/help", value="Show this message", inline=False)
     embed.add_field(name="/stats", value="Show my stats", inline=False)
     embed.add_field(name="/leave", value="Leave the queue", inline=False)
+    embed.add_field(name="/ping", value="Pong", inline=False)
     embed.add_field(name="/autoscore",
                     value="Attempt to score a game via Steam API(do not spam)", inline=False)
     embed.add_field(name="/autoscorematch MatchNumber",
@@ -409,8 +406,14 @@ async def unmark_captain(ctx: Context, discord_id: str):
     execute_function_no_return('unset_player_captain', player_id)
     await ctx.reply(f'Player <@{discord_id}> unmarked as captain')
 
+@bot.hybrid_command(name="ping", description="Ping Pong")
+@app_commands.guilds(Object(id=DISCORD_SERVER_ID))
+async def ping(ctx: Context):
+    await ctx.reply("Pong")
+
 
 @bot.hybrid_command("autoscorematch", description="Attempt to score a game by Steam match id")
+@app_commands.guilds(Object(id=DISCORD_SERVER_ID))
 @commands.cooldown(rate=1, per=60, type=commands.BucketType.user)
 async def autoscorematch(ctx: Context, steam_match_id: str):
     match_id = steam_match_id
@@ -692,6 +695,7 @@ async def stats(ctx: Context):
     embed.add_field(
         name=f"Losses", value=wins_and_losses['losses'], inline=True)
     await ctx.reply(embed=embed, delete_after=20)
+
 
 
 @bot.hybrid_command("leave", description="Leave the queue")
