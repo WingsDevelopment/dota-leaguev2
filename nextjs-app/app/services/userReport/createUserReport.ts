@@ -16,16 +16,15 @@ enum ReportType {
 }
 
 export async function createUserReport({ user_steam_id, other_player_steam_id, type, report, match_id }: userReport) {
-
     const db = await getDbInstance();
+    console.log(user_steam_id, other_player_steam_id, type, report, match_id)
 
-    if (!(type in ReportType)) {
+    if (!Object.values(ReportType).includes(type as ReportType)) {
         return NextResponse.json(
             { error: "Invalid report type." },
             { status: 400 }
         );
     }
-
     try {
         await new Promise((resolve, reject) => {
             db.run(
