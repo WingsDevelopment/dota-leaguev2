@@ -148,6 +148,79 @@ def create_match_player_stats_table_migration(cursor):
     create_match_player_stats_table(cursor)
     print("Migration applied: Created MatchPlayerStats table.")
 
+def migrate_players_autoincrement(cursor):
+    # Desired extra columns with definitions we want to enforce.
+    desired_columns = {
+        "is_public_profile": "BOOLEAN DEFAULT 1",
+        "wins": "INTEGER DEFAULT 0",
+        "loses": "INTEGER DEFAULT 0",
+        "streak": "INTEGER DEFAULT 0",
+        "vouched_date": "DATE",
+    }
+
+    # Fetch current table creation SQL
+    cursor.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='Players'")
+    result = cursor.fetchone()
+
+    # If the table's SQL already contains AUTOINCREMENT and all desired columns,
+    # we may skip migration.
+    if result and "AUTOINCREMENT" in result[0].upper():
+        missing = [col for col in desired_columns if col not in result[0]]
+        if not missing:
+            print("No migration needed: Players table already uses AUTOINCREMENT and desired columns exist.")
+            return
+
+    print("Migrating Players table to update schema with AUTOINCREMENT and desired columns.")
+
+    # Get current column info from the Players table.
+    cursor.execute("PRAGMA table_info(Players)")
+    columns_info = cursor.fetchall()  # Each row: (cid, name, type, notnull, dflt_value, pk)
+    # Build a mapping of current columns for easy lookup.
+    current_columns = {col[1]: col for col in columns_info}
+
+    new_columns_def = []
+    column_names = []
+
+    # Rebuild definitions for columns that already exist.
+    for col in columns_info:
+        col_name = col[1]
+        column_names.append(col_name)
+        # For the id column, enforce AUTOINCREMENT.
+        if col_name == "id":
+            col_def = f"{col_name} INTEGER PRIMARY KEY AUTOINCREMENT"
+        elif col_name in desired_columns:
+            # Use our desired definition for these columns.
+            col_def = f"{col_name} {desired_columns[col_name]}"
+        else:
+            col_type = col[2]
+            notnull = "NOT NULL" if col[3] else ""
+            default = f"DEFAULT {col[4]}" if col[4] is not None else ""
+            col_def = f"{col_name} {col_type} {notnull} {default}".strip()
+        new_columns_def.append(col_def)
+
+    # Add any missing desired columns.
+    for col, definition in desired_columns.items():
+        if col not in current_columns:
+            new_columns_def.append(f"{col} {definition}")
+            # Note: we don't copy data for these columns (they'll use their default).
+
+    columns_def_str = ", ".join(new_columns_def)
+
+    # Create a new temporary table with the updated schema.
+    cursor.execute(f"CREATE TABLE Players_new ({columns_def_str});")
+    
+    # Copy data from the existing Players table.
+    # We only copy columns that exist in the old table.
+    common_columns = list(current_columns.keys())
+    common_columns_str = ", ".join(common_columns)
+    cursor.execute(f"INSERT INTO Players_new ({common_columns_str}) SELECT {common_columns_str} FROM Players;")
+    
+    # Remove the old table and rename the new one.
+    cursor.execute("DROP TABLE Players;")
+    cursor.execute("ALTER TABLE Players_new RENAME TO Players;")
+    
+    print("Migration applied: Players table updated with AUTOINCREMENT and desired column defaults.")
+
 def run_migrations(db_path):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -164,7 +237,8 @@ def run_migrations(db_path):
         ("add_additional_player_table_columns",add_additional_player_table_columns),
         ("remove_likes_dislikes_players_columns",remove_likes_dislikes_players),
         ("create_like_dislike_table",create_like_dislike_table),
-        ("create_user_report_table",create_user_report_table)
+        ("create_user_report_table",create_user_report_table),
+        ("migrate_players_autoincrement", migrate_players_autoincrement)
     ]
     
     for migration_name, migration_func in migrations:
