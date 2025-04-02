@@ -166,8 +166,10 @@ async def on_ready():
     # Clear any previously registered global slash commands.
     # await bot.tree.clear_commands(guild=None)
     # Sync the command tree so that your updated commands are registered.
-    # await bot.tree.clear_commands(guild=Object(id=DISCORD_SERVER_ID))
-    await bot.tree.sync(guild=Object(id=DISCORD_SERVER_ID))
+    bot.tree.clear_commands(guild=Object(id=int(DISCORD_SERVER_ID)))
+    await bot.tree.sync(guild=Object(id=int(DISCORD_SERVER_ID)))
+
+
 
     global RENDER
 
@@ -220,6 +222,8 @@ async def help(ctx: Context):
     embed.add_field(name="/leave", value="Leave the queue", inline=False)
     embed.add_field(name="/autoscore",
                     value="Attempt to score a game via Steam API(do not spam)", inline=False)
+    embed.add_field(name="/autoscorematch MatchNumber",
+                    value="Attempt to score a game via Steam API(do not spam)", inline=False)
     embed.add_field(name="/preferredrole", value="Set your preferred rolse eg., 123 or 34 or 5 or 345 etc.", inline=False)
     if ADMIN_ROLE in [role.id for role in ctx.message.author.roles]:
         embed.add_field(name="/vouch @DiscordUser SteamId",
@@ -255,7 +259,7 @@ async def vouch(ctx: Context, discord_id: str, steam_id: str, nickname: str):
 autoscore_lock = asyncio.Lock()
 
 @commands.has_role(ADMIN_ROLE)
-@bot.hybrid_command("autoscorematch", description="Score a match (autoscorematch)")
+@bot.hybrid_command("autoscorematch", description="Score a match autoscorematch")
 async def autoscorematch(ctx: Context, steam_match_id: str):
     match_id = steam_match_id
     _log("AutoscoreMatch command invoked")
