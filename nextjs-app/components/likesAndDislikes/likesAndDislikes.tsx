@@ -97,7 +97,7 @@ export default function LikesAndDislikes({
     );
   return (
     <>
-      <button
+      {/* <button
         onClick={() => likeAndDislike(isLiked === 1 ? "liked" : "like")}
         className={getButtonStyles("like", isLiked)}
         disabled={loading}
@@ -116,7 +116,7 @@ export default function LikesAndDislikes({
           size={20}
           className={isLiked === 0 ? "text-white" : "text-gray-300"}
         />
-      </button>
+      </button> */}
     </>
   );
 }
