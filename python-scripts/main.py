@@ -194,13 +194,11 @@ async def on_ready():
     asyncio.ensure_future(_look_for_timeout_games())
     _log(f'Logged in as {bot.user}')
 
-
 @bot.event
 async def on_message(message: Message):
     if message.author == bot.user:
         return
     await bot.process_commands(message)
-
 
 @bot.event
 async def on_command_error(ctx: Context, error):
@@ -211,7 +209,6 @@ async def on_command_error(ctx: Context, error):
         await ctx.reply('You dont have permission to use this command.', mention_author=True, delete_after=10)
         return
     _log(error)
-
 
 @bot.hybrid_command(name="help", description="Show commands")
 async def help(ctx: Context):
@@ -257,8 +254,8 @@ async def vouch(ctx: Context, discord_id: str, steam_id: str, nickname: str):
 autoscore_lock = asyncio.Lock()
 
 @commands.has_role(ADMIN_ROLE)
-@bot.hybrid_command("score", description="Score a match (autoscorematch)")
-async def score(ctx: Context, steam_match_id: str):
+@bot.hybrid_command("autoscorematch", description="Score a match (autoscorematch)")
+async def autoscorematch(ctx: Context, steam_match_id: str):
     match_id = steam_match_id
     _log("AutoscoreMatch command invoked")
     try:
@@ -398,6 +395,50 @@ async def score(ctx: Context, steam_match_id: str):
     finally:
         _log("Unlocking autoscorematch lock...")
         autoscore_lock.release()
+
+@commands.has_role(ADMIN_ROLE)
+@bot.hybrid_command("score", description="Score a match")
+async def score(ctx: Context, game_id: str, score: str, steam_match_id: str):
+    global RENDER
+    if score not in ['dire', 'radiant']:
+        #i dont trust the users to type 0 for radiant and 1 for dire
+        await ctx.reply('Score needs to be the name of the winning team(radiant or dire)', delete_after=10)
+    else:
+        result = 0 if score == 'radiant' else 1
+        try:
+            game = execute_function_single_row_return('get_game', game_id)
+        except ValueError:
+            await ctx.reply('Game with id {} does not exist'.format(game_id), delete_after=10)
+            return
+        if game['status'] == 'OVER':
+            await ctx.reply('Game already scored', delete_after=10)
+            return
+        
+        execute_function_no_return(
+            'score_game', game_id, result, steam_match_id)
+        
+        players = execute_function_with_return(
+            'get_all_players_from_game', game_id)
+
+        team_one = [player['mmr'] for player in players if player['team'] == 0]
+        team_two = [player['mmr'] for player in players if player['team'] == 1]
+        team_one_avg_mmr = round(
+            sum(team_one)/len(team_one)) if len(team_one) > 0 else 0
+        team_two_avg_mmr = round(
+            sum(team_two)/len(team_two)) if len(team_two) > 0 else 0
+        if len(team_one) > 0 and len(team_two) > 0:
+            elo_change = calculate_elo(
+                team_one_avg_mmr, team_two_avg_mmr, 1 if result == 0 else -1)
+        else:
+            elo_change = 25  # only applys to testing when the queue size is one
+        for player in players:
+            if player['team'] == result:  # if players has the same team as the one that won
+                execute_function_no_return('update_player_mmr_won', player['id'], elo_change)
+            else:
+                execute_function_no_return('update_player_mmr_lost', player['id'], elo_change)
+
+        await ctx.reply('Game scored, {} won game {}'.format(score, game_id))
+        RENDER['leaderboard'] = True
 
 @commands.has_role(ADMIN_ROLE)
 @bot.hybrid_command("rehost", description="Try to rehost a game")
