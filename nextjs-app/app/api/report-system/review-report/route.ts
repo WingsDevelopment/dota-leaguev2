@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDbInstance } from "@/db/utils";
 import { isUserAdmin } from "@/app/common/constraints";
-import { ReviewUserReport } from "@/app/services/userReport/reviewUserReport";
+import { setReviewUserReport } from "@/app/services/userReport/setReviewUserReport";
 
 export async function PUT(req: NextRequest) {
   if (!(await isUserAdmin())) {
@@ -9,14 +8,10 @@ export async function PUT(req: NextRequest) {
   }
 
   const { id } = await req.json();
-  console.log(id,"id u service")
   if (!id === undefined) {
-    return NextResponse.json(
-      { error: "Missing report id" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Missing report id" }, { status: 400 });
   }
 
-  const res = await ReviewUserReport({id});
+  const res = await setReviewUserReport({ id });
   return NextResponse.json(res);
 }
