@@ -43,7 +43,7 @@ export async function setReviewUserReport({
     /*   DB Query    */
     /* ------------- */
     await runDbQuery(db, `UPDATE UserReport SET reviewed = 1 WHERE id = ?`, [
-      id,
+      idNumber,
     ]);
 
     /* ---------------- */
