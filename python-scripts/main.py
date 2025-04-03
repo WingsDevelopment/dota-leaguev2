@@ -7,7 +7,7 @@ import asyncio
 import yaml
 import requests
 
-from discord import Intents, Message, Member, Embed, Object
+from discord import Intents, Message, Member, Embed, Object, app_commands
 from discord.ext import commands
 from discord.ext.commands import Bot, Context
 
@@ -45,7 +45,7 @@ with open(yaml_path) as f:
     ADMIN_ROLE = league_settings.get('discord_league_admin_role_name', '')
     STARTING_MMR = league_settings.get('league_starting_mmr', 1000)
     LOBBY_SIZE = league_settings.get('lobby_size', 10)
-    DISCORD_SERVER_ID = league_settings.get('discord_server_id', 10)
+    DISCORD_SERVER_ID = league_settings.get('discord_server_id', 1341425420570202172)
 
 TOKEN: str = os.getenv('TOKEN', '')
 STEAM_API_TOKEN = os.getenv('STEAM_API_TOKEN', '')
@@ -164,9 +164,8 @@ bot.sigedUpDraftPlayerPool: List[Member] = []  # type: ignore
 @bot.event
 async def on_ready():
     # Clear any previously registered global slash commands.
-    # await bot.tree.clear_commands(guild=None)
     # Sync the command tree so that your updated commands are registered.
-    await bot.tree.sync(guild=Object(id=DISCORD_SERVER_ID))
+    await bot.tree.sync(guild=Object(id=int(DISCORD_SERVER_ID)))
 
     global RENDER
 
@@ -194,13 +193,11 @@ async def on_ready():
     asyncio.ensure_future(_look_for_timeout_games())
     _log(f'Logged in as {bot.user}')
 
-
 @bot.event
 async def on_message(message: Message):
     if message.author == bot.user:
         return
     await bot.process_commands(message)
-
 
 @bot.event
 async def on_command_error(ctx: Context, error):
@@ -212,7 +209,6 @@ async def on_command_error(ctx: Context, error):
         return
     _log(error)
 
-
 @bot.hybrid_command(name="help", description="Show commands")
 async def help(ctx: Context):
     embed = Embed(title="RADEKOMSA Liga Bot",
@@ -220,7 +216,10 @@ async def help(ctx: Context):
     embed.add_field(name="/help", value="Show this message", inline=False)
     embed.add_field(name="/stats", value="Show my stats", inline=False)
     embed.add_field(name="/leave", value="Leave the queue", inline=False)
+    embed.add_field(name="/ping", value="Pong", inline=False)
     embed.add_field(name="/autoscore",
+                    value="Attempt to score a game via Steam API(do not spam)", inline=False)
+    embed.add_field(name="/autoscorematch MatchNumber",
                     value="Attempt to score a game via Steam API(do not spam)", inline=False)
     embed.add_field(name="/preferredrole", value="Set your preferred rolse eg., 123 or 34 or 5 or 345 etc.", inline=False)
     if ADMIN_ROLE in [role.id for role in ctx.message.author.roles]:
@@ -237,6 +236,7 @@ async def help(ctx: Context):
         embed.add_field(name="/cancelgame MatchNumber", value="Cancel a game", inline=False)
         embed.add_field(name="/markcaptain @DiscordUser", value="Mark a player as captain", inline=False)
         embed.add_field(name="/unmarkcaptain @DiscordUser", value="Remove captain role from a player", inline=False)
+        embed.add_field(name="/autoscorematch MatchNumber", value="Attempt to score a game via Steam API(do not spam)", inline=False)
 
     await ctx.send(embed=embed, delete_after=60)
 
@@ -257,8 +257,165 @@ async def vouch(ctx: Context, discord_id: str, steam_id: str, nickname: str):
 autoscore_lock = asyncio.Lock()
 
 @commands.has_role(ADMIN_ROLE)
-@bot.hybrid_command("score", description="Score a match (autoscorematch)")
-async def score(ctx: Context, steam_match_id: str):
+@bot.hybrid_command("score", description="Score a match")
+async def score(ctx: Context, game_id: str, score: str, steam_match_id: str):
+    global RENDER
+    if score not in ['dire', 'radiant']:
+        #i dont trust the users to type 0 for radiant and 1 for dire
+        await ctx.reply('Score needs to be the name of the winning team(radiant or dire)', delete_after=10)
+    else:
+        result = 0 if score == 'radiant' else 1
+        try:
+            game = execute_function_single_row_return('get_game', game_id)
+        except ValueError:
+            await ctx.reply('Game with id {} does not exist'.format(game_id), delete_after=10)
+            return
+        if game['status'] == 'OVER':
+            await ctx.reply('Game already scored', delete_after=10)
+            return
+        
+        execute_function_no_return(
+            'score_game', game_id, result, steam_match_id)
+        
+        players = execute_function_with_return(
+            'get_all_players_from_game', game_id)
+
+        team_one = [player['mmr'] for player in players if player['team'] == 0]
+        team_two = [player['mmr'] for player in players if player['team'] == 1]
+        team_one_avg_mmr = round(
+            sum(team_one)/len(team_one)) if len(team_one) > 0 else 0
+        team_two_avg_mmr = round(
+            sum(team_two)/len(team_two)) if len(team_two) > 0 else 0
+        if len(team_one) > 0 and len(team_two) > 0:
+            elo_change = calculate_elo(
+                team_one_avg_mmr, team_two_avg_mmr, 1 if result == 0 else -1)
+        else:
+            elo_change = 25  # only applys to testing when the queue size is one
+        for player in players:
+            if player['team'] == result:  # if players has the same team as the one that won
+                execute_function_no_return('update_player_mmr_won', player['id'], elo_change)
+            else:
+                execute_function_no_return('update_player_mmr_lost', player['id'], elo_change)
+
+        await ctx.reply('Game scored, {} won game {}'.format(score, game_id))
+        RENDER['leaderboard'] = True
+
+@commands.has_role(ADMIN_ROLE)
+@bot.hybrid_command("rehost", description="Try to rehost a game")
+async def rehost(ctx: Context, game_id: str):
+    global RENDER
+    try:
+        execute_function_single_row_return('get_game', game_id)
+    except ValueError:
+        await ctx.reply('Game with id {} does not exist'.format(game_id), delete_after=10)
+        return
+    players = execute_function_with_return('get_all_players_from_game', game_id)
+    for player in players:
+        if player['discord_id'] in [player.id for player in bot.sigedUpPlayerPool]:
+            player_to_remove = next(member for member in bot.sigedUpPlayerPool if member.id == player['discord_id'] )
+            bot.sigedUpPlayerPool.remove(player_to_remove)
+            RENDER['queue'] = True
+        if player['discord_id'] in [player.id for player in bot.sigedUpDraftPlayerPool]:
+            player_to_remove = next(member for member in bot.sigedUpDraftPlayerPool if member.id == player['discord_id'])
+            bot.sigedUpDraftPlayerPool.remove(player_to_remove)
+            RENDER['queue_draft'] = True
+    execute_function_no_return('reset_all_players_arrived', game_id)
+    execute_function_no_return('set_game_status_rehost', game_id)
+    await ctx.reply('Game rehosted')
+
+
+@commands.has_role(ADMIN_ROLE)
+@bot.hybrid_command("clearqueue", description="Clear the queue")
+async def clear_queue(ctx: Context):
+    global RENDER
+    bot.sigedUpPlayerPool = []
+    await ctx.reply('Queue cleared by <@{0}>'.format(ctx.message.author.id))
+    RENDER['queue'] = True
+
+
+@commands.has_role(ADMIN_ROLE)
+@bot.hybrid_command("cleardraftqueue", description="Clear the queue")
+async def clear_queue(ctx: Context):
+    global RENDER
+    bot.sigedUpDraftPlayerPool = []
+    await ctx.reply('Queue cleared by <@{0}>'.format(ctx.message.author.id))
+    RENDER['queue_draft'] = True
+
+
+@commands.has_role(ADMIN_ROLE)
+@bot.hybrid_command("cancelgame", description="Cancel a game")
+async def cancel_game(ctx: Context, game_id: str):
+    global RENDER
+    game = execute_function_single_row_return('get_game', game_id)
+    if game['status'] in ['OVER', 'ABORTED']:
+        await ctx.reply('Game already scored or aborted', delete_after=10)
+        return
+    try:
+        players = execute_function_with_return('get_players_arrived', game_id)
+        if game['type'] == 'DRAFT':
+            returning_players = [Player(player['id']) for player in players if player['id'] not in [player.id for player in bot.sigedUpDraftPlayerPool]]
+            bot.sigedUpDraftPlayerPool = returning_players + bot.sigedUpDraftPlayerPool
+            RENDER['queue_draft'] = True
+            await _check_pool_size_and_start_draft(ctx)
+        else:
+            returning_players = [Player(player['id']) for player in players if player['id'] not in [player.id for player in bot.sigedUpPlayerPool]]
+            bot.sigedUpPlayerPool = returning_players + bot.sigedUpPlayerPool
+            RENDER['queue'] = True
+            await _check_pool_size_and_start(ctx)
+    except ValueError:
+        pass
+    execute_function_no_return('set_game_status_cancel', game_id)
+    await ctx.reply('Game canceled')
+
+@commands.has_role(ADMIN_ROLE)
+@bot.hybrid_command("markcaptain", description="Cancel a game")
+async def cancel_game(ctx: Context, discord_id: str):
+    discord_id = discord_id.replace('\\', '').replace('<', '').replace('>', '').replace(
+        '@', '').replace('!', '').replace('#', '').replace('&', '')  # <@337347092139737099>
+    try:
+        player_id = execute_function_single_row_return('get_player_id', discord_id)['id']
+    except ValueError:
+        await ctx.reply('Player needs to be vouched before becoming a captain.', mention_author=True, delete_after=10)
+    execute_function_no_return('set_player_captain', player_id)
+    await ctx.reply('Player <@{}> marked as captain'.format(discord_id))
+
+@commands.has_role(ADMIN_ROLE)
+@bot.hybrid_command("unmarkcaptain", description="Remove captain role from a player")
+async def unmark_captain(ctx: Context, discord_id: str):
+    # Clean the discord_id string (remove extra characters)
+    discord_id = (
+        discord_id.replace('\\', '')
+        .replace('<', '')
+        .replace('>', '')
+        .replace('@', '')
+        .replace('!', '')
+        .replace('#', '')
+        .replace('&', '')
+    )
+    try:
+        # Try to retrieve the player's internal id (they must be vouched first)
+        player_id = execute_function_single_row_return('get_player_id', discord_id)['id']
+    except ValueError:
+        await ctx.reply(
+            'Player needs to be vouched before unmarking as captain.',
+            mention_author=True,
+            delete_after=10,
+        )
+        return
+    # Remove the captain role by calling the new database function
+    execute_function_no_return('unset_player_captain', player_id)
+    await ctx.reply(f'Player <@{discord_id}> unmarked as captain')
+
+@bot.hybrid_command(name="ping", description="Ping Pong")
+@app_commands.guilds(Object(id=DISCORD_SERVER_ID))
+async def ping(ctx: Context):
+    await ctx.reply("Pong")
+
+
+@bot.hybrid_command("autoscorematch", description="Attempt to score a game by Steam match id")
+@app_commands.guilds(Object(id=DISCORD_SERVER_ID))
+@commands.cooldown(rate=1, per=60, type=commands.BucketType.user)
+async def autoscorematch(ctx: Context, steam_match_id: str):
     match_id = steam_match_id
     _log("AutoscoreMatch command invoked")
     try:
@@ -399,114 +556,7 @@ async def score(ctx: Context, steam_match_id: str):
         _log("Unlocking autoscorematch lock...")
         autoscore_lock.release()
 
-@commands.has_role(ADMIN_ROLE)
-@bot.hybrid_command("rehost", description="Try to rehost a game")
-async def rehost(ctx: Context, game_id: str):
-    global RENDER
-    try:
-        execute_function_single_row_return('get_game', game_id)
-    except ValueError:
-        await ctx.reply('Game with id {} does not exist'.format(game_id), delete_after=10)
-        return
-    players = execute_function_with_return('get_all_players_from_game', game_id)
-    for player in players:
-        if player['discord_id'] in [player.id for player in bot.sigedUpPlayerPool]:
-            player_to_remove = next(member for member in bot.sigedUpPlayerPool if member.id == player['discord_id'] )
-            bot.sigedUpPlayerPool.remove(player_to_remove)
-            RENDER['queue'] = True
-        if player['discord_id'] in [player.id for player in bot.sigedUpDraftPlayerPool]:
-            player_to_remove = next(member for member in bot.sigedUpDraftPlayerPool if member.id == player['discord_id'])
-            bot.sigedUpDraftPlayerPool.remove(player_to_remove)
-            RENDER['queue_draft'] = True
-    execute_function_no_return('reset_all_players_arrived', game_id)
-    execute_function_no_return('set_game_status_rehost', game_id)
-    await ctx.reply('Game rehosted')
-
-
-@commands.has_role(ADMIN_ROLE)
-@bot.hybrid_command("clearqueue", description="Clear the queue")
-async def clear_queue(ctx: Context):
-    global RENDER
-    bot.sigedUpPlayerPool = []
-    await ctx.reply('Queue cleared by <@{0}>'.format(ctx.message.author.id))
-    RENDER['queue'] = True
-
-
-@commands.has_role(ADMIN_ROLE)
-@bot.hybrid_command("cleardraftqueue", description="Clear the queue")
-async def clear_queue(ctx: Context):
-    global RENDER
-    bot.sigedUpDraftPlayerPool = []
-    await ctx.reply('Queue cleared by <@{0}>'.format(ctx.message.author.id))
-    RENDER['queue_draft'] = True
-
-
-@commands.has_role(ADMIN_ROLE)
-@bot.hybrid_command("cancelgame", description="Cancel a game")
-async def cancel_game(ctx: Context, game_id: str):
-    global RENDER
-    game = execute_function_single_row_return('get_game', game_id)
-    if game['status'] in ['OVER', 'ABORTED']:
-        await ctx.reply('Game already scored or aborted', delete_after=10)
-        return
-    try:
-        players = execute_function_with_return('get_players_arrived', game_id)
-        if game['type'] == 'DRAFT':
-            returning_players = [Player(player['id']) for player in players if player['id'] not in [player.id for player in bot.sigedUpDraftPlayerPool]]
-            bot.sigedUpDraftPlayerPool = returning_players + bot.sigedUpDraftPlayerPool
-            RENDER['queue_draft'] = True
-            await _check_pool_size_and_start_draft(ctx)
-        else:
-            returning_players = [Player(player['id']) for player in players if player['id'] not in [player.id for player in bot.sigedUpPlayerPool]]
-            bot.sigedUpPlayerPool = returning_players + bot.sigedUpPlayerPool
-            RENDER['queue'] = True
-            await _check_pool_size_and_start(ctx)
-    except ValueError:
-        pass
-    execute_function_no_return('set_game_status_cancel', game_id)
-    await ctx.reply('Game canceled')
-
-@commands.has_role(ADMIN_ROLE)
-@bot.hybrid_command("markcaptain", description="Cancel a game")
-async def cancel_game(ctx: Context, discord_id: str):
-    discord_id = discord_id.replace('\\', '').replace('<', '').replace('>', '').replace(
-        '@', '').replace('!', '').replace('#', '').replace('&', '')  # <@337347092139737099>
-    try:
-        player_id = execute_function_single_row_return('get_player_id', discord_id)['id']
-    except ValueError:
-        await ctx.reply('Player needs to be vouched before becoming a captain.', mention_author=True, delete_after=10)
-    execute_function_no_return('set_player_captain', player_id)
-    await ctx.reply('Player <@{}> marked as captain'.format(discord_id))
-
-@commands.has_role(ADMIN_ROLE)
-@bot.hybrid_command("unmarkcaptain", description="Remove captain role from a player")
-async def unmark_captain(ctx: Context, discord_id: str):
-    # Clean the discord_id string (remove extra characters)
-    discord_id = (
-        discord_id.replace('\\', '')
-        .replace('<', '')
-        .replace('>', '')
-        .replace('@', '')
-        .replace('!', '')
-        .replace('#', '')
-        .replace('&', '')
-    )
-    try:
-        # Try to retrieve the player's internal id (they must be vouched first)
-        player_id = execute_function_single_row_return('get_player_id', discord_id)['id']
-    except ValueError:
-        await ctx.reply(
-            'Player needs to be vouched before unmarking as captain.',
-            mention_author=True,
-            delete_after=10,
-        )
-        return
-    # Remove the captain role by calling the new database function
-    execute_function_no_return('unset_player_captain', player_id)
-    await ctx.reply(f'Player <@{discord_id}> unmarked as captain')
-
-
-@bot.hybrid_command("autoscore", description="Attempt to score a game")
+@bot.hybrid_command("autoscore", description="Attempt to score a games")
 @commands.cooldown(rate=1, per=60, type=commands.BucketType.user)
 async def autoscore(ctx: Context):
     _log("Autoscore command invoked")
@@ -645,6 +695,7 @@ async def stats(ctx: Context):
     embed.add_field(
         name=f"Losses", value=wins_and_losses['losses'], inline=True)
     await ctx.reply(embed=embed, delete_after=20)
+
 
 
 @bot.hybrid_command("leave", description="Leave the queue")
