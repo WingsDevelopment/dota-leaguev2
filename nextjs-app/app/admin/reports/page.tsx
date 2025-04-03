@@ -1,10 +1,10 @@
-import ReportsCrud from "@/components/admin/reports-crud";
+import ReportsTableContainer from "@/app/admin/reports/components/reports-table-container";
 import { apiCallerGetReports } from "../../api/report-system/get-reports/caller";
 
 export default async function Page() {
   return (
     <div className="flex flex-col gap-4">
-      <ReportsCrud reportList={await apiCallerGetReports()} />
+      <ReportsTableContainer reportList={await apiCallerGetReports()} />
     </div>
   );
 }

@@ -37,13 +37,6 @@ export type UserReport = {
  * @async
  * @function getUserReports
  * @returns {Promise<ServiceResponse<UserReport[]>>} A promise that resolves to a service response object.
- * The successful response includes:
- * - `success`: A boolean flag indicating the operation succeeded.
- * - `data`: An array of user reports.
- *
- * In case of an error, the returned object follows the `PrimitiveServiceResponse` interface:
- * - `success`: false
- * - `message`: A string describing the error.
  *
  * @example
  * // Example usage:

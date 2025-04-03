@@ -17,8 +17,8 @@ import {
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { apiCallerReviewReport } from "../../app/api/report-system/review-report/caller";
-import type { UserReport } from "../../app/services/userReport/getUserReports";
+import { apiCallerReviewReport } from "../../../api/report-system/review-report/caller";
+import type { UserReport } from "../../../services/userReport/getUserReports";
 
 /* --------- */
 /*   Types   */
@@ -28,7 +28,7 @@ type ReportStatus = "ALL" | "REVIEWED" | "UNREVIEWED";
 /* -------------------- */
 /*   Client Component   */
 /* -------------------- */
-export default function ReportsCrud({
+export default function ReportsTableContainer({
   reportList,
 }: {
   reportList: UserReport[];
