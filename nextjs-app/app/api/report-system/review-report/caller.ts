@@ -9,7 +9,10 @@ export const apiCallerReviewReport = async (
       id: reportId,
     });
 
-    return response.data;
+    const data = response.data as PrimitiveServiceResponse;
+    if (!data.success) throw new Error(data.message);
+
+    return data;
   } catch (error) {
     console.error("Failed to solve the report!", error);
     throw error;

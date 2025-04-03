@@ -20,36 +20,34 @@ import { useRouter } from "next/navigation";
 import { apiCallerReviewReport } from "../../app/api/report-system/review-report/caller";
 import type { UserReport } from "../../app/services/userReport/getUserReports";
 
+/* --------- */
+/*   Types   */
+/* --------- */
 type ReportStatus = "ALL" | "REVIEWED" | "UNREVIEWED";
 
+/* -------------------- */
+/*   Client Component   */
+/* -------------------- */
 export default function ReportsCrud({
   reportList,
 }: {
   reportList: UserReport[];
 }) {
+  /* ------------- */
+  /*   Metadata    */
+  /* ------------- */
   const router = useRouter();
 
+  /* --------------- */
+  /*   Local State   */
+  /* --------------- */
   const [filterStatus, setFilterStatus] = useState<ReportStatus | "ALL">(
     "UNREVIEWED"
   );
 
-  const handleSolve = async (reportId: number) => {
-    const confirmation = confirm("Are you sure ?");
-    if (!confirmation) return;
-    if (!reportId) {
-      return alert("Invalid Report ID");
-    }
-    try {
-      const res = await apiCallerReviewReport(reportId);
-      if (!res.success) {
-        throw new Error("Failed to solve the report!");
-      }
-      router.refresh();
-    } catch (error) {
-      console.error("Failed to solve the report!", error);
-    }
-  };
-
+  /* ---------------- */
+  /*   Custom Logic   */
+  /* ---------------- */
   const filteredReportList =
     filterStatus === "ALL"
       ? reportList
@@ -59,6 +57,20 @@ export default function ReportsCrud({
             : report.reviewed === 0
         );
 
+  /* ------------- */
+  /*   Handlers    */
+  /* ------------- */
+  const handleSolve = async (reportId: number) => {
+    if (!confirm("Are you sure ?")) return;
+
+    apiCallerReviewReport(reportId).then(() => {
+      router.refresh();
+    });
+  };
+
+  /* ------- */
+  /*   JSX   */
+  /* ------- */
   return (
     <div>
       <Card>

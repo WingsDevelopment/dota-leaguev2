@@ -34,6 +34,12 @@ export async function setReviewUserReport({
   const db = await getDbInstance();
   try {
     /* ------------- */
+    /*   Validation  */
+    /* ------------- */
+    const idNumber = Number(id);
+    if (isNaN(idNumber)) throw new Error("Invalid report id");
+
+    /* ------------- */
     /*   DB Query    */
     /* ------------- */
     await runDbQuery(db, `UPDATE UserReport SET reviewed = 1 WHERE id = ?`, [
