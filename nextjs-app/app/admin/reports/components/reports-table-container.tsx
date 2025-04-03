@@ -14,7 +14,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from "@/components/ui/table";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { apiCallerReviewReport } from "../../../api/report-system/review-report/caller";
@@ -48,14 +48,17 @@ export default function ReportsTableContainer({
   /* ---------------- */
   /*   Custom Logic   */
   /* ---------------- */
-  const filteredReportList =
-    filterStatus === "ALL"
-      ? reportList
-      : reportList.filter((report) =>
-          filterStatus === "REVIEWED"
-            ? report.reviewed === 1
-            : report.reviewed === 0
-        );
+  const filteredReportList = useMemo(
+    () =>
+      filterStatus === "ALL"
+        ? reportList
+        : reportList.filter((report) =>
+            filterStatus === "REVIEWED"
+              ? report.reviewed === 1
+              : report.reviewed === 0
+          ),
+    [reportList, filterStatus]
+  );
 
   /* ------------- */
   /*   Handlers    */
