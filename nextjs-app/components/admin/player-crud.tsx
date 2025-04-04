@@ -87,6 +87,38 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
     await sendBanRequest(id, "unban");
   };
 
+  const deletePlayer = async (steamId: number, discordId: number) => {
+    if (!confirm("Are you sure you want to delete this player?")) return;
+    setLoading(true);
+    try {
+      let endpoint = "";
+      let body = {};
+
+      if (discordId) {
+        endpoint = "/api/player/delete-by-discord-id";
+        body = { discordId };
+      } else if (steamId) {
+        endpoint = "/api/player/delete-by-steam-id";
+        body = { steamId };
+      } else {
+        throw new Error("No valid ID provided.");
+      }
+
+      const res = await fetch(endpoint, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify( body ),
+      });
+
+      if (!res.ok) throw new Error("Failed to delete the player.");
+
+      await fetchPlayers();
+    } catch (error) {
+      console.error("Error deleting the player.", error);
+    } finally {
+      setLoading(false);
+    }
+  }
   return (
     <div>
       <Card>
@@ -114,6 +146,7 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
                   <TableHeaderCell>Bad Behaviour Ban</TableHeaderCell>
                   <TableHeaderCell>Ban Player</TableHeaderCell>
                   <TableHeaderCell>Unban Player</TableHeaderCell>
+                  <TableHeaderCell>Delete Player</TableHeaderCell>
                 </tr>
               </TableHeader>
               <TableBody>
@@ -186,6 +219,14 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
                         onClick={() => handleUnban(player.steam_id)}
                       >
                         Unban Player
+                      </Button>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        disabled={loading}
+                        onClick={() => deletePlayer(player.steam_id, player.discord_id)}
+                      >
+                        Delete Player
                       </Button>
                     </TableCell>
                   </TableRow>
