@@ -8,10 +8,5 @@ export async function PUT(req: NextRequest) {
   }
 
   const { id } = await req.json();
-  if (!id === undefined) {
-    return NextResponse.json({ error: "Missing report id" }, { status: 400 });
-  }
-
-  const res = await setReviewUserReport({ id });
-  return NextResponse.json(res);
+  return NextResponse.json(await setReviewUserReport({ id }));
 }
