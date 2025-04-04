@@ -40,23 +40,23 @@ export async function createUserReport({
   /*   Initialization   */
   /* ------------------ */
   const db = await getDbInstance();
-  /* ------------- */
-  /*   Validation  */
-  /* ------------- */
-  if (!Object.values(ReportType).includes(type as ReportType)) {
-    throw new Error("Invalid report type.");
-  }
-  if (!user_steam_id || !other_player_steam_id || !type || !report) {
-    throw new Error("Missing required fields.");
-  }
-
-  if (report.length > 512) {
-    throw new Error("Report text exceeds 512 characters.");
-  }
-  if (match_id !== undefined && match_id !== null && (isNaN(match_id) || typeof match_id !== "number")) {
-    throw new Error("Match ID must be a valid number.");
-  }
   try {
+    /* ------------- */
+    /*   Validation  */
+    /* ------------- */
+    if (!Object.values(ReportType).includes(type as ReportType)) {
+      throw new Error("Invalid report type.");
+    }
+    if (!user_steam_id || !other_player_steam_id || !type || !report) {
+      throw new Error("Missing required fields.");
+    }
+
+    if (report.length > 512) {
+      throw new Error("Report text exceeds 512 characters.");
+    }
+    if (match_id !== undefined && match_id !== null && (isNaN(match_id) || typeof match_id !== "number")) {
+      throw new Error("Match ID must be a valid number.");
+    }
     /* ------------- */
     /*   DB Query    */
     /* ------------- */
