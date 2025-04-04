@@ -3,27 +3,21 @@ import { closeDatabase } from "@/db/initDatabase";
 import { NextResponse } from "next/server";
 import { PrimitiveServiceResponse } from "../common/types";
 import { getPrimitiveServiceErrorResponse, getSuccessfulServiceResponse, runDbQuery } from "../common/functions";
+import { ReportType } from "./common/type";
 
 
 /* --------- */
 /*   Types   */
 /* --------- */
 
-interface userReport {
+export interface userReport {
   user_steam_id: number;
   other_player_steam_id: number;
-  type: string;
+  type: ReportType;
   report: string;
   match_id: number;
 }
-/* --------- */
-/*   Enum    */
-/* --------- */
 
-enum ReportType {
-  GRIEF = "GRIEF",
-  BAD_BEHAVIOUR = "BAD BEHAVIOUR",
-}
 /**
  * Creates user report in the database.
  *
@@ -50,7 +44,7 @@ export async function createUserReport({
   /*   Validation  */
   /* ------------- */
   if (!Object.values(ReportType).includes(type as ReportType)) {
-    throw new Error("Invalid report id");
+    throw new Error("Invalid report type.");
   }
 
   try {

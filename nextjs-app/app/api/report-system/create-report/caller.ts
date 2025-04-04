@@ -1,15 +1,9 @@
 import { PrimitiveServiceResponse } from "@/app/services/common/types";
-import type { ReportType } from "../../../services/userReport/getUserReports";
 import axios from "axios";
+import { userReport } from "@/app/services/userReport/createUserReport";
 
 export const apiCallerCreateReports = async (
-    reportPayload: {
-        user_steam_id: string;
-        other_player_steam_id: string;
-        type: ReportType;
-        report: string;
-        match_id?: number;
-    }
+    reportPayload:userReport 
 ): Promise<PrimitiveServiceResponse> => {
     try {
         const response = await axios.put("/api/report-system/create-report", reportPayload);

@@ -6,6 +6,7 @@ import {
   getSuccessfulServiceResponse,
   runDbAll,
 } from "../common/functions";
+import { ReportType } from "./common/type";
 
 /* --------- */
 /*   Types   */
@@ -13,11 +14,6 @@ import {
 export enum UserReportReview {
   UNREVIEWED = 0,
   REVIEWED = 1,
-}
-
-export enum ReportType {
-  GRIEF = "GRIEF",
-  BAD_BEHAVIOUR = "BAD BEHAVIOUR",
 }
 
 export type UserReport = {
