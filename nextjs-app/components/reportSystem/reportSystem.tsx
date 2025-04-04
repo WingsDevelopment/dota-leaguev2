@@ -10,17 +10,25 @@ import {
 } from "../ui/modal";
 import { useState } from "react";
 import type { ReportType } from "../../app/services/userReport/getUserReports";
+import router from "next/router";
+import { apiCallerCreateReports } from "@/app/api/report-system/create-report/caller";
 
+/* ---------------*/
+/*   Interfaces   */
+/* ---------------*/
 export interface ReportSystem {
   userSteamId: string;
   otherPlayerSteamId: string;
 }
-interface ReportsFormValues {
+export interface ReportsFormValues {
   type: ReportType;
   matchId?: number;
   report: string;
 }
-// Uzece steamId/userId da znamo ko je koga reportao
+
+/* -------------------- */
+/*   Client Component   */
+/* -------------------- */
 export default function ReportSystem({
   userSteamId,
   otherPlayerSteamId,
@@ -39,33 +47,45 @@ export default function ReportSystem({
   });
 
   const handleReport = async (data: ReportsFormValues) => {
-    const confirmation = confirm(
-      "Are you sure you want to report this player?"
-    );
-    if (!confirmation) return;
+    if (!confirm("Are you sure you want to report this player?")) return;
+    const reportPayload = {
+      user_steam_id: userSteamId,
+      other_player_steam_id: otherPlayerSteamId,
+      type: data.type,
+      report: data.report,
+      match_id: data.matchId,
+    };
     try {
-      const res = await fetch("/api/report-system/create-report", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_steam_id: userSteamId,
-          other_player_steam_id: otherPlayerSteamId,
-          type: data.type,
-          report: data.report,
-          match_id: data.matchId,
-        }),
-      });
-      if (!res.ok) {
-        alert(`Player reported successfully.`);
-        throw new Error("Failed to submit the report.");
-      }
-      alert(`Player reported successfully.`);
-      setOpenModal(null);
+        apiCallerCreateReports(reportPayload);
+        alert("Player reported successfully");
     } catch (error) {
-      console.error("Failed to submit the report.");
-    } finally {
+      console.error("Failed to submit the report",error);
+    }finally{
       setOpenModal(null);
     }
+    // try {
+    //   const res = await fetch("/api/report-system/create-report", {
+    //     method: "PUT",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({
+    //       user_steam_id: userSteamId,
+    //       other_player_steam_id: otherPlayerSteamId,
+    //       type: data.type,
+    //       report: data.report,
+    //       match_id: data.matchId,
+    //     }),
+    //   });
+    //   if (!res.ok) {
+    //     alert(`Player reported successfully.`);
+    //     throw new Error("Failed to submit the report.");
+    //   }
+    //   alert(`Player reported successfully.`);
+    //   setOpenModal(null);
+    // } catch (error) {
+    //   console.error("Failed to submit the report.");
+    // } finally {
+    //   setOpenModal(null);
+    // }
   };
 
   const maxLength = 512;
@@ -168,3 +188,7 @@ export default function ReportSystem({
     </>
   );
 }
+function apiCallerCreateReport(reportId: any) {
+  throw new Error("Function not implemented.");
+}
+
