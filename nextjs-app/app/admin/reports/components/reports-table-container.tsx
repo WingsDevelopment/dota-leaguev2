@@ -14,78 +14,66 @@ import {
   TableHeaderCell,
   TableRow,
 } from "@/components/ui/table";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { apiCallerReviewReport } from "../../../api/report-system/review-report/caller";
+import type { UserReport } from "../../../services/userReport/getUserReports";
 
-type ReportType = "GRIEF" | "BAD BEHAVIOUR";
-type ReportStatus = "ALL" | "REVIEWED" | "UNREVIEWED"
+/* --------- */
+/*   Types   */
+/* --------- */
+type ReportStatus = "ALL" | "REVIEWED" | "UNREVIEWED";
 
-interface Report {
-  id: number,
-  reporter_name: string,
-  reported_name: string,
-  other_player_steam_id: number,
-  type: string,
-  match_id: number,
-  report: number,
-  reviewed: number,
-  time: string
-}
+/* -------------------- */
+/*   Client Component   */
+/* -------------------- */
+export default function ReportsTableContainer({
+  reportList,
+}: {
+  reportList: UserReport[];
+}) {
+  /* ------------- */
+  /*   Metadata    */
+  /* ------------- */
+  const router = useRouter();
 
-export default function ReportsCrud({ reportList }: { reportList: Report[] }) {
-  const [reports, setReports] = useState(reportList);
+  /* --------------- */
+  /*   Local State   */
+  /* --------------- */
   const [filterStatus, setFilterStatus] = useState<ReportStatus | "ALL">(
     "UNREVIEWED"
   );
-  const [loading, setLoading] = useState(false);
 
-  const fetchReports = async () => {
-    try {
-      const res = await fetch("/api/report-system/get-reports");
-      if (!res.ok) throw new Error("Failed to fetch reports");
-      const updatedReports = await res.json();
-      setReports(updatedReports.data);
-    } catch (error) {
-      console.error("Error fetching reports", error);
-    }
-  };
+  /* ---------------- */
+  /*   Custom Logic   */
+  /* ---------------- */
+  const filteredReportList = useMemo(
+    () =>
+      filterStatus === "ALL"
+        ? reportList
+        : reportList.filter((report) =>
+            filterStatus === "REVIEWED"
+              ? report.reviewed === 1
+              : report.reviewed === 0
+          ),
+    [reportList, filterStatus]
+  );
 
-  // Pass gameId directly instead of using an index.
-
-
+  /* ------------- */
+  /*   Handlers    */
+  /* ------------- */
   const handleSolve = async (reportId: number) => {
-    const confirmation = confirm("Are you sure ?");
-    if (!confirmation) return;
-    if (!reportId) {
-      return alert("Invalid Report ID")
-    }
-    setLoading(true);
-    try {
-      const res = await fetch("/api/report-system/review-report", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: reportId }),
-      });
-      if (!res.ok) {
-        throw new Error("Failed to solve the report!");
-      }
-      fetchReports();
-    } catch (error) {
-      console.error("Failed to solve the report!", error);
-    } finally {
-      setLoading(false);
-    }
+    if (!confirm("Are you sure ?")) return;
+
+    apiCallerReviewReport(reportId).then(() => {
+      router.refresh();
+    });
   };
 
-  const filteredReportList =
-    filterStatus === "ALL"
-      ? reports
-      : reports.filter((report) =>
-        filterStatus === "REVIEWED"
-          ? report.reviewed === 1
-          : report.reviewed === 0
-      );
-
+  /* ------- */
+  /*   JSX   */
+  /* ------- */
   return (
     <div>
       <Card>
@@ -94,7 +82,8 @@ export default function ReportsCrud({ reportList }: { reportList: Report[] }) {
             <h1 className="text-3xl font-bold mb-4">Player Reports</h1>
           </CardTitle>
           <CardDescription>
-            After reviewing the game and taking appropriate action, you can resolve the report.
+            After reviewing the game and taking appropriate action, you can
+            resolve the report.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -136,29 +125,26 @@ export default function ReportsCrud({ reportList }: { reportList: Report[] }) {
                   <TableRow key={report.id}>
                     <TableCell>{report.id}</TableCell>
                     <TableCell>{report.reporter_name}</TableCell>
-                    <TableCell>
-                      {report.reported_name}
-                    </TableCell>
+                    <TableCell>{report.reported_name}</TableCell>
                     <TableCell>{report.type}</TableCell>
-                    <TableCell>{report.match_id !== null ? report.match_id : "Match ID is not provided."}</TableCell>
-                    <TableCell>{report.report}</TableCell>
-                    <TableCell>{report.reviewed === 1 ? "Reviewed" : "Unreviewed"}</TableCell>
                     <TableCell>
-                      {report.time}
+                      {report.match_id !== null
+                        ? report.match_id
+                        : "Match ID is not provided."}
                     </TableCell>
+                    <TableCell>{report.report}</TableCell>
                     <TableCell>
-                      {
-                        report.reviewed === 0 ? (
-                          <Button
-                            disabled={loading}
-                            onClick={() => handleSolve(report.id)}
-                          >
-                            Solve
-                          </Button>
-                        ) : (
-                          <></>
-                        )
-                      }
+                      {report.reviewed === 1 ? "Reviewed" : "Unreviewed"}
+                    </TableCell>
+                    <TableCell>{report.time}</TableCell>
+                    <TableCell>
+                      {report.reviewed === 0 ? (
+                        <Button onClick={() => handleSolve(report.id)}>
+                          Solve
+                        </Button>
+                      ) : (
+                        <></>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

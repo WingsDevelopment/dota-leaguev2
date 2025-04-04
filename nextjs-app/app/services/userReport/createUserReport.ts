@@ -1,53 +1,83 @@
 import { getDbInstance } from "@/db/utils";
 import { closeDatabase } from "@/db/initDatabase";
 import { NextResponse } from "next/server";
+import { PrimitiveServiceResponse } from "../common/types";
+import { getPrimitiveServiceErrorResponse, getSuccessfulServiceResponse, runDbQuery } from "../common/functions";
+import { ReportType } from "./common/type";
 
-interface userReport {
-    user_steam_id: number;
-    other_player_steam_id: number;
-    type: string;
-    report: string;
-    match_id: number;
+
+/* --------- */
+/*   Types   */
+/* --------- */
+
+export interface userReport {
+  user_steam_id: number;
+  other_player_steam_id: number;
+  type: ReportType;
+  report: string;
+  match_id: number;
 }
 
-enum ReportType {
-    GRIEF = "GRIEF",
-    BAD_BEHAVIOUR = "BAD BEHAVIOUR",
-}
-
-export async function createUserReport({ user_steam_id, other_player_steam_id, type, report, match_id }: userReport) {
-    const db = await getDbInstance();
-    console.log(user_steam_id, other_player_steam_id, type, report, match_id)
-
+/**
+ * Creates user report in the database.
+ *
+ * @async
+ * @function createUserReport
+ * @param {userReport} params - The object containing the report identifiers.
+ * @returns {Promise<PrimitiveServiceResponse>} A promise that resolves to a primitive service response.
+ *
+ * @example
+ * const response = await setReviewUserReport({ id: "123" });
+ */
+export async function createUserReport({
+  user_steam_id,
+  other_player_steam_id,
+  type,
+  report,
+  match_id,
+}: userReport): Promise<PrimitiveServiceResponse> {
+  /* ------------------ */
+  /*   Initialization   */
+  /* ------------------ */
+  const db = await getDbInstance();
+  try {
+    /* ------------- */
+    /*   Validation  */
+    /* ------------- */
     if (!Object.values(ReportType).includes(type as ReportType)) {
-        return NextResponse.json(
-            { error: "Invalid report type." },
-            { status: 400 }
-        );
+      throw new Error("Invalid report type.");
     }
-    try {
-        await new Promise((resolve, reject) => {
-            db.run(
-                `INSERT INTO UserReport (steam_id, other_player_steam_id, type, report, match_id) VALUES (?, ?, ?, ?, ?)`,
-                [user_steam_id, other_player_steam_id, type, report, match_id],
-                function (err) {
-                    if (err) return reject(err);
-                    resolve(this.lastID);
-                }
-            );
-        });
-
-        closeDatabase(db);
-        return NextResponse.json({
-            sucess: true, message: "Report added.",
-        });
-
-    } catch (error) {
-        closeDatabase(db);
-        console.error("Error adding the report:", error);
-        return NextResponse.json(
-            { error: `Error adding the report: ${error}` },
-            { status: 500 }
-        );
+    if (!user_steam_id || !other_player_steam_id || !type || !report) {
+      throw new Error("Missing required fields.");
     }
+
+    if (report.length > 512) {
+      throw new Error("Report text exceeds 512 characters.");
+    }
+    if (match_id !== undefined && match_id !== null && (isNaN(match_id) || typeof match_id !== "number")) {
+      throw new Error("Match ID must be a valid number.");
+    }
+    /* ------------- */
+    /*   DB Query    */
+    /* ------------- */
+    await runDbQuery(db, `INSERT INTO UserReport (steam_id, other_player_steam_id, type, report, match_id) VALUES (?, ?, ?, ?, ?)`, [
+      user_steam_id, other_player_steam_id, type, report, match_id,
+    ]);
+    /* ---------------- */
+    /*   Return Data    */
+    /* ---------------- */
+    return getSuccessfulServiceResponse({
+      message: "Report successfully inserted.",
+    });
+  } catch (error) {
+    /* -------- */
+    /*   Error  */
+    /* -------- */
+    return getPrimitiveServiceErrorResponse(error, "Error inserting the review.");
+  } finally {
+    /* -------- */
+    /*  Cleanup */
+    /* -------- */
+    closeDatabase(db)
+  }
 }
