@@ -1,7 +1,7 @@
 import { getDbInstance } from "@/db/utils";
 import { closeDatabase } from "@/db/initDatabase";
 import { PrimitiveServiceResponse } from "../common/types";
-import { getSuccessfulServiceResponse, runDbAll, runDbQuery } from "../common/functions";
+import { getPrimitiveServiceErrorResponse, getSuccessfulServiceResponse, runDbAll, runDbQuery } from "../common/functions";
 
 /* --------- */
 /*   Types   */
@@ -80,7 +80,10 @@ export async function CreatePlayers({ steam_id, mmr, name, discord_id }: PlayerD
         /* -------- */
         /*   Error  */
         /* -------- */
-        throw new Error("Error creating player into register table.")
+                return getPrimitiveServiceErrorResponse(
+                    error,
+                    "Error creating player into register table."
+                );
     } finally {
         /* -------- */
         /*  Cleanup */

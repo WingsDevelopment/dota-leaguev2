@@ -16,14 +16,12 @@ import {
   TableHeaderCell,
   TableRow,
 } from "@/components/ui/table";
-import axios from "axios";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
 
-type VouchStatus = "PENDING" | "APPROVED" | "DECLINED";
+export type VouchStatus = "PENDING" | "APPROVED" | "DECLINED";
 
-interface vouch {
+export interface vouch {
   id: number;
   status: VouchStatus;
   steam_id: number;

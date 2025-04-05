@@ -3,7 +3,7 @@ import { getDbInstance } from "@/db/utils";
 import { closeDatabase } from "@/db/initDatabase";
 import { PrimitiveServiceResponse } from "../common/types";
 import { isUserAdmin } from "@/app/common/constraints";
-import { getSuccessfulServiceResponse, runDbAll, runDbQuery } from "../common/functions";
+import { getPrimitiveServiceErrorResponse, getSuccessfulServiceResponse, runDbAll, runDbQuery } from "../common/functions";
 
 /* --------- */
 /*   Types   */
@@ -134,7 +134,11 @@ export async function ApprovePlayers({ registrationId, requestType }: RegisterPl
         /* -------- */
         /*   Error  */
         /* -------- */
-        throw new Error("Error approving players.");
+        return getPrimitiveServiceErrorResponse(
+            error,
+            "Error approving players."
+        );
+
     } finally {
         /* -------- */
         /*  Cleanup */

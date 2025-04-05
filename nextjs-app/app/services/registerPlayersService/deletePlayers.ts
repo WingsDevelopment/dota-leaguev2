@@ -1,7 +1,7 @@
 import { getDbInstance } from "@/db/utils";
 import { closeDatabase } from "@/db/initDatabase";
 import { PrimitiveServiceResponse } from "../common/types";
-import { getSuccessfulServiceResponse, runDbAll, runDbQuery } from "../common/functions";
+import { getPrimitiveServiceErrorResponse, getSuccessfulServiceResponse, runDbAll, runDbQuery } from "../common/functions";
 
 /* --------- */
 /*   Types   */
@@ -60,7 +60,10 @@ export async function DeletePlayers({ steam_id }: DeletePlayer): Promise<Primiti
         /* -------- */
         /*   Error  */
         /* -------- */
-        throw new Error("Failed deleting the player.")
+        return getPrimitiveServiceErrorResponse(
+            error,
+            "Failed deleting the player."
+        );
     } finally {
         /* -------- */
         /*  Cleanup */
