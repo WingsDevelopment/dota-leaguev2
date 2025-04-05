@@ -1,80 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDbInstance } from "@/db/utils";
-import { isUserAdmin } from "@/app/common/constraints";
 import { auth, ExtendedUser } from "../../../../auth";
-import { closeDatabase } from "@/db/initDatabase";
+
+import { CreatePlayers } from "@/app/services/registerPlayersService/createPlayers";
 
 export async function PUT(req: NextRequest) {
   const { steam_id, mmr } = await req.json();
   const session = await auth();
   const { discordId, name } = (session?.user || {}) as ExtendedUser;
-
-  if (!steam_id || !mmr) {
-    return NextResponse.json(
-      { error: "Missing required fields" },
-      { status: 400 }
-    );
+  if (!name || !discordId) {
+    alert("Missing Discord user info. Please re-login.");
+    return;
   }
-
-  const db = await getDbInstance();
-  try {
-    await new Promise<void>((resolve, reject) => {
-      db.run(
-        `CREATE TABLE IF NOT EXISTS RegisterPlayers (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          status TEXT NOT NULL,
-          steam_id TEXT NOT NULL,
-          discord_id TEXT NOT NULL,
-          name TEXT NOT NULL,
-          mmr INTEGER NOT NULL
-        )`,
-        function (err) {
-          if (err) return reject(err);
-          resolve();
-        }
-      );
-    });
-
-    // 1️⃣ Check if steam_id exists in Players table
-    const playerExists = await new Promise((resolve, reject) => {
-      db.get(
-        "SELECT id FROM Players WHERE steam_id = ?",
-        [steam_id],
-        (err, row) => {
-          if (err) return reject(err);
-          resolve(row);
-        }
-      );
-    });
-
-    if (playerExists) {
-      closeDatabase(db);
-      return NextResponse.json({
-        message: "Player already exists in Players table, no action needed.",
-      });
-    }
-
-    // 2️⃣ Insert new player into RegisterPlayers table
-    await new Promise((resolve, reject) => {
-      db.run(
-        `INSERT INTO RegisterPlayers (status, steam_id, discord_id, name, mmr) VALUES (?, ?, ?, ?, ?)`,
-        ["PENDING", steam_id, discordId, name, 1000],
-        function (err) {
-          if (err) return reject(err);
-          resolve(this.lastID);
-        }
-      );
-    });
-    closeDatabase(db);
-    return NextResponse.json({
-      message: "Player added to RegisterPlayers with status PENDING.",
-    });
-  } catch (error) {
-    closeDatabase(db);
-    console.error("Error processing request:", error);
-    return NextResponse.json(
-      { error: `Internal Server Error ${error}` },
-      { status: 500 }
-    );
-  }
+  const res = await CreatePlayers({ steam_id, mmr, name, discord_id:discordId });
+    return NextResponse.json(res);
 }

@@ -11,12 +11,6 @@ export async function POST(req: NextRequest) {
   }
 
   const { registrationId, requestType } = await req.json();
-  if (!registrationId || !requestType) {
-    return NextResponse.json(
-      { error: "Missing registrationId or requestType" },
-      { status: 400 }
-    );
-  }
   
   const res = await ApprovePlayers({ registrationId, requestType });
   return NextResponse.json(res);
