@@ -28,14 +28,14 @@ export async function CreatePlayers({ steam_id, mmr, name, discord_id }: PlayerD
     /*   Initialization   */
     /* ------------------ */
     const db = await getDbInstance();
-    /* ------------- */
-    /*   Validation  */
-    /* ------------- */
-    if (!steam_id || !mmr) {
-        throw new Error("Missing steam_id or mmr.")
-    }
 
     try {
+        /* ------------- */
+        /*   Validation  */
+        /* ------------- */
+        if (!steam_id || !mmr) {
+            throw new Error("Missing steam_id or mmr.")
+        }
         /* ------------- */
         /*   DB Query    */
         /* ------------- */

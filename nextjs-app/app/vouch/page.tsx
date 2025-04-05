@@ -34,21 +34,7 @@ export default function VouchRequest() {
 
     try {
       await apiCallerCreatePlayers({steam_id: data.steam_id,mmr: data.mmr})
-      // const res = await fetch("/api/register-players/register-players-create", {
-      //   method: "PUT",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({
-      //     steam_id: data.steam_id,
-      //     mmr: data.mmr,
-      //     name: session?.user?.name,
-      //     discord_id: session?.user?.id,
-      //   }),
-      // });
-      // if (!res.ok) {
-      //   throw new Error("Could not register the player");
-      // }
       reset();
-
       alert("Success, ping admins for approval");
     } catch (error) { }
   };
