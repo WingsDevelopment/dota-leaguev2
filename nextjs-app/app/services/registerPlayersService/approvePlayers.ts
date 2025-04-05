@@ -1,133 +1,144 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDbInstance } from "@/db/utils";
 import { closeDatabase } from "@/db/initDatabase";
+import { PrimitiveServiceResponse } from "../common/types";
+import { isUserAdmin } from "@/app/common/constraints";
+import { getSuccessfulServiceResponse, runDbAll, runDbQuery } from "../common/functions";
 
-export interface RegisterPlayers{
-    registrationId:number
-    requestType:string
+/* --------- */
+/*   Types   */
+/* --------- */
+export interface RegisterPlayers {
+    registrationId: number
+    requestType: string
 }
+/**
+ * Approves players who registered.
+ *
+ * @async
+ * @function ApprovePlayers
+ * @param {RegisterPlayers} params - The object containing the identifiers for approving or disapproving player.
+ * @returns {Promise<PrimitiveServiceResponse>} A promise that resolves to a primitive service response.
+ *
+ * @example 
+ * const response = await ApprovePlayers({ registrationId: 1 , requestType "approve" });
+ */
+export async function ApprovePlayers({ registrationId, requestType }: RegisterPlayers): Promise<PrimitiveServiceResponse> {
+    /* ------------------ */
+    /*   Initialization   */
+    /* ------------------ */
+    const db = await getDbInstance();
+    try {
+        /* ------------- */
+        /*   Validation  */
+        /* ------------- */
+        if (!isUserAdmin()) {
+            throw new Error("User is not authorized for this action.");
+        }
 
-export async function ApprovePlayers({registrationId, requestType}:RegisterPlayers) {
+        if (!registrationId || !requestType) {
+            throw new Error("Missing registrationId or requestType.");
+        }
 
-  const db = await getDbInstance();
-  try {
-    if (requestType === "decline") {
-      await new Promise((resolve, reject) => {
-        db.run(
-          "UPDATE RegisterPlayers SET status = 'DECLINED' WHERE id = ?",
-          [registrationId],
-          function (err) {
-            if (err) reject(err);
-            resolve(this.changes);
-          }
-        );
-      });
-      db.close();
-      return NextResponse.json({ message: "Registration declined." });
-    }
+        /* ------------- */
+        /*   DB Query    */
+        /* ------------- */
+        if (requestType === "decline") {
+            await runDbQuery(db, "UPDATE RegisterPlayers SET status = 'DECLINED' WHERE id = ?", [
+                registrationId
+            ]);
+            /* ---------------- */
+            /*   Return Data    */
+            /* ---------------- */
+            return getSuccessfulServiceResponse({
+                message: "Player declined.",
+            });
+        }
 
-    if (requestType === "approve") {
+        if (requestType === "approve") {
+            /* ----------------------- */
+            /*   Begins Transaction    */
+            /* ----------------------- */
+            await new Promise((resolve, reject) => {
+                db.run("BEGIN TRANSACTION", (err) => {
+                    if (err) return reject(err);
+                    resolve(null);
+                });
+            });
+            /* ------------- */
+            /*   DB Query    */
+            /* ------------- */
+            const registration: any = await runDbAll(db, "SELECT * FROM RegisterPlayers WHERE id = ? AND status = 'PENDING'", [
+                registrationId
+            ]);
 
-      await new Promise((resolve, reject) => {
-        db.run("BEGIN TRANSACTION", (err) => {
-          if (err) return reject(err);
-          resolve(null);
-        });
-      });
-      // Check if the registration exists and is pending
-      const registration: any = await new Promise((resolve, reject) => {
-        db.get(
-          "SELECT * FROM RegisterPlayers WHERE id = ? AND status = 'PENDING'",
-          [registrationId],
-          (err, row) => {
-            if (err) reject(err);
-            resolve(row);
-          }
-        );
-      });
-
-      if (!registration) {
-        await new Promise((resolve, reject) => db.run("ROLLBACK", () => resolve(null)));
-        return NextResponse.json(
-          { error: "Registration not found or already processed" },
-          { status: 404 }
-        );
-      }
-
-      // Check if the player already exists in Players
-      const playerExists: any = await new Promise((resolve, reject) => {
-        db.get(
-          "SELECT id FROM Players WHERE steam_id = ?",
-          [registration.steam_id],
-          (err, row) => {
-            if (err) reject(err);
-            resolve(row);
-          }
-        );
-      });
-
-      if (playerExists) {
-        // Update the registration status to APPROVED
-        await new Promise((resolve, reject) => {
-          db.run(
-            "UPDATE RegisterPlayers SET status = 'APPROVED' WHERE id = ?",
-            [registrationId],
-            function (err) {
-              if (err) reject(err);
-              resolve(this.changes);
+            if (!registration[0]) {
+                /* ------------------------------- */
+                /*   Rollback if already processed */
+                /* ------------------------------- */
+                await new Promise((resolve, reject) => db.run("ROLLBACK", () => resolve(null)));
+                throw new Error("Registration not found or already processed");
             }
-          );
-        });
 
-        await new Promise((resolve, reject) => db.run("COMMIT", () => resolve(null)));
-        return NextResponse.json({
-          message: "Player already exists in Players, registration approved.",
-        });
-      }
+            /* ------------- */
+            /*   DB Query    */
+            /* ------------- */
+            const playerExists: any = await runDbAll(db, "SELECT id FROM Players WHERE steam_id = ?", [
+                registration[0].steam_id
+            ]);
 
-      // Insert into Players with mmr 1000
-      await new Promise((resolve, reject) => {
-        db.run(
-          "INSERT INTO Players (discord_id, steam_id, name, mmr, vouched_date) VALUES (?, ?, ?, 1000, ?)",
-          [registration.discord_id, registration.steam_id, registration.name, new Date().toISOString()],
-          function (err) {
-            if (err) reject(err);
-            resolve(this.lastID);
-          }
-        );
-      });
+            if (playerExists && playerExists.length > 0) {
+                /* ------------- */
+                /*   DB Query    */
+                /* ------------- */
+                await runDbQuery(db, "UPDATE RegisterPlayers SET status = 'APPROVED' WHERE id = ?", [
+                    registrationId
+                ]);
 
-      // Update the registration status to APPROVED
-      await new Promise((resolve, reject) => {
-        db.run(
-          "UPDATE RegisterPlayers SET status = 'APPROVED' WHERE id = ?",
-          [registrationId],
-          function (err) {
-            if (err) reject(err);
-            resolve(this.changes);
-          }
-        );
-      });
+                await new Promise((resolve, reject) => db.run("COMMIT", () => resolve(null)));
+                /* ---------------- */
+                /*   Return Data    */
+                /* ---------------- */
+                return getSuccessfulServiceResponse({
+                    message: "Player already exists and registration approved.",
+                });
+            }
+            /* ------------- */
+            /*   DB Query    */
+            /* ------------- */
+            await runDbQuery(db, "INSERT INTO Players (discord_id, steam_id, name, mmr, vouched_date) VALUES (?, ?, ?, 1000, ?)", [
+                registration[0].discord_id, registration[0].steam_id, registration[0].name, new Date().toISOString()
+            ]);
+            /* ------------- */
+            /*   DB Query    */
+            /* ------------- */
+            await runDbQuery(db, "UPDATE RegisterPlayers SET status = 'APPROVED' WHERE id = ?", [
+                registrationId
+            ]);
 
-      await new Promise((resolve, reject) => db.run("COMMIT", () => resolve(null)));
+            await new Promise((resolve, reject) => db.run("COMMIT", () => resolve(null)));
+            /* ---------------- */
+            /*   Return Data    */
+            /* ---------------- */
+            return getSuccessfulServiceResponse({
+                message: "Player successfully approved.",
+            });
+        }
 
-      return NextResponse.json({
-        message: "Player approved and added to Players.",
-      });
+        throw new Error("Invalid request Type");
+    } catch (error) {
+        /* --------------------- */
+        /*   Rollback if failed  */
+        /* --------------------- */
+        await new Promise((resolve, reject) => db.run("ROLLBACK", () => resolve(null)));
+        /* -------- */
+        /*   Error  */
+        /* -------- */
+        throw new Error("Error approving players.");
+    } finally {
+        /* -------- */
+        /*  Cleanup */
+        /* -------- */
+        closeDatabase(db);
     }
-
-    return NextResponse.json(
-      { error: "Invalid requestType" },
-      { status: 400 }
-    );
-  } catch (error) {
-    console.error("Error processing registration:", error);
-    await new Promise((resolve, reject) => db.run("ROLLBACK", () => resolve(null)));
-    return NextResponse.json(
-      { error: `Internal Server Error ${error}` },
-      { status: 500 }
-    );
-  }finally{
-    closeDatabase(db);
-  }
 }

@@ -1,4 +1,6 @@
 "use client";
+import { apiCallerApprovePlayers } from "@/app/api/register-players/register-players-approve/caller";
+import { PrimitiveServiceResponse } from "@/app/services/common/types";
 import {
   Card,
   CardContent,
@@ -14,6 +16,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from "@/components/ui/table";
+import axios from "axios";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
@@ -47,34 +50,22 @@ export default function RegisterCrud({
       const updatedVouchList = await res.json();
 
       setVouchItems(updatedVouchList.registerPlayers);
-    } catch (error) {}
+    } catch (error) { }
   };
-  const handleRequest = async (id: number, approveOrDecline: string) => {
+  const handleRequest = async (registrationId: number, requestType: string) => {
     setLoading(true);
-    const requestType = approveOrDecline;
     const confirmed = confirm(
       `Are you sure you want to ${requestType} this player?`
     );
-    if (!confirmed) return;
-    const registrationId = id;
+    if (!confirmed) {
+      setLoading(false);
+      return;
+    }
     try {
-      const response = await fetch(
-        "/api/register-players/register-players-approve",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ registrationId, requestType }),
-        }
-      );
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to approve");
-      }
-
+      apiCallerApprovePlayers({ registrationId, requestType })
       alert(`Player ${requestType}ed successfully`);
       fetchVouch();
+
     } catch (error) {
       console.error("Error approving player:", error);
       alert("Error approving player");
