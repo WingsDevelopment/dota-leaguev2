@@ -13,7 +13,6 @@ export async function banUnbanPlayer({
   banType,
 }: BanUnbanParams) {
   const db = await getDbInstance();
-  console.log({ steam_id });
 
   try {
     if (action === "unban") {
