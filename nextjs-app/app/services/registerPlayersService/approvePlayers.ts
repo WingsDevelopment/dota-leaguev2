@@ -32,10 +32,6 @@ export async function setApprovePlayers({ registrationId, requestType }: Registe
         /* ------------- */
         /*   Validation  */
         /* ------------- */
-        if (!isUserAdmin()) {
-            throw new Error("User is not authorized for this action.");
-        }
-
         if (!registrationId || requestType !== "approve") {
             throw new Error("Missing registrationId or invalid requestType.");
         }
@@ -109,7 +105,7 @@ export async function setApprovePlayers({ registrationId, requestType }: Registe
         /* ------------- */
         /*   Rollback    */
         /* ------------- */
-        await new Promise((resolve, reject) => db.run("ROLLBACK", () => resolve(null)));
+        await runDbRollback(db)
         /* ---------- */
         /*   Error    */
         /* ---------- */

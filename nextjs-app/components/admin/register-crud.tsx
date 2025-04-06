@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/table";
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
+import {useRouter} from "next/navigation";
 
 import { useState } from "react";
 
@@ -39,6 +40,7 @@ export default function RegisterCrud({
 }: {
   registerList: vouch[];
 }) {
+  const router= useRouter()
   const [vouchItems, setVouchItems] = useState(registerList);
   const [filterStatus, setFilterStatus] = useState<VouchStatus | "ALL">(
     "PENDING"
@@ -57,12 +59,15 @@ export default function RegisterCrud({
     try {
       if (requestType === "approve") {
 
-        await apiCallersetApprovePlayers({ registrationId, requestType })
+        await apiCallersetApprovePlayers({ registrationId, requestType }).then(() => {
+          router.refresh();
+        });
       } else if (requestType === "decline") {
-        await apiCallersetDeclinePlayers({ registrationId, requestType })
+        await apiCallersetDeclinePlayers({ registrationId, requestType }).then(() => {
+          router.refresh();
+        });
       }
       alert(`Player ${requestType}ed successfully`);
-      window.location.reload(); //temporary fix
 
     } catch (error) {
       alert("Error approving player");

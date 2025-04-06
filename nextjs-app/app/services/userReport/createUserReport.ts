@@ -15,7 +15,7 @@ export interface userReport {
   other_player_steam_id: number;
   type: ReportType;
   report: string;
-  match_id: number | null;
+  match_id?: number;
 }
 
 /**

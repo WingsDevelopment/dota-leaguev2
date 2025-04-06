@@ -32,9 +32,6 @@ export async function setDeclinePlayers({ registrationId, requestType }: Registe
         /* ------------- */
         /*   Validation  */
         /* ------------- */
-        if (!isUserAdmin()) {
-            throw new Error("User is not authorized for this action.");
-        }
 
         if (!registrationId || requestType !== "decline") {
             throw new Error("Missing registrationId or invalid requestType.");

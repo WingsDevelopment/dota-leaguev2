@@ -23,7 +23,7 @@ export interface PlayerDataVouch {
  * @example 
  * const response = await CreatePlayers({ steam_id: 123123 , mmr: 1000 , name: "Marko" , discord_id: 123123 });
  */
-export async function CreatePlayers({ steam_id, mmr, name, discord_id }: PlayerDataVouch): Promise<PrimitiveServiceResponse> {
+export async function CreateRegisterPlayers({ steam_id, mmr, name, discord_id }: PlayerDataVouch): Promise<PrimitiveServiceResponse> {
     /* ------------------ */
     /*   Initialization   */
     /* ------------------ */
