@@ -1,5 +1,7 @@
 "use client";
-import { apiCallerApprovePlayers } from "@/app/api/register-players/register-players-approve/caller";
+import { apiCallersetApprovePlayers } from "@/app/api/register-players/register-players-approve/caller";
+import { apiCallersetDeclinePlayers } from "@/app/api/register-players/register-players-decline/caller";
+import { apiCallerGetReports } from "@/app/api/report-system/get-reports/caller";
 import { PrimitiveServiceResponse } from "@/app/services/common/types";
 import {
   Card,
@@ -16,7 +18,9 @@ import {
   TableHeaderCell,
   TableRow,
 } from "@/components/ui/table";
+import { revalidatePath } from "next/cache";
 import Link from "next/link";
+
 import { useState } from "react";
 
 export type VouchStatus = "PENDING" | "APPROVED" | "DECLINED";
@@ -41,34 +45,27 @@ export default function RegisterCrud({
   );
   const [loading, setLoading] = useState(false);
 
-  const fetchVouch = async () => {
-    try {
-      const res = await fetch("/api/register-players/register-players-read");
-      if (!res.ok) throw new Error("Failed to fetch vouch list");
-      const updatedVouchList = await res.json();
-
-      setVouchItems(updatedVouchList.registerPlayers);
-    } catch (error) { }
-  };
   const handleRequest = async (registrationId: number, requestType: string) => {
-    setLoading(true);
+
     const confirmed = confirm(
       `Are you sure you want to ${requestType} this player?`
     );
     if (!confirmed) {
-      setLoading(false);
+
       return;
     }
     try {
-      apiCallerApprovePlayers({ registrationId, requestType })
+      if (requestType === "approve") {
+
+        await apiCallersetApprovePlayers({ registrationId, requestType })
+      } else if (requestType === "decline") {
+        await apiCallersetDeclinePlayers({ registrationId, requestType })
+      }
       alert(`Player ${requestType}ed successfully`);
-      fetchVouch();
+      window.location.reload(); //temporary fix
 
     } catch (error) {
-      console.error("Error approving player:", error);
       alert("Error approving player");
-    } finally {
-      setLoading(false);
     }
   };
 

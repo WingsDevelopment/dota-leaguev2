@@ -26,7 +26,6 @@ export async function DeletePlayers({ steam_id }: DeletePlayer): Promise<Primiti
     /* ------------------ */
     const db = await getDbInstance();
     let totalChanges = 0
-    console.log(steam_id, "STEAM ID")
     try {
         /* ------------- */
         /*   Validation  */
@@ -49,12 +48,10 @@ export async function DeletePlayers({ steam_id }: DeletePlayer): Promise<Primiti
                 message: "Player record deleted successfully.",
             });
         } else {
-            /* ---------------- */
-            /*   Return Data    */
-            /* ---------------- */
-            return getSuccessfulServiceResponse({
-                message: "Player record not found.",
-            });
+            /* -------- */
+            /*   Error  */
+            /* -------- */
+            throw new Error("Player record not found.")
         }
     } catch (error) {
         /* -------- */

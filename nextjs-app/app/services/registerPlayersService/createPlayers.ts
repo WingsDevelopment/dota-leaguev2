@@ -9,8 +9,8 @@ import { getPrimitiveServiceErrorResponse, getSuccessfulServiceResponse, runDbAl
 export interface PlayerDataVouch {
     steam_id: number
     mmr: number
-    name: string
-    discord_id: string
+    name: string | null | undefined
+    discord_id: string | undefined
 }
 /**
  * Approves players who registered.
@@ -33,21 +33,10 @@ export async function CreatePlayers({ steam_id, mmr, name, discord_id }: PlayerD
         /* ------------- */
         /*   Validation  */
         /* ------------- */
-        if (!steam_id || !mmr) {
-            throw new Error("Missing steam_id or mmr.")
+        if (!steam_id || !mmr || !name || !discord_id) {
+            throw new Error("Missing data fields.")
         }
-        /* ------------- */
-        /*   DB Query    */
-        /* ------------- */
-        await runDbQuery(db, `CREATE TABLE IF NOT EXISTS RegisterPlayers (
-             id INTEGER PRIMARY KEY AUTOINCREMENT,
-             status TEXT NOT NULL,
-             steam_id TEXT NOT NULL,
-             discord_id TEXT NOT NULL,
-             name TEXT NOT NULL,
-             mmr INTEGER NOT NULL
-           )`, [
-        ]);
+
         /* ------------- */
         /*   DB Query    */
         /* ------------- */
@@ -59,9 +48,7 @@ export async function CreatePlayers({ steam_id, mmr, name, discord_id }: PlayerD
             /* ---------------- */
             /*   Return Data    */
             /* ---------------- */
-            return getSuccessfulServiceResponse({
-                message: "Player already exists in Players table, no action needed.",
-            });
+            throw new Error("Player already exists in Players table, no action needed.")
         }
         /* ------------- */
         /*   DB Query    */
@@ -80,10 +67,10 @@ export async function CreatePlayers({ steam_id, mmr, name, discord_id }: PlayerD
         /* -------- */
         /*   Error  */
         /* -------- */
-                return getPrimitiveServiceErrorResponse(
-                    error,
-                    "Error creating player into register table."
-                );
+        return getPrimitiveServiceErrorResponse(
+            error,
+            "Error creating player into register table."
+        );
     } finally {
         /* -------- */
         /*  Cleanup */

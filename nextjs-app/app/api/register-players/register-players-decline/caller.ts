@@ -4,11 +4,11 @@ import { userReport } from "@/app/services/userReport/createUserReport";
 import { RegisterPlayers } from "@/app/services/registerPlayersService/approvePlayers";
 
 
-export const apiCallersetApprovePlayers = async (
+export const apiCallersetDeclinePlayers = async (
     { registrationId, requestType }: RegisterPlayers
 ): Promise<PrimitiveServiceResponse> => {
     try {
-        const response = await axios.post("/api/register-players/register-players-approve", { registrationId, requestType });
+        const response = await axios.post("/api/register-players/register-players-decline", { registrationId, requestType });
         const data = response.data as PrimitiveServiceResponse;
         if (!data.success) throw new Error(data.message);
         return data;

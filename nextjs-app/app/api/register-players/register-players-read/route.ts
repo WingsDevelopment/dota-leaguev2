@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ReadPlayers } from "@/app/services/registerPlayersService/readPlayers";
+import { getRegisterPlayers } from "@/app/services/registerPlayersService/readPlayers";
 
 export async function GET() {
-    const res = await ReadPlayers();
+    const res = await getRegisterPlayers();
     return NextResponse.json(res);
 }

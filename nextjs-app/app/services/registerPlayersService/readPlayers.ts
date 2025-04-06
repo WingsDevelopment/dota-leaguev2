@@ -15,18 +15,12 @@ import { vouch } from "@/components/admin/register-crud";
  * @example 
  * const response = await DeletePlayers({ steam_id: "123123" });
  */
-export async function ReadPlayers(): Promise<ServiceResponse<vouch[]>> {
+export async function getRegisterPlayers(): Promise<ServiceResponse<vouch[]>> {
     /* ------------------ */
     /*   Initialization   */
     /* ------------------ */
     const db = await getDbInstance();
     try {
-        /* ------------- */
-        /*   Validation  */
-        /* ------------- */
-        if (!(await isUserAdmin())) {
-            throw new Error("Access Denied.")
-        }
         /* ------------- */
         /*   DB Query    */
         /* ------------- */

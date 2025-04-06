@@ -33,10 +33,13 @@ export default function VouchRequest() {
   const onSubmit = async (data: registerLeague) => {
 
     try {
-      await apiCallerCreatePlayers({steam_id: data.steam_id,mmr: data.mmr})
+      await apiCallerCreatePlayers({ steam_id: data.steam_id, mmr: data.mmr })
       reset();
       alert("Success, ping admins for approval");
-    } catch (error) { }
+    } catch (error) {
+      console.error("failed to vouch.")
+      alert("Failed to vouch.")
+    }
   };
 
   if (!session) {
