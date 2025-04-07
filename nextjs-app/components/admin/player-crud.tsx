@@ -25,7 +25,7 @@ import {
   ModalTrigger,
 } from "../ui/modal";
 
-interface Player {
+export interface Player {
   id: number;
   discord_id: number;
   steam_id: number;

@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui
 import LikesAndDislikes from "../likesAndDislikes/likesAndDislikes";
 import { getAvatarUrl, mapUserDataToViewModel } from "@/lib/utils";
 import ReportSystem from "../reportSystem/reportSystem";
+import { apiCallerUpdatePlayerProfileVisibility } from "@/app/api/player/update-is-public-profile/caller";
+import { useRouter } from "next/navigation";
 export interface UserProfileProps {
     user: {
         is_public_profile: boolean;
@@ -30,15 +32,14 @@ export interface UserProfileProps {
 }
 export default function UserProfile({ user, discordId, userSteamId, ld, isUserLiked }: UserProfileProps) {
     if (!user) return
-
-    const [check, setCheck] = useState<boolean>(!!user.is_public_profile);
+    const router = useRouter()
     const [loading, setLoading] = useState(false);
     const [likesDislikes, setLikesDislikes] = useState(ld)
 
     useEffect(() => {
         fetchLD()
     }, [])
-    
+
     const fetchLD = async () => {
         try {
             const res = await fetch(`/api/likes-dislikes/get-likes-and-dislikes?steam_id=${user.steam_id}`);
@@ -50,33 +51,14 @@ export default function UserProfile({ user, discordId, userSteamId, ld, isUserLi
         }
     }
 
-    const fetchIsPublic = async () => {
-        try {
-            const res = await fetch(`/api/player/get-player-by-steam-id?steam_id=${user.steam_id}`);
-            if (!res.ok) throw new Error("Failed to fetch games");
-            const isPublicProfile = await res.json();
-            setCheck(Boolean(isPublicProfile.data[0].is_public_profile));
-        } catch (error) {
-            console.error("Error fetching Match History View", error);
-        }
-    };
-
-    const publicSwitch = async (checked: boolean) => {
-        const checkedNum = Number(checked)
+    const publicSwitch = async (check: boolean) => {
+        const checked = Number(check)
         const confirmation = confirm("Are you sure ?");
         if (!confirmation) return;
         setLoading(true);
         try {
-            const res = await fetch("/api/player/update-is-public-profile", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ checked: checkedNum, discord_id: user.discord_id }),
-            });
-            if (!res.ok) {
-                throw new Error("Failed to Cancel the game!");
-            }
-            fetchIsPublic()
-
+            await apiCallerUpdatePlayerProfileVisibility({ checked, discord_id: user.discord_id })
+            router.refresh()
         } catch (error) {
             console.error("Failed to change view of Match History.", error);
         } finally {
@@ -85,7 +67,6 @@ export default function UserProfile({ user, discordId, userSteamId, ld, isUserLi
     }
 
     const { winRate, formattedDate } = mapUserDataToViewModel(user)
-    // fetchLD()
     return (
         <>
 
@@ -135,7 +116,7 @@ export default function UserProfile({ user, discordId, userSteamId, ld, isUserLi
 
                         <SwitchWrapper>
                             <SwitchLabel className="text-sm">Match History Public</SwitchLabel>
-                            <Switch onCheckedChange={publicSwitch} checked={check} />
+                            <Switch onCheckedChange={publicSwitch} />
                         </SwitchWrapper>
                     </div>
 
