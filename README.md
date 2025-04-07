@@ -1,6 +1,6 @@
 # 🎮 DOTA LEAGUE HOSTING PLATFORM
 
-Welcome to the **Dota 2 League Hosting Platform**, a side project with **100+ active users**!
+Welcome to the **Dota 2 League Hosting Platform**, a side project with **100+ active users** and **~400 discord members**
 
 ### 🧩 How It Works
 
