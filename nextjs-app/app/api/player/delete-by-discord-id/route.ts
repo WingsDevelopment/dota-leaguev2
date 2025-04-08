@@ -4,54 +4,64 @@ import { NextResponse } from "next/server";
 import path from "path";
 import sqlite3 from "sqlite3";
 
-export async function DELETE(request: Request) {
+export async function DELETE(req: Request) {
   // Parse the URL to get the query parameter:
-  const { searchParams } = new URL(request.url);
-  const discordId = searchParams.get("discord_id");
-
+  const body = await req.json()
+  const { discordId } = body;
   if (!discordId) {
     return NextResponse.json(
       { error: "No discord_id provided" },
       { status: 400 }
     );
   }
- const db = await getDbInstance();
+
+  const db = await getDbInstance();
 
   try {
-    // Perform the DELETE operation:
-    const changes: number = await new Promise((resolve, reject) => {
-      db.run(
-        "DELETE FROM Players WHERE discord_id = ?",
-        [discordId],
-        function (err: Error | null) {
+    const changes = await new Promise<number>((resolve, reject) => {
+      db.serialize(() => {
+        db.run("BEGIN TRANSACTION;");
+
+        let totalChanges = 0; // Track deleted rows
+
+        db.run("DELETE FROM Players WHERE discord_id = ?", [discordId], function (err) {
           if (err) {
-            console.error("Error deleting player:", err);
+            console.error("Error deleting player from Players table:", err);
             return reject(err);
           }
-          // 'this' context from sqlite3.run() has metadata about the statement
-          // 'this.changes' has the number of rows affected.
-          resolve(this.changes);
-        }
-      );
+          totalChanges += this.changes; 
+        });
+
+        db.run("DELETE FROM RegisterPlayers WHERE discord_id = ?", [discordId], function (err) {
+          if (err) {
+            console.error("Error deleting player from RegisterPlayers table:", err);
+            return reject(err);
+          }
+          totalChanges += this.changes; 
+        });
+
+        db.run("COMMIT;", function (err) {
+          if (err) {
+            console.error("Error committing transaction:", err);
+            return reject(err);
+          }
+          resolve(totalChanges); 
+        });
+      });
     });
 
-    
-
-    // If no rows were deleted, return a 404
     if (changes === 0) {
+      closeDatabase(db);
       return NextResponse.json({ error: "Player not found" }, { status: 404 });
     }
-
-    // Otherwise, return success
-    return NextResponse.json({ message: "Player deleted successfully" });
+    closeDatabase(db);
+    return NextResponse.json({ success: true, message: "Player deleted successfully" });
   } catch (error) {
+    closeDatabase(db);
     console.error("Error deleting player:", error);
-    
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
     );
-  } finally{
-    closeDatabase(db);
   }
 }
