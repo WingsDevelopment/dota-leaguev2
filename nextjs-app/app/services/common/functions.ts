@@ -1,5 +1,5 @@
 import { PrimitiveServiceResponse, ServiceResponse } from "./types";
-import { getErrorMessage } from "./formatters";
+import { dataToString, getErrorMessage, truncateString } from "./formatters";
 
 /**
  * Returns a primitive service error response and logs the error.
@@ -39,7 +39,7 @@ export const getSuccessfulServiceResponse = <T>({
     `Service response success, 
    Log: ${log || message || ""} \n
    Data: `,
-    data
+    truncateString(dataToString(data), 250, 2)
   );
 
   return { data, success: true, message };
@@ -66,7 +66,7 @@ export const runDbQuery = <T = void>(
         console.error(`Error running query "${query}":`, err);
         reject(err);
       } else {
-        console.info(`Query succeeded: ${query}`);
+        console.info(`Query succeeded...`);
         resolve(this as T);
       }
     });
@@ -81,11 +81,7 @@ export const runDbQuery = <T = void>(
  * @param params - The parameters for the SQL query.
  * @returns {Promise<T>} A promise that resolves to the rows returned by the query.
  */
-export function runDbAll<T>(
-  db: any,
-  query: string,
-  params: any[] = []
-): Promise<T> {
+export function runDbAll<T>(db: any, query: string, params: any[] = []): Promise<T> {
   console.info(`Running query: ${query}`);
   return new Promise((resolve, reject) => {
     db.all(query, params, (err: Error, rows: T) => {
@@ -93,8 +89,24 @@ export function runDbAll<T>(
         console.error(`Error executing query "${query}":`, err);
         return reject(err);
       }
-      console.info(`Query succeeded: ${query}`);
+      console.info(`Query succeeded...`);
       resolve(rows);
     });
   });
+}
+
+export function runDbRollback(db: any): Promise<void> {
+  return new Promise((resolve, reject) => db.run("ROLLBACK", () => resolve()));
+}
+
+export function runDbStartTransactions(db: any): Promise<void> {
+  return new Promise((resolve, reject) => {
+    db.run("BEGIN TRANSACTION", (err: Error) => {
+      if (err) return reject(err);
+      resolve();
+    });
+  });
+}
+export function runDbCommitTransactions(db: any): Promise<void> {
+  return new Promise((resolve, reject) => db.run("COMMIT", () => resolve()));
 }

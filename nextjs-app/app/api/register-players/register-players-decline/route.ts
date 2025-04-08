@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDbInstance } from "@/db/utils";
 import { isUserAdmin } from "@/app/common/constraints";
-import { auth } from "../../../../auth";
-import { closeDatabase } from "@/db/initDatabase";
-import { setApprovePlayers } from "@/app/services/registerPlayersService/approvePlayers";
+import { setDeclinePlayers } from "@/app/services/registerPlayersService/declinePlayers";
 
 
 export async function POST(req: NextRequest) {
@@ -13,7 +10,7 @@ export async function POST(req: NextRequest) {
 
   const { registrationId, requestType } = await req.json();
   
-  const res = await setApprovePlayers({ registrationId, requestType });
+  const res = await setDeclinePlayers({ registrationId, requestType });
   return NextResponse.json(res);
 
 }

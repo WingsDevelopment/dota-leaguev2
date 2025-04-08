@@ -9,9 +9,10 @@ import {
   ModalTrigger,
 } from "../ui/modal";
 import { useState } from "react";
-import type { ReportType } from "../../app/services/userReport/getUserReports";
+
 import router from "next/router";
 import { apiCallerCreateReports } from "@/app/api/report-system/create-report/caller";
+import { ReportType } from "@/app/services/userReport/common/type";
 
 /* ---------------*/
 /*   Interfaces   */
@@ -49,18 +50,18 @@ export default function ReportSystem({
   const handleReport = async (data: ReportsFormValues) => {
     if (!confirm("Are you sure you want to report this player?")) return;
     const reportPayload = {
-      user_steam_id: userSteamId,
-      other_player_steam_id: otherPlayerSteamId,
+      user_steam_id: Number(userSteamId),
+      other_player_steam_id: Number(otherPlayerSteamId),
       type: data.type,
       report: data.report,
-      match_id: data.matchId,
+      match_id: data.matchId ?? null,
     };
     try {
-        apiCallerCreateReports(reportPayload);
-        alert("Player reported successfully");
+      apiCallerCreateReports(reportPayload);
+      alert("Player reported successfully");
     } catch (error) {
-      console.error("Failed to submit the report",error);
-    }finally{
+      console.error("Failed to submit the report", error);
+    } finally {
       setOpenModal(null);
     }
     // try {
