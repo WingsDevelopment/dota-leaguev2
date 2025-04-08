@@ -4,6 +4,7 @@ import ShowHistory from "@/components/matchHistory/showHistory";
 import { auth, ExtendedUser } from "@/auth";
 import UserProfile from "@/components/userProfile/userProfile";
 import { fetcher } from "@/lib/fetch";
+import { apiCallerGetPlayerBySteamId } from "@/app/api/player/get-player-by-steam-id/caller";
 
 export interface MatchHistoryProps {
   params: {
@@ -41,7 +42,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
       fetcher(
         `${baseUrl}/api/match-history-players/show-history?steam_id=${id}`
       ),
-      fetcher(`${baseUrl}/api/player/get-player-by-steam-id?steam_id=${id}`),
+      apiCallerGetPlayerBySteamId({steamId:id}),
       fetcher(
         `${baseUrl}/api/player/get-player-by-discord-id?discord_id=${discordId}`
       ),
@@ -54,7 +55,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
   const playerList = playerRes?.data || [];
   const userSteamId = userSteamIdRes?.data || [];
   const likesAndDislikes = likesAndDislikesRes?.data || [];
-
+    console.log(playerRes,"Player res")
   const userSteamIdValue = userSteamId[0]?.steam_id || null;
   const isUserLikedOrDisliked = userSteamIdValue
     ? (

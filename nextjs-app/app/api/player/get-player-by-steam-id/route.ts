@@ -3,14 +3,7 @@ import { closeDatabase } from "@/db/initDatabase";
 import { getPlayerBySteamId } from "@/app/services/playerService/getPlayerBySteamId";
 
 export async function GET(req: Request) {
-
-  const url = new URL(req.url);
-  const steamId =String(url.searchParams.get("steam_id"));
-
-  if (!steamId) {
-    return NextResponse.json({ error: "Missing steam ID" }, { status: 400 });
-  }
-
-  const res = await getPlayerBySteamId({ steamId });
-  return NextResponse.json(res);
+  const { searchParams } = new URL(req.url);
+  const steamId = searchParams.get("steamId");
+  return NextResponse.json(await getPlayerBySteamId({ steamId }))
 }

@@ -1,36 +1,56 @@
 import { getDbInstance } from "@/db/utils";
 import { closeDatabase } from "@/db/initDatabase";
 import { NextResponse } from "next/server";
-
-interface getPlayerBySteamId {
-    steamId: string;
+import { getPrimitiveServiceErrorResponse, getSuccessfulServiceResponse, runDbAll } from "../common/functions";
+/* --------- */
+/*   Types   */
+/* --------- */
+export interface getPlayerBySteamId {
+    steamId: string | null;
 }
-
+/**
+ * Gets the player by steam ID.
+ *
+ * @async
+ * @function getPlayerBySteamId
+ * @param {getPlayerBySteamId} params - The object containing the steam ID identifier.
+ * @returns {Promise<PrimitiveServiceResponse>} A promise that resolves to a primitive service response.
+ *
+ * @example
+ * const response = await getPlayerBySteamId({ steamId: 12345 });
+ */
 export async function getPlayerBySteamId({ steamId }: getPlayerBySteamId) {
+    /* ------------------ */
+    /*   Initialization   */
+    /* ------------------ */
     const db = await getDbInstance();
     try {
-
-        const player: Array<Record<string, any>> = await new Promise(
-            (resolve, reject) => {
-                db.all(
-                    `SELECT * FROM Players WHERE steam_id = ?`,
-                    [String(steamId)],
-                    (err, rows) => {
-                        if (err) {
-                            console.error("Error executing query:", err);
-                            return reject(err);
-                        }
-                        resolve(rows as any);
-                    }
-                );
-            }
-        );
-
-        closeDatabase(db);
-        return { success: true, data: player };
+        /* ------------- */
+        /*   Validation  */
+        /* ------------- */
+        if (!steamId) {
+            return NextResponse.json({ error: "Missing steam ID" }, { status: 400 });
+        }
+        /* ------------- */
+        /*   DB Query    */
+        /* ------------- */
+        const player = await runDbAll(db, `SELECT * FROM Players WHERE steam_id = ?`, [steamId]);
+        /* ---------------- */
+        /*   Return Data    */
+        /* ---------------- */
+        return getSuccessfulServiceResponse({
+            message: "Fetched player by steam id successfully.",
+            data: player
+        });
     } catch (error) {
-        console.error("Error processing ban/unban:", error);
-        closeDatabase(db);
-        return { success: false, message: "Internal Server Error" };
+        /* -------- */
+        /*   Error  */
+        /* -------- */
+        return getPrimitiveServiceErrorResponse(error, "Error finding player.");
+    } finally {
+        /* -------- */
+        /*  Cleanup */
+        /* -------- */
+        closeDatabase(db)
     }
 }
