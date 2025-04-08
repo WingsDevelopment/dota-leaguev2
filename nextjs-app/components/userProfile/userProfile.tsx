@@ -53,7 +53,7 @@ export default function UserProfile({
     try {
       await apiCallerUpdatePlayerProfileVisibility({
         checked,
-        discord_id: user.discord_id,
+        discord_id: String(user.discord_id),
       });
       router.refresh();
     } catch (error) {
@@ -70,7 +70,7 @@ export default function UserProfile({
         {/* Avatar Image */}
         <div className="h-20 w-20 bg-gray-200 rounded-full overflow-hidden border-2 border-gray-300 shadow-md">
           <img
-            src={getAvatarUrl(user.discord_id)}
+            src={getAvatarUrl(String(user.discord_id))}
             alt={user.name ?? "User"}
             className="object-cover h-full w-full"
           />
@@ -83,7 +83,7 @@ export default function UserProfile({
 
           {/* Match History Public Switch */}
         </div>
-        {discordId === user.discord_id ? (
+        {discordId === String(user.discord_id) ? (
           <></>
         ) : (
           <>
@@ -93,12 +93,12 @@ export default function UserProfile({
               <>
                 <LikesAndDislikes
                   userSteamId={userSteamId}
-                  otherPlayerSteamId={user.steam_id}
+                  otherPlayerSteamId={String(user.steam_id)}
                   isUserLiked={isUserLiked}
                   fetchLD={fetchLD}
                 />
                 <ReportSystem
-                  otherPlayerSteamId={user.steam_id}
+                  otherPlayerSteamId={String(user.steam_id)}
                   userSteamId={userSteamId}
                 />
               </>
@@ -106,7 +106,7 @@ export default function UserProfile({
           </>
         )}
       </div>
-      {discordId === user.discord_id ? (
+      {discordId === String(user.discord_id) ? (
         <div className="mt-5">
           <SwitchWrapper>
             <SwitchLabel className="text-sm">Match History Public</SwitchLabel>
