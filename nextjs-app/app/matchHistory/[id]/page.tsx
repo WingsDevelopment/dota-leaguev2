@@ -53,7 +53,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
 
   const matchHistoryList = matchHistoryRes?.data || [];
   const playerList = playerRes;
-  console.log(playerList.data.id,"RES")
+  console.log(playerList.id,"RES")
   const userSteamId = userSteamIdRes?.data || [];
   const likesAndDislikes = likesAndDislikesRes?.data || [];
   const userSteamIdValue = userSteamId[0]?.steam_id || null;
@@ -65,8 +65,8 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
       )?.data
     : [];
 
-  const isOwnProfile = playerList[0]?.discordId === discordId;
-  if (playerList[0]?.is_public_profile || !isOwnProfile) {
+  const isOwnProfile = playerList.discord_id === Number(discordId);
+  if (playerList.is_public_profile || !isOwnProfile) {
     return (
       <div className="flex flex-col gap-8">
         <UserProfile
@@ -74,7 +74,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
           ld={likesAndDislikes}
           userSteamId={userSteamIdValue}
           discordId={discordId}
-          user={playerList[0]}
+          user={playerList}
         />
         <ShowHistory
           matchHistoryList={matchHistoryList}
@@ -90,7 +90,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
           ld={likesAndDislikes}
           userSteamId={userSteamIdValue}
           discordId={discordId}
-          user={playerList[0]}
+          user={playerList}
         />
         <h1 className="text-3xl font-bold text-center mt-20">
           Sorry, this match history is private.

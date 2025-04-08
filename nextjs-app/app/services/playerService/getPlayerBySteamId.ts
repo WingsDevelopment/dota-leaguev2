@@ -20,7 +20,12 @@ export interface Player {
     games_left: number;
     games_griefed: number;
     bbb: number;
-  }
+    is_public_profile: boolean;
+    wins: number | null;
+    loses: number | null;
+    streak: number | null;
+    vouched_date: string | null;
+}
 /**
  * Gets the player by steam ID.
  *
@@ -51,7 +56,7 @@ export async function getPlayerBySteamId<Promise>({ steamId }: getPlayerBySteamI
         /* ---------------- */
         /*   Return Data    */
         /* ---------------- */
-        if(players.length >1){
+        if (players.length > 1) {
             console.log("There is more than two players")
         }
         return getSuccessfulServiceResponse({

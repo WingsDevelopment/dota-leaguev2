@@ -15,7 +15,8 @@ export const apiCallerGetPlayerBySteamId = async (
 
     const data = response.data
     if (!data.success) throw new Error(data.message);
-    return data;
+    console.log(data,'data')
+    return data.data;
   } catch (error) {
     console.error("Failed to get player by steam Id!", error);
     throw error;
