@@ -1,19 +1,15 @@
-import { baseUrl } from "../common/constraints";
 import RegisterCrud from "@/components/admin/register-crud";
-import { fetcher } from "@/lib/fetch";
-
+import { apiCallerGetPlayers } from "../api/register-players/register-players-read/caller";
+/* -------------------- */
+/*   Server Component   */
+/* -------------------- */
 export default async function Page() {
+  /* ------- */
+  /*   JSX   */
+  /* ------- */
   return (
     <div className="flex flex-col gap-4">
-      <RegisterCrud
-        registerList={
-          (
-            await fetcher(
-              `${baseUrl}/api/register-players/register-players-read`
-            )
-          )?.registerPlayers || []
-        }
-      />
+      <RegisterCrud registerList={await apiCallerGetPlayers()} />
     </div>
   );
 }

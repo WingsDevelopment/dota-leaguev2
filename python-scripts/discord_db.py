@@ -363,7 +363,15 @@ def create_tables(cursor: Connection) -> None:
                     player_id INTEGER,
                     role INTEGER,
                     FOREIGN KEY(player_id) REFERENCES Player(id))''')
-
+    
+    cursor.execute('''CREATE TABLE IF NOT EXISTS RegisterPlayers (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    status TEXT NOT NULL,
+                    steam_id TEXT NOT NULL,
+                    discord_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    mmr INTEGER NOT NULL''')
+    
     create_match_history_table(cursor)
     create_match_player_stats_table(cursor)
 

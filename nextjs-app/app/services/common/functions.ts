@@ -98,3 +98,25 @@ export function runDbAll<T>(
     });
   });
 }
+
+export function runDbRollback(
+  db: any
+):Promise<void>{
+  return new Promise((resolve, reject) => db.run("ROLLBACK", () => resolve()));
+}
+
+export function runDbStartTransactions(
+  db: any
+):Promise<void>{
+  return new Promise((resolve, reject) => {
+    db.run("BEGIN TRANSACTION", (err:Error) => {
+        if (err) return reject(err);
+        resolve();
+    });
+});
+}
+export function runDbCommitTransactions(
+  db: any
+):Promise<void>{
+  return new Promise((resolve, reject) => db.run("COMMIT", () => resolve()));
+}
