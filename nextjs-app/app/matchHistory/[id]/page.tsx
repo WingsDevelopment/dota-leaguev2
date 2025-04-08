@@ -42,7 +42,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
       fetcher(
         `${baseUrl}/api/match-history-players/show-history?steam_id=${id}`
       ),
-      apiCallerGetPlayerBySteamId({steamId:id}),
+      await apiCallerGetPlayerBySteamId({steamId:id}),
       fetcher(
         `${baseUrl}/api/player/get-player-by-discord-id?discord_id=${discordId}`
       ),
@@ -52,10 +52,10 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
     ]);
 
   const matchHistoryList = matchHistoryRes?.data || [];
-  const playerList = playerRes?.data || [];
+  const playerList = playerRes;
+  console.log(playerList.data.id,"RES")
   const userSteamId = userSteamIdRes?.data || [];
   const likesAndDislikes = likesAndDislikesRes?.data || [];
-    console.log(playerRes,"Player res")
   const userSteamIdValue = userSteamId[0]?.steam_id || null;
   const isUserLikedOrDisliked = userSteamIdValue
     ? (

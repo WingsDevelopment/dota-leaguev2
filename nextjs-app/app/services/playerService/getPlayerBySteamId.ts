@@ -8,6 +8,19 @@ import { getPrimitiveServiceErrorResponse, getSuccessfulServiceResponse, runDbAl
 export interface getPlayerBySteamId {
     steamId: string | null;
 }
+export interface Player {
+    id: number;
+    discord_id: number;
+    steam_id: number;
+    name: string;
+    mmr: number;
+    captain: number;
+    banned_until: string;
+    games_didnt_show: number;
+    games_left: number;
+    games_griefed: number;
+    bbb: number;
+  }
 /**
  * Gets the player by steam ID.
  *
@@ -19,7 +32,7 @@ export interface getPlayerBySteamId {
  * @example
  * const response = await getPlayerBySteamId({ steamId: 12345 });
  */
-export async function getPlayerBySteamId({ steamId }: getPlayerBySteamId) {
+export async function getPlayerBySteamId<Promise>({ steamId }: getPlayerBySteamId) {
     /* ------------------ */
     /*   Initialization   */
     /* ------------------ */
@@ -29,18 +42,21 @@ export async function getPlayerBySteamId({ steamId }: getPlayerBySteamId) {
         /*   Validation  */
         /* ------------- */
         if (!steamId) {
-            return NextResponse.json({ error: "Missing steam ID" }, { status: 400 });
+            throw new Error("Missing required field: steam_id")
         }
         /* ------------- */
         /*   DB Query    */
         /* ------------- */
-        const player = await runDbAll(db, `SELECT * FROM Players WHERE steam_id = ?`, [steamId]);
+        const players = await runDbAll<Player[]>(db, `SELECT * FROM Players WHERE steam_id = ?`, [steamId]);
         /* ---------------- */
         /*   Return Data    */
         /* ---------------- */
+        if(players.length >1){
+            console.log("There is more than two players")
+        }
         return getSuccessfulServiceResponse({
             message: "Fetched player by steam id successfully.",
-            data: player
+            data: players[0]
         });
     } catch (error) {
         /* -------- */

@@ -7,7 +7,7 @@ import { Player } from "@/components/admin/player-crud";
 
 export const apiCallerGetPlayerBySteamId = async (
     {steamId}:getPlayerBySteamId
-): Promise<Player[]> => {
+): Promise<Player> => {
   try {
     const response = await axios.get(`${baseUrl}/api/player/get-player-by-steam-id`, {
         params:{steamId}
@@ -15,7 +15,7 @@ export const apiCallerGetPlayerBySteamId = async (
 
     const data = response.data
     if (!data.success) throw new Error(data.message);
-    return data ;
+    return data;
   } catch (error) {
     console.error("Failed to get player by steam Id!", error);
     throw error;
