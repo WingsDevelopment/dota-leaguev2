@@ -42,7 +42,7 @@ export default function UserProfile({
       if (!res.ok) throw new Error("Failed to fetch likes and dislikes");
       const data = await res.json();
       setLikesDislikes(data.data);
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const publicSwitch = async (check: boolean) => {
@@ -62,7 +62,7 @@ export default function UserProfile({
       setLoading(false);
     }
   };
-
+  console.log(user.wins, "wins")
   const { winRate, formattedDate } = mapUserDataToViewModel(user);
   return (
     <>
@@ -125,7 +125,7 @@ export default function UserProfile({
             <CardDescription></CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-xl font-semibold">{user.wins}</p>
+            <p className="text-xl font-semibold">{user.wins === null ? 0 : user.wins}</p>
           </CardContent>
         </Card>
 
@@ -136,7 +136,7 @@ export default function UserProfile({
             <CardDescription></CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-xl font-semibold">{user.loses}</p>
+            <p className="text-xl font-semibold">{user.loses === null ? 0 : user.loses}</p>
           </CardContent>
         </Card>
 
@@ -157,7 +157,7 @@ export default function UserProfile({
             <CardDescription></CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-xl font-semibold">{user.streak}</p>
+            <p className="text-xl font-semibold">{user.streak === null ? 0 : user.streak}</p>
           </CardContent>
         </Card>
 
