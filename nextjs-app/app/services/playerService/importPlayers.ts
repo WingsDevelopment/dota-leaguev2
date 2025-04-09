@@ -21,7 +21,7 @@ export interface Leaderboard {
 }
 
 /**
- * Imports player from object leaderboards.
+ * Imports players from object leaderboards.
  *
  * @async
  * @function ImportPlayers

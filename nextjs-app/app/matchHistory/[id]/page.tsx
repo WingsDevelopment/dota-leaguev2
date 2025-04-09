@@ -5,6 +5,7 @@ import { auth, ExtendedUser } from "@/auth";
 import UserProfile from "@/components/userProfile/userProfile";
 import { fetcher } from "@/lib/fetch";
 import { apiCallerGetPlayerBySteamId } from "@/app/api/player/get-player-by-steam-id/caller";
+import { apiCallerGetPlayerSteamIdByDiscordId } from "@/app/api/player/get-player-steam-id-by-discord-id/caller";
 
 export interface MatchHistoryProps {
   params: {
@@ -42,10 +43,8 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
       fetcher(
         `${baseUrl}/api/match-history-players/show-history?steam_id=${id}`
       ),
-      await apiCallerGetPlayerBySteamId({steamId:id}),
-      fetcher(
-        `${baseUrl}/api/player/get-player-by-discord-id?discord_id=${discordId}`
-      ),
+      await apiCallerGetPlayerBySteamId({ steamId: id }),
+      await apiCallerGetPlayerSteamIdByDiscordId({ discordId }),
       fetcher(
         `${baseUrl}/api/likes-dislikes/get-likes-and-dislikes?steam_id=${id}`
       ),
@@ -53,16 +52,17 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
 
   const matchHistoryList = matchHistoryRes?.data || [];
   const playerList = playerRes;
-  console.log(playerList.id,"RES")
-  const userSteamId = userSteamIdRes?.data || [];
+  const userSteamId = userSteamIdRes;
   const likesAndDislikes = likesAndDislikesRes?.data || [];
-  const userSteamIdValue = userSteamId[0]?.steam_id || null;
+  const userSteamIdValue = userSteamId.steamId ?? null;
+  console.log(userSteamId, "user steam id")
+
   const isUserLikedOrDisliked = userSteamIdValue
     ? (
-        await fetcher(
-          `${baseUrl}/api/likes-dislikes/is-user-liked-or-disliked?steam_id=${id}&user_steam_id=${userSteamIdValue}`
-        )
-      )?.data
+      await fetcher(
+        `${baseUrl}/api/likes-dislikes/is-user-liked-or-disliked?steam_id=${id}&user_steam_id=${userSteamIdValue}`
+      )
+    )?.data
     : [];
 
   const isOwnProfile = playerList.discord_id === Number(discordId);

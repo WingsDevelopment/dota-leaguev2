@@ -32,18 +32,18 @@ export interface Player {
   vouched_date: string | null;
 }
 /**
- * Gets the player by steam ID.
+ * Gets the player data by steam Id.
  *
  * @async
  * @function getPlayerBySteamId
  * @param {getPlayerBySteamId} params - The object containing the steam ID identifier.
- * @returns {Promise<ServiceResponse<Player | undefined>>} A promise that resolves to a primitive service response.
+ * @returns {Promise<ServiceResponse<Player | undefined>>} A promise that resolves to a service response which wraps player/undefined .
  *
  * @example
  * const response = await getPlayerBySteamId({ steamId: 12345 });
  */
 export async function getPlayerBySteamId({
-  steamId,
+  steamId
 }: getPlayerBySteamId): Promise<ServiceResponse<Player | undefined>> {
   /* ------------------ */
   /*   Initialization   */
@@ -64,14 +64,17 @@ export async function getPlayerBySteamId({
       `SELECT * FROM Players WHERE steam_id = ?`,
       [steamId]
     );
-    /* ---------------- */
-    /*   Return Data    */
-    /* ---------------- */
+    /* ------------------*/
+    /*   Console Data    */
+    /* ----------------- */
     if (players.length > 1) {
       console.log("There is more than two players");
     }
+    /* ---------------- */
+    /*   Return Data    */
+    /* ---------------- */
     return getSuccessfulServiceResponse({
-      message: "Fetched player by steam id successfully.",
+      message: "Fetched player data by steam id successfully.",
       data: players[0],
     });
   } catch (error) {
