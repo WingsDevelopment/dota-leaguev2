@@ -11,11 +11,11 @@ import { ReportType } from "./common/type";
 /* --------- */
 
 export interface userReport {
-  user_steam_id: number;
+  user_steam_id: string | undefined |null;
   other_player_steam_id: number;
   type: ReportType;
   report: string;
-  match_id?: number;
+  match_id?: number |null;
 }
 
 /**

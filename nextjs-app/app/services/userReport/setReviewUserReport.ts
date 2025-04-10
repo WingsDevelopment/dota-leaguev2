@@ -15,7 +15,7 @@ interface ReviewReports {
 }
 
 /**
- * Marks a user report as reviewed in the database.
+ * Changes public view of User Profile.
  *
  * @async
  * @function ReviewUserReport

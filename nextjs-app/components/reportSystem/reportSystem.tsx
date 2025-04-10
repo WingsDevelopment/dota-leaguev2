@@ -18,7 +18,7 @@ import { ReportType } from "@/app/services/userReport/common/type";
 /*   Interfaces   */
 /* ---------------*/
 export interface ReportSystem {
-  userSteamId: string;
+  userSteamId: string | undefined |null;
   otherPlayerSteamId: string;
 }
 export interface ReportsFormValues {
@@ -50,7 +50,7 @@ export default function ReportSystem({
   const handleReport = async (data: ReportsFormValues) => {
     if (!confirm("Are you sure you want to report this player?")) return;
     const reportPayload = {
-      user_steam_id: Number(userSteamId),
+      user_steam_id: userSteamId,
       other_player_steam_id: Number(otherPlayerSteamId),
       type: data.type,
       report: data.report,
