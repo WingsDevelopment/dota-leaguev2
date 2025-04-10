@@ -1,13 +1,14 @@
 import axios from "axios";
 import type { PrimitiveServiceResponse } from "../../../services/common/types";
 import { Leaderboard } from "@/app/services/playerService/importPlayers";
+import { Notify } from "@/lib/notification";
 
 export const apiCallerImportPlayers = async (
-    {leaderboard}:Leaderboard
+  { leaderboard }: Leaderboard
 ): Promise<PrimitiveServiceResponse> => {
   try {
     const response = await axios.post("/api/player/import-players", {
-        leaderboard
+      leaderboard
     });
 
     const data = response.data as PrimitiveServiceResponse;
@@ -15,7 +16,10 @@ export const apiCallerImportPlayers = async (
 
     return data;
   } catch (error) {
-    console.error("Failed to import the players!", error);
+    Notify({
+      message: `Failed to import the players!, ${error}`,
+      type: "error",
+    });
     throw error;
   }
 };

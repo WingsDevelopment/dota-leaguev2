@@ -55,7 +55,6 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
   const userSteamId = userSteamIdRes;
   const likesAndDislikes = likesAndDislikesRes?.data || [];
   const userSteamIdValue = userSteamId.steamId ?? null;
-  console.log(userSteamId, "user steam id")
 
   const isUserLikedOrDisliked = userSteamIdValue
     ? (

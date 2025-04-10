@@ -7,13 +7,13 @@ import {
     runDbAll,
 } from "../common/functions";
 import { PrimitiveServiceResponse, ServiceResponse } from "../common/types";
+import { getPlayerBySteamId } from "./getPlayerBySteamId";
 /* --------- */
 /*   Types   */
 /* --------- */
 export interface getPlayerByDiscordId {
-    discordId: string | undefined |null;
+    discordId: string | undefined | null;
 }
-
 /**
  * Gets the player by steam ID.
  *
@@ -40,7 +40,7 @@ export async function getPlayerSteamIdByDiscordId({ discordId }: getPlayerByDisc
         /* ------------- */
         /*   DB Query    */
         /* ------------- */
-        const steamId = await runDbAll(
+        const steamId: getPlayerBySteamId[] = await runDbAll(
             db,
             `SELECT steam_id FROM Players WHERE discord_id = ?`,
             [discordId]
@@ -48,7 +48,7 @@ export async function getPlayerSteamIdByDiscordId({ discordId }: getPlayerByDisc
 
         return getSuccessfulServiceResponse({
             message: "Fetched player steam Id by discord Id successfully.",
-            data: steamId,
+            data: steamId[0],
         });
     } catch (error) {
         /* -------- */

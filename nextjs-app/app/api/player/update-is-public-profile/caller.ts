@@ -1,13 +1,14 @@
 import axios from "axios";
 import type { PrimitiveServiceResponse } from "../../../services/common/types";
 import { PublicProfile } from "@/app/services/playerService/updateIsPublicProfile";
+import { Notify } from "@/lib/notification";
 
 export const apiCallerUpdatePlayerProfileVisibility = async (
-    {checked, discord_id}:PublicProfile
+  { checked, discord_id }: PublicProfile
 ): Promise<PrimitiveServiceResponse> => {
   try {
     const response = await axios.post("/api/player/update-is-public-profile", {
-        checked, discord_id
+      checked, discord_id
     });
 
     const data = response.data as PrimitiveServiceResponse;
@@ -15,7 +16,10 @@ export const apiCallerUpdatePlayerProfileVisibility = async (
 
     return data;
   } catch (error) {
-    console.error("Failed to change user profile visibility!", error);
+    Notify({
+      message: `Failed to change user profile visibility!, ${error}`,
+      type: "error",
+    });
     throw error;
   }
 };

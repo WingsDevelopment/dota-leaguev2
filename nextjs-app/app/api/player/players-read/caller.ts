@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Player } from "@/components/admin/player-crud";
 import { baseUrl } from "@/app/common/constraints";
+import { Notify } from "@/lib/notification";
 
 export const apiCallerGetPlayers = async (
 ): Promise<Player[]> => {
@@ -10,7 +11,10 @@ export const apiCallerGetPlayers = async (
         if (!data.success) throw new Error(data.message);
         return data.data;
     } catch (error) {
-        console.error("Failed to fetch the players!", error);
+        Notify({
+            message: `Failed to fetch the players!, ${error}`,
+            type: "error",
+        });
         throw error;
     }
 };

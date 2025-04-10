@@ -1,11 +1,12 @@
 import axios from "axios";
 import {
 
-    getPlayerBySteamId,
+  getPlayerBySteamId,
   Player,
 } from "@/app/services/playerService/getPlayerBySteamId";
 import { baseUrl } from "@/app/common/constraints";
 import { getPlayerByDiscordId } from "@/app/services/playerService/getPlayerSteamIdByDiscordId";
+import { Notify } from "@/lib/notification";
 
 export const apiCallerGetPlayerSteamIdByDiscordId = async ({
   discordId,
@@ -17,9 +18,13 @@ export const apiCallerGetPlayerSteamIdByDiscordId = async ({
 
     const data = response.data;
     if (!data.success) throw new Error(data.message);
-    return data.data[0];
+    console.log(data.data,"niggar")
+    return data.data;
   } catch (error) {
-    console.error("Failed to get player by steam Id!", error);
+    Notify({
+      message: `Failed to get player by steam Id!, ${error}`,
+      type: "error",
+    });
     throw error;
   }
 };

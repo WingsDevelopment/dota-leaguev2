@@ -4,6 +4,7 @@ import {
   Player,
 } from "@/app/services/playerService/getPlayerBySteamId";
 import { baseUrl } from "@/app/common/constraints";
+import { Notify } from "@/lib/notification";
 
 export const apiCallerGetPlayerBySteamId = async ({
   steamId,
@@ -17,7 +18,10 @@ export const apiCallerGetPlayerBySteamId = async ({
     if (!data.success) throw new Error(data.message);
     return data.data;
   } catch (error) {
-    console.error("Failed to get player by steam Id!", error);
+    Notify({
+      message: `Failed to get player by steam Id! ${error}`,
+      type: "error",
+    });
     throw error;
   }
 };

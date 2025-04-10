@@ -1,15 +1,14 @@
 import { getDbInstance } from "@/db/utils";
 import { closeDatabase } from "@/db/initDatabase";
-import { getPrimitiveServiceErrorResponse, getSuccessfulServiceResponse, runDbQuery } from "../common/functions";
+import { getPrimitiveServiceErrorResponse, getSuccessfulServiceResponse, runDbAll, runDbQuery } from "../common/functions";
 /* ------------- */
 /*   Interfaces  */
 /* ------------- */
-interface BanUnbanParams {
+export interface BanParams {
   steam_id: number;
-  action: "ban" | "unban";
   banType?: "1l" | "1g" | "bbb" | "1d"; // Only required for bans
 }
-interface PlayerBanData {
+export interface PlayerBanData {
   banned_until: string | null;
   games_left: number;
   games_griefed: number;
@@ -17,43 +16,46 @@ interface PlayerBanData {
   games_didnt_show: number;
 }
 /**
- * Deletes player by discord Id.
+ * Bans player by bantype and steamId.
  *
  * @async
  * @function banPlayer
- * @param {BanUnbanParams} params - The object containing identifiers for the ban.
+ * @param {BanParams} params - The object containing identifiers for the ban.
  * @returns {Promise<PrimitiveServiceResponse>} A promise that resolves to a primitive service response.
  *
  * @example
- * const response = await banPlayer({ discordId: 12345 });
+ * const response = await banPlayer({ steam_id: 12345, banType:"bbb" });
  */
 export async function banPlayer({
   steam_id,
-  action,
   banType,
-}: BanUnbanParams) {
+}: BanParams) {
+  /* ------------------ */
+  /*   Initialization   */
+  /* ------------------ */
   const db = await getDbInstance();
-
   try {
+    /* ------------- */
+    /*   Validation  */
+    /* ------------- */
+    if (!steam_id || !banType) {
+      throw new Error("Missing player steam id or ban value");
+    }
     // Fetch the player's ban info
-    const player:
-      | PlayerBanData
-      | undefined = await runDbQuery(
-        db,
-        `SELECT banned_until, games_left, games_griefed, bbb, games_didnt_show FROM Players WHERE steam_id = ?`,
-        [String(steam_id)]
-      );
+    const player: PlayerBanData[] = await runDbAll(
+      db,
+      `SELECT banned_until, games_didnt_show, games_left, games_griefed, bbb FROM Players WHERE steam_id = ?`,
+      [String(steam_id)]
+    );
     /* ------------- */
     /*   Validation  */
     /* ------------- */
     if (!player) {
       throw new Error("Player not found");
     }
-
     let { banned_until, games_left, games_griefed, bbb, games_didnt_show } =
-      player;
+      player[0];
     let newBanDate = banned_until ? new Date(banned_until) : null;
-
     /* ------------ */
     /*  Ban Logic   */
     /* ------------ */
@@ -104,7 +106,6 @@ export async function banPlayer({
       }
     } else if (banType === "bbb") {
       bbb += 1; // Set BBB flag
-      console.log(bbb, "bad behaviour ban");
       // Add 1278.38 days to ban
       if (bbb === 1) {
         if (newBanDate) {

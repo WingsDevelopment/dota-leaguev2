@@ -1,13 +1,14 @@
 import { PrimitiveServiceResponse } from "@/app/services/common/types";
 import { getPlayerByDiscordId } from "@/app/services/playerService/getPlayerSteamIdByDiscordId";
+import { Notify } from "@/lib/notification";
 import axios from "axios";
 
 export const apiCallerDeletePlayerBySteamId = async (
-    {discordId}:getPlayerByDiscordId
+  { discordId }: getPlayerByDiscordId
 ): Promise<PrimitiveServiceResponse> => {
   try {
-    const response = await axios.post("/api/player/delete-by-discord-id", 
-        {data: {discordId}}
+    const response = await axios.post("/api/player/delete-by-discord-id",
+      { data: { discordId } }
     );
 
     const data = response.data as PrimitiveServiceResponse;
@@ -15,7 +16,10 @@ export const apiCallerDeletePlayerBySteamId = async (
 
     return data;
   } catch (error) {
-    console.error("Failed to delete player by discord Id.!", error);
+    Notify({
+      message: `Failed to delete player by discord Id.!", ${error}`,
+      type: "error",
+    });
     throw error;
   }
 };
