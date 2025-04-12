@@ -42,7 +42,7 @@ export async function banPlayer({
       throw new Error("Missing player steam id or ban value");
     }
     // Fetch the player's ban info
-    const player: PlayerBanData[] = await runDbAll(
+    const players: PlayerBanData[] = await runDbAll(
       db,
       `SELECT banned_until, games_didnt_show, games_left, games_griefed, bbb FROM Players WHERE steam_id = ?`,
       [String(steam_id)]
@@ -50,11 +50,12 @@ export async function banPlayer({
     /* ------------- */
     /*   Validation  */
     /* ------------- */
+    const player = players[0]
     if (!player) {
       throw new Error("Player not found");
     }
     let { banned_until, games_left, games_griefed, bbb, games_didnt_show } =
-      player[0];
+      player;
     let newBanDate = banned_until ? new Date(banned_until) : null;
     /* ------------ */
     /*  Ban Logic   */

@@ -11,7 +11,7 @@ import { ReportType } from "./common/type";
 /* --------- */
 
 export interface userReport {
-  user_steam_id: string | undefined |null;
+  user_steam_id?: string;
   other_player_steam_id: number;
   type: ReportType;
   report: string;

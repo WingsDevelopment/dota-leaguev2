@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "react-day-picker";
 
 interface LikesAndDislikes {
-    userSteamId: string | undefined |null;
+    userSteamId?: string;
     otherPlayerSteamId: string;
     isUserLiked: number;
     fetchLD: () => Promise<void>;

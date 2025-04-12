@@ -27,20 +27,8 @@ import {
 import { apiCallerBanPlayer } from "@/app/api/player/players-ban/caller";
 import { useRouter } from "next/navigation";
 import { apiCallerUnbanPlayer } from "@/app/api/player/players-unban/caller";
+import { Player } from "@/app/services/playerService/getPlayerBySteamId";
 
-export interface Player {
-  id: number;
-  discord_id: number;
-  steam_id: number;
-  name: string;
-  mmr: number;
-  captain: number;
-  banned_until: string;
-  games_didnt_show: number;
-  games_left: number;
-  games_griefed: number;
-  bbb: number;
-}
 
 export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
   const router = useRouter()
