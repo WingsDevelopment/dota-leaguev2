@@ -4,10 +4,11 @@ import ShowHistory from "@/components/matchHistory/showHistory";
 import { auth, ExtendedUser } from "@/auth";
 import UserProfile from "@/components/userProfile/userProfile";
 import { fetcher } from "@/lib/fetch";
+import { apiCallerGetMatchHistory } from "@/app/api/match-history-players/show-history/caller";
 
 export interface MatchHistoryProps {
   params: {
-    id: string;
+    id: string | undefined | null;
     match: string; // Next.js dynamic params are always strings
   };
 }
@@ -38,9 +39,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
   const { id } = params;
   const [matchHistoryRes, playerRes, userSteamIdRes, likesAndDislikesRes] =
     await Promise.all([
-      fetcher(
-        `${baseUrl}/api/match-history-players/show-history?steam_id=${id}`
-      ),
+      apiCallerGetMatchHistory({steamId:id}),
       fetcher(`${baseUrl}/api/player/get-player-by-steam-id?steam_id=${id}`),
       fetcher(
         `${baseUrl}/api/player/get-player-by-discord-id?discord_id=${discordId}`
@@ -50,11 +49,11 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
       ),
     ]);
 
-  const matchHistoryList = matchHistoryRes?.data || [];
+  const matchHistoryList = matchHistoryRes;
   const playerList = playerRes?.data || [];
   const userSteamId = userSteamIdRes?.data || [];
   const likesAndDislikes = likesAndDislikesRes?.data || [];
-
+    console.log(matchHistoryList,"MATCH HISTORY LIST")
   const userSteamIdValue = userSteamId[0]?.steam_id || null;
   const isUserLikedOrDisliked = userSteamIdValue
     ? (
