@@ -9,8 +9,6 @@ export async function POST(req: NextRequest) {
   }
 
   const { steam_id, banType } = await req.json();
-  
-  const action = banType === "unban" ? "unban" : "ban";
 
   return NextResponse.json(await banPlayer({
     steam_id,

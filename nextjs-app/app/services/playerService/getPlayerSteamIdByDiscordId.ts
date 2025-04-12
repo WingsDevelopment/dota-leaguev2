@@ -40,25 +40,27 @@ export async function getPlayerSteamIdByDiscordId({ discordId }: getPlayerByDisc
         /* ------------- */
         /*   DB Query    */
         /* ------------- */
-        const steamId: getPlayerBySteamId[] = await runDbAll(
+        const players: getPlayerBySteamId[] = await runDbAll(
             db,
-            `SELECT steam_id FROM Players WHERE discord_id = ?`,
+            `SELECT * FROM Players WHERE discord_id = ?`,
             [discordId]
         );
-
+        if (players.length > 1) {
+            console.log("There is more than two players");
+        }
         return getSuccessfulServiceResponse({
-            message: "Fetched player steam Id by discord Id successfully.",
-            data: steamId[0],
-        });
-    } catch (error) {
-        /* -------- */
-        /*   Error  */
-        /* -------- */
-        return getPrimitiveServiceErrorResponse(error, "Error finding player by discord ID.");
-    } finally {
-        /* -------- */
-        /*  Cleanup */
-        /* -------- */
-        closeDatabase(db);
-    }
+        message: "Fetched player steam Id by discord Id successfully.",
+        data: players[0],
+    });
+} catch (error) {
+    /* -------- */
+    /*   Error  */
+    /* -------- */
+    return getPrimitiveServiceErrorResponse(error, "Error finding player by discord ID.");
+} finally {
+    /* -------- */
+    /*  Cleanup */
+    /* -------- */
+    closeDatabase(db);
+}
 }

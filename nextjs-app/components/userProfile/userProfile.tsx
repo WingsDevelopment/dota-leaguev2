@@ -15,7 +15,7 @@ export interface UserProfileProps {
     dislikes: number;
   };
   discordId?: string;
-  userSteamId?: number;
+  userSteamId: string|null;
   isUserLiked: number;
 }
 export default function UserProfile({

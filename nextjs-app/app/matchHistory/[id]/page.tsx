@@ -52,9 +52,10 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
 
   const matchHistoryList = matchHistoryRes?.data || [];
   const playerList = playerRes;
-  const userSteamId = userSteamIdRes;
+  console.log(userSteamIdRes.steam_id,"responseeee")
+  const userSteamId = userSteamIdRes.steam_id;
   const likesAndDislikes = likesAndDislikesRes?.data || [];
-  const userSteamIdValue = userSteamId.steam_id ?? null;
+  const userSteamIdValue = userSteamId ?? null;
   const isUserLikedOrDisliked = userSteamIdValue
     ? (
       await fetcher(

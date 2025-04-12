@@ -56,7 +56,7 @@ export async function banPlayer({
     }
     let { banned_until, games_left, games_griefed, bbb, games_didnt_show } =
       player;
-    let newBanDate = banned_until ? new Date(banned_until) : null;
+    let newBanDate = banned_until ? new Date(banned_until) : undefined;
     /* ------------ */
     /*  Ban Logic   */
     /* ------------ */

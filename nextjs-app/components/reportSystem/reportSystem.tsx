@@ -18,7 +18,7 @@ import { ReportType } from "@/app/services/userReport/common/type";
 /*   Interfaces   */
 /* ---------------*/
 export interface ReportSystem {
-  userSteamId?: number;
+  userSteamId: string|null;
   otherPlayerSteamId: string;
 }
 export interface ReportsFormValues {

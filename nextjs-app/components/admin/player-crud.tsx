@@ -39,15 +39,16 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
     if (!confirm("Are you sure you want to ban this player?")) return;
     apiCallerBanPlayer({ steam_id, banType }).then(() => {
       router.refresh();
+      setOpenModal("none");
     });
-    setOpenModal("none");
+
   };
   const sendUnbanBanRequest = async (steam_id: number) => {
     if (!confirm("Are you sure you want to unban this player?")) return;
     apiCallerUnbanPlayer({ steam_id }).then(() => {
       router.refresh();
+      setOpenModal("none");
     });
-    setOpenModal("none");
   };
 
   return (
@@ -87,12 +88,12 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
                     <TableCell>{player.steam_id}</TableCell>
                     <TableCell>{player.name}</TableCell>
                     <TableCell>{player.mmr}</TableCell>
-                    <TableCell>{player.captain === null ? 0 : player.captain}</TableCell>
-                    <TableCell>{player.banned_until=== null ? "No Ban Date" : player.banned_until}</TableCell>
-                    <TableCell>{player.games_didnt_show === null ? 0 : player.games_didnt_show}</TableCell>
-                    <TableCell>{player.games_left === null ? 0 : player.games_left}</TableCell>
-                    <TableCell>{player.games_griefed === null ? 0 : player.games_griefed}</TableCell>
-                    <TableCell>{player.bbb === null ? 0 : player.bbb}</TableCell>
+                    <TableCell>{player.captain == null ? 0 : player.captain}</TableCell>
+                    <TableCell>{player.banned_until== null ? "No Ban Date" : player.banned_until}</TableCell>
+                    <TableCell>{player.games_didnt_show == null ? 0 : player.games_didnt_show}</TableCell>
+                    <TableCell>{player.games_left == null ? 0 : player.games_left}</TableCell>
+                    <TableCell>{player.games_griefed == null ? 0 : player.games_griefed}</TableCell>
+                    <TableCell>{player.bbb == null ? 0 : player.bbb}</TableCell>
 
                     <TableCell>
                       <Modal
