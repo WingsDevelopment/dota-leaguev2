@@ -51,7 +51,7 @@ export default function ReportSystem({
     if (!confirm("Are you sure you want to report this player?")) return;
     const reportPayload = {
       user_steam_id: userSteamId,
-      other_player_steam_id: Number(otherPlayerSteamId),
+      other_player_steam_id: otherPlayerSteamId,
       type: data.type,
       report: data.report,
       match_id: data.matchId ?? null,

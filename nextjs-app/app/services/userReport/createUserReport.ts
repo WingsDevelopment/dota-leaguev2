@@ -12,7 +12,7 @@ import { ReportType } from "./common/type";
 
 export interface userReport {
   user_steam_id?: number;
-  other_player_steam_id: number;
+  other_player_steam_id: string;
   type: ReportType;
   report: string;
   match_id?: number |null;
