@@ -44,7 +44,6 @@ interface Game {
 }
 
 export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
-  console.log({ gamesList });
   const [games, setGames] = useState(gamesList);
   const [filterStatus, setFilterStatus] = useState<GameStatus | "ALL">(
     "STARTED"

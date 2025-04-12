@@ -43,7 +43,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
       fetcher(
         `${baseUrl}/api/match-history-players/show-history?steam_id=${id}`
       ),
-      await apiCallerGetPlayerBySteamId({ steamId: id }),
+      await apiCallerGetPlayerBySteamId({ steam_id: id }),
       await apiCallerGetPlayerSteamIdByDiscordId({ discordId }),
       fetcher(
         `${baseUrl}/api/likes-dislikes/get-likes-and-dislikes?steam_id=${id}`
@@ -54,8 +54,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
   const playerList = playerRes;
   const userSteamId = userSteamIdRes;
   const likesAndDislikes = likesAndDislikesRes?.data || [];
-  const userSteamIdValue = userSteamId.steamId ?? null;
-
+  const userSteamIdValue = userSteamId.steam_id ?? null;
   const isUserLikedOrDisliked = userSteamIdValue
     ? (
       await fetcher(
@@ -64,8 +63,8 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
     )?.data
     : [];
 
-  const isOwnProfile = playerList.discord_id === Number(discordId);
-  if (playerList.is_public_profile || !isOwnProfile) {
+  const isOwnProfile = playerList?.discord_id === Number(discordId);
+  if (playerList.is_public_profile || isOwnProfile) {
     return (
       <div className="flex flex-col gap-8">
         <UserProfile

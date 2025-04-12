@@ -54,7 +54,6 @@ export default function ShowHistory({
   discordId?: string;
 }) {
   const [showIframe, setShowIframe] = useState<number | null>(null);
-  console.log(matchHistoryList);
   // ako je tvoj discord id i disabled je match histry mozes da vidis u suprotnom ne.
   return (
     <div>

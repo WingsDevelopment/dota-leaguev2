@@ -4,7 +4,6 @@ import { putLikesAndDislikes } from "@/app/services/likesAndDislikesService/like
 export async function POST(req: Request) {
 
   const { userSteamId, otherPlayerSteamId, type } = await req.json()
-
   if (!userSteamId || !otherPlayerSteamId || !type) {
     return NextResponse.json({ error: "Missing Variable" }, { status: 400 });
   }

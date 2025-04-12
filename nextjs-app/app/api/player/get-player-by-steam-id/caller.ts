@@ -7,11 +7,11 @@ import { baseUrl } from "@/app/common/constraints";
 import { Notify } from "@/lib/notification";
 
 export const apiCallerGetPlayerBySteamId = async ({
-  steamId,
+  steam_id,
 }: getPlayerBySteamId): Promise<Player> => {
   try {
     const response = await axios.get(`${baseUrl}/api/player/get-player-by-steam-id`, {
-      params: { steamId },
+      params: { steam_id },
     });
 
     const data = response.data;

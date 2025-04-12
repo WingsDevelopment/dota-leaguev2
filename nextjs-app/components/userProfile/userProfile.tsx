@@ -15,7 +15,7 @@ export interface UserProfileProps {
     dislikes: number;
   };
   discordId?: string;
-  userSteamId: string | undefined |null;
+  userSteamId?: number;
   isUserLiked: number;
 }
 export default function UserProfile({
@@ -62,7 +62,6 @@ export default function UserProfile({
       setLoading(false);
     }
   };
-  console.log(user.wins, "wins")
   const { winRate, formattedDate } = mapUserDataToViewModel(user);
   return (
     <>

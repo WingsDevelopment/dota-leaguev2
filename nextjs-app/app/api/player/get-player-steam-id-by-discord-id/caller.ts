@@ -18,7 +18,6 @@ export const apiCallerGetPlayerSteamIdByDiscordId = async ({
 
     const data = response.data;
     if (!data.success) throw new Error(data.message);
-    console.log(data.data,"niggar")
     return data.data;
   } catch (error) {
     Notify({

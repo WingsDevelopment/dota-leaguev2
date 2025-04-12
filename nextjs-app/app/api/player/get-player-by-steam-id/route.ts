@@ -4,6 +4,6 @@ import { getPlayerBySteamId } from "@/app/services/playerService/getPlayerByStea
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const steamId = searchParams.get("steamId");
-  return NextResponse.json(await getPlayerBySteamId({ steamId }))
+  const steam_id = searchParams.get("steam_id");
+  return NextResponse.json(await getPlayerBySteamId({ steam_id }))
 }

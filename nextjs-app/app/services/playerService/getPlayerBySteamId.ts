@@ -11,7 +11,7 @@ import { ServiceResponse } from "../common/types";
 /*   Types   */
 /* --------- */
 export interface getPlayerBySteamId {
-  steamId: string | null;
+  steam_id: string | null;
 }
 export interface Player {
   id: number;
@@ -43,7 +43,7 @@ export interface Player {
  * const response = await getPlayerBySteamId({ steamId: 12345 });
  */
 export async function getPlayerBySteamId({
-  steamId
+  steam_id
 }: getPlayerBySteamId): Promise<ServiceResponse<Player | undefined>> {
   /* ------------------ */
   /*   Initialization   */
@@ -53,7 +53,7 @@ export async function getPlayerBySteamId({
     /* ------------- */
     /*   Validation  */
     /* ------------- */
-    if (!steamId) {
+    if (!steam_id) {
       throw new Error("Missing required field: steam_id");
     }
     /* ------------- */
@@ -62,7 +62,7 @@ export async function getPlayerBySteamId({
     const players = await runDbAll<Player[]>(
       db,
       `SELECT * FROM Players WHERE steam_id = ?`,
-      [steamId]
+      [steam_id]
     );
     /* ------------------*/
     /*   Console Data    */
