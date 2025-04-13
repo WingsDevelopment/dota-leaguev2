@@ -5,6 +5,7 @@ import { ServiceResponse } from "../common/types";
 /* --------- */
 /*   Types   */
 /* --------- */
+export type MatchResult = "Win" | "Loss";
 export interface MatchHistory {
   id: number;
   match_id: number;
@@ -23,7 +24,7 @@ export interface MatchHistory {
   deaths: number;
   assists: number;
   items: string;
-  result?: string; // "Win" or "Loss" calculated from API
+  result?: MatchResult; // "Win" or "Loss" calculated from API
 }
 
 export interface MatchHistoryParams {
@@ -71,7 +72,7 @@ export async function getMatchHistory({
 
     // Process each match to add a win/loss result from the player's perspective
     const processedMatches = matchHistory.map((match) => {
-      let result = "Unknown";
+      let result: MatchResult | undefined = undefined
       try {
         // Parse the additional_info JSON to extract picks_bans data
         const additional = JSON.parse(match.additional_info);
