@@ -50,7 +50,6 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
     ]);
 
   const matchHistoryList = matchHistoryRes;
-  // console.log(matchHistoryList[0].result,"matchhistorylist")
   const playerList = playerRes?.data || [];
   const userSteamId = userSteamIdRes?.data || [];
   const likesAndDislikes = likesAndDislikesRes?.data || [];
