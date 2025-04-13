@@ -31,7 +31,7 @@ export interface MatchHistoryParams {
   steamId?: string | null;
 }
 /**
- * Marks a user report as reviewed in the database.
+ * Returns match history for the user by steam Id..
  *
  * @async
  * @function getMatchHistory

@@ -8,10 +8,6 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const steamId =String(url.searchParams.get("steam_id"));
 
-  if (!steamId) {
-    return NextResponse.json({ error: "Missing steam ID" }, { status: 400 });
-  }
-
   const res = await getPlayerLikesAndDislikes({ steamId });
   return NextResponse.json(res);
 }
