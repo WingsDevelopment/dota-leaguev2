@@ -4,6 +4,8 @@ import ShowHistory from "@/components/matchHistory/showHistory";
 import { auth, ExtendedUser } from "@/auth";
 import UserProfile from "@/components/userProfile/userProfile";
 import { fetcher } from "@/lib/fetch";
+import { apiCallerGetPlayerBySteamId } from "@/app/api/player/get-player-by-steam-id/caller";
+import { apiCallerGetPlayerSteamIdByDiscordId } from "@/app/api/player/get-player-steam-id-by-discord-id/caller";
 
 export interface MatchHistoryProps {
   params: {
@@ -41,31 +43,29 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
       fetcher(
         `${baseUrl}/api/match-history-players/show-history?steam_id=${id}`
       ),
-      fetcher(`${baseUrl}/api/player/get-player-by-steam-id?steam_id=${id}`),
-      fetcher(
-        `${baseUrl}/api/player/get-player-by-discord-id?discord_id=${discordId}`
-      ),
+      await apiCallerGetPlayerBySteamId({ steam_id: id }),
+      await apiCallerGetPlayerSteamIdByDiscordId({ discordId }),
       fetcher(
         `${baseUrl}/api/likes-dislikes/get-likes-and-dislikes?steam_id=${id}`
       ),
     ]);
 
   const matchHistoryList = matchHistoryRes?.data || [];
-  const playerList = playerRes?.data || [];
-  const userSteamId = userSteamIdRes?.data || [];
+  const playerList = playerRes;
+  console.log(userSteamIdRes.steam_id,"responseeee")
+  const userSteamId = userSteamIdRes.steam_id;
   const likesAndDislikes = likesAndDislikesRes?.data || [];
-
-  const userSteamIdValue = userSteamId[0]?.steam_id || null;
+  const userSteamIdValue = userSteamId ?? null;
   const isUserLikedOrDisliked = userSteamIdValue
     ? (
-        await fetcher(
-          `${baseUrl}/api/likes-dislikes/is-user-liked-or-disliked?steam_id=${id}&user_steam_id=${userSteamIdValue}`
-        )
-      )?.data
+      await fetcher(
+        `${baseUrl}/api/likes-dislikes/is-user-liked-or-disliked?steam_id=${id}&user_steam_id=${userSteamIdValue}`
+      )
+    )?.data
     : [];
 
-  const isOwnProfile = playerList[0]?.discordId === discordId;
-  if (playerList[0]?.is_public_profile || !isOwnProfile) {
+  const isOwnProfile = playerList?.discord_id === Number(discordId);
+  if (playerList.is_public_profile || isOwnProfile) {
     return (
       <div className="flex flex-col gap-8">
         <UserProfile
@@ -73,7 +73,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
           ld={likesAndDislikes}
           userSteamId={userSteamIdValue}
           discordId={discordId}
-          user={playerList[0]}
+          user={playerList}
         />
         <ShowHistory
           matchHistoryList={matchHistoryList}
@@ -89,7 +89,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
           ld={likesAndDislikes}
           userSteamId={userSteamIdValue}
           discordId={discordId}
-          user={playerList[0]}
+          user={playerList}
         />
         <h1 className="text-3xl font-bold text-center mt-20">
           Sorry, this match history is private.

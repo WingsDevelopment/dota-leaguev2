@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isUserAdmin } from "@/app/common/constraints";
-import { GetPlayers } from "@/app/services/playerService/getPlayers";
+import { banPlayer } from "@/app/services/playerService/banPlayer";
 import { getUnauthorizedError } from "../../common/functions";
 
-export async function GET() {
+export async function POST(req: NextRequest) {
   if (!(await isUserAdmin())) {
     return getUnauthorizedError()
   }
-  return NextResponse.json(await GetPlayers());
-}
 
+  const { steam_id, banType } = await req.json();
+
+  return NextResponse.json(await banPlayer({
+    steam_id,
+    banType,
+  }));
+
+}

@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isUserAdmin } from "@/app/common/constraints";
-import { GetPlayers } from "@/app/services/playerService/getPlayers";
 import { getUnauthorizedError } from "../../common/functions";
+import { UnbanPlayer } from "@/app/services/playerService/unbanPlayer";
 
-export async function GET() {
+export async function PUT(req: NextRequest) {
   if (!(await isUserAdmin())) {
     return getUnauthorizedError()
   }
-  return NextResponse.json(await GetPlayers());
+  const { steam_id } = await req.json();
+  return NextResponse.json(await UnbanPlayer({
+    steam_id
+  }));
 }
-
