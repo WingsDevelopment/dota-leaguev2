@@ -18,7 +18,7 @@ import { ReportType } from "@/app/services/userReport/common/type";
 /*   Interfaces   */
 /* ---------------*/
 export interface ReportSystem {
-  userSteamId: string;
+  userSteamId: string|null;
   otherPlayerSteamId: string;
 }
 export interface ReportsFormValues {
@@ -50,8 +50,8 @@ export default function ReportSystem({
   const handleReport = async (data: ReportsFormValues) => {
     if (!confirm("Are you sure you want to report this player?")) return;
     const reportPayload = {
-      user_steam_id: Number(userSteamId),
-      other_player_steam_id: Number(otherPlayerSteamId),
+      user_steam_id: userSteamId,
+      other_player_steam_id: otherPlayerSteamId,
       type: data.type,
       report: data.report,
       match_id: data.matchId ?? null,
@@ -64,29 +64,6 @@ export default function ReportSystem({
     } finally {
       setOpenModal(null);
     }
-    // try {
-    //   const res = await fetch("/api/report-system/create-report", {
-    //     method: "PUT",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({
-    //       user_steam_id: userSteamId,
-    //       other_player_steam_id: otherPlayerSteamId,
-    //       type: data.type,
-    //       report: data.report,
-    //       match_id: data.matchId,
-    //     }),
-    //   });
-    //   if (!res.ok) {
-    //     alert(`Player reported successfully.`);
-    //     throw new Error("Failed to submit the report.");
-    //   }
-    //   alert(`Player reported successfully.`);
-    //   setOpenModal(null);
-    // } catch (error) {
-    //   console.error("Failed to submit the report.");
-    // } finally {
-    //   setOpenModal(null);
-    // }
   };
 
   const maxLength = 512;
