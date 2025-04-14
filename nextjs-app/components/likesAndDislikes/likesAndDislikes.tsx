@@ -1,10 +1,12 @@
 "use client";
+import { apiCallerisUserLikedOrDisliked } from "@/app/api/likes-dislikes/is-user-liked-or-disliked/caller";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "react-day-picker";
 
 interface LikesAndDislikes {
-    userSteamId: string|null;
+    userSteamId: string |null;
     otherPlayerSteamId: string;
     isUserLiked: number;
     fetchLD: () => Promise<void>;
@@ -16,32 +18,17 @@ export default function LikesAndDislikes({
     isUserLiked,
     fetchLD,
 }: LikesAndDislikes) {
+    const router = useRouter()
     const [loading, setLoading] = useState(false);
     const [isLiked, setIsLiked] = useState(isUserLiked);
 
-    useEffect(() => {
-        fetchData()
-    }, [])
+
 
     const fetchData = async () => {
         setLoading(true)
-        const res = await fetch(
-            `/api/likes-dislikes/is-user-liked-or-disliked?steam_id=${otherPlayerSteamId}&user_steam_id=${userSteamId}`,
-            {
-                method: "GET",
-                headers: { "Content-Type": "application/json" },
-            }
-        );
         try {
-            if (!res) {
-            }
-            const data = await res.json(); // Parse the response
-            if (!data.success) {
-                alert(data.message || "Failed to update likes and dislikes."); // Show error message if request fails
-                return;
-            }
-            setIsLiked(data.data[0].likes_dislikes);
-            fetchLD();
+           setIsLiked( await apiCallerisUserLikedOrDisliked({ otherPlayerSteamId, userSteamId }))
+
         } catch (error) {
             console.error("Couldn't get user likes/dislikes.");
         } finally {

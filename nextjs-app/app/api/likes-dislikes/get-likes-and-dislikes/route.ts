@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { closeDatabase } from "@/db/initDatabase";
-import { getPlayerBySteamId } from "@/app/services/playerService/getPlayerBySteamId";
 import { getPlayerLikesAndDislikes } from "@/app/services/likesAndDislikesService/getLikesAndDislikes";
 
 export async function GET(req: Request) {

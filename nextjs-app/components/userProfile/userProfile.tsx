@@ -8,6 +8,7 @@ import ReportSystem from "../reportSystem/reportSystem";
 import { apiCallerUpdatePlayerProfileVisibility } from "@/app/api/player/update-is-public-profile/caller";
 import { useRouter } from "next/navigation";
 import { Player } from "@/app/services/playerService/getPlayerBySteamId";
+import { apiCallerGetLikesAndDislikesBySteamId } from "@/app/api/likes-dislikes/get-likes-and-dislikes/caller";
 export interface UserProfileProps {
   user: Player;
   ld: {
@@ -15,7 +16,7 @@ export interface UserProfileProps {
     dislikes: number;
   };
   discordId?: string;
-  userSteamId: string|null;
+  userSteamId: string | null;
   isUserLiked: number;
 }
 export default function UserProfile({
@@ -28,7 +29,6 @@ export default function UserProfile({
   if (!user) return;
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [likesDislikes, setLikesDislikes] = useState(ld);
 
   useEffect(() => {
     fetchLD();
@@ -36,13 +36,13 @@ export default function UserProfile({
 
   const fetchLD = async () => {
     try {
-      const res = await fetch(
-        `/api/likes-dislikes/get-likes-and-dislikes?steam_id=${user.steam_id}`
-      );
-      if (!res.ok) throw new Error("Failed to fetch likes and dislikes");
-      const data = await res.json();
-      setLikesDislikes(data.data);
-    } catch (error) { }
+      const steam_id = String(user.steam_id)
+      apiCallerGetLikesAndDislikesBySteamId({ steam_id }).then(() => {
+        router.refresh();
+      });
+    } catch (error) {
+
+    }
   };
 
   const publicSwitch = async (check: boolean) => {
@@ -175,7 +175,7 @@ export default function UserProfile({
             <CardDescription></CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-xl font-semibold">{likesDislikes.likes}</p>
+            <p className="text-xl font-semibold">{ld.likes}</p>
           </CardContent>
         </Card>
         <Card className="shadow-lg hover:shadow-xl transition-all duration-200">
@@ -184,7 +184,7 @@ export default function UserProfile({
             <CardDescription></CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-xl font-semibold">{likesDislikes.dislikes}</p>
+            <p className="text-xl font-semibold">{ld.dislikes}</p>
           </CardContent>
         </Card>
         <Card className="shadow-lg hover:shadow-xl transition-all duration-200">

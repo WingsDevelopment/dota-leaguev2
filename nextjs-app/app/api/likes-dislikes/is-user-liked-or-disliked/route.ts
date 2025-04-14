@@ -5,12 +5,8 @@ import { isUserLikedOrDisliked } from "@/app/services/likesAndDislikesService/is
 export async function GET(req: Request) {
 
     const url = new URL(req.url);
-    const otherPlayerSteamId = String(url.searchParams.get("steam_id"));
-    const userSteamId = String(url.searchParams.get("user_steam_id"));
-    if (!otherPlayerSteamId) {
-        return NextResponse.json({ error: "Missing steam ID" }, { status: 400 });
-    }
-
-    const res = await isUserLikedOrDisliked({ userSteamId,otherPlayerSteamId  });
-    return NextResponse.json(res);
+    const otherPlayerSteamId = String(url.searchParams.get("otherPlayerSteamId"));
+    const userSteamId = String(url.searchParams.get("userSteamId"));
+    console.log(userSteamId, otherPlayerSteamId,"INFO IN ROUTE")
+    return NextResponse.json(await isUserLikedOrDisliked({ userSteamId, otherPlayerSteamId }))
 }
