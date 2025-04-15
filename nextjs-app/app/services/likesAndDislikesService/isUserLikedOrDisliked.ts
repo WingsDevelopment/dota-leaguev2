@@ -5,25 +5,26 @@ import { getPrimitiveServiceErrorResponse, getSuccessfulServiceResponse, runDbAl
 import { ServiceResponse } from "../common/types";
 
 export interface isUserLikerOrDisliked {
-    userSteamId: string;
+    userSteamId: string |null;
     otherPlayerSteamId: string;
 }
 export interface LikedOrDisliked {
-    lod?: boolean
+    likes_dislikes: number
 }
 /**
- * Returns the sum of likes and dislikes for the user by steam Id.
+ * Returns 0 or 1 representing the value if user liked or disliked the other user that is being watched.
  *
  * @async
- * @function getPlayerLikesAndDislikes
+ * @function isUserLikedOrDisliked
  * @param {getPlayerBySteamId} params - The object containing the steam id.
- * @returns {Promise<ServiceResponse>} A promise that resolves to a service response which return Likes and Dislikes or undefined.
+ * @returns {Promise<ServiceResponse<LikedOrDisliked>>} A promise that resolves to a service response which returns 
+ * 0 or 1 representing the value if user liked or disliked the other user that is being watched.
  *
  * @example
- * const response = await getMatchHistory({ steamId: "123" });
+ * const response = await isUserLikedOrDislikedByOtherUser({ userSteamId:"1234", otherPlayerSteamId:"4321" });
  */
-export async function isUserLikedOrDisliked({ userSteamId, otherPlayerSteamId }:
-    isUserLikerOrDisliked): Promise<ServiceResponse<LikedOrDisliked | undefined>> {
+export async function isUserLikedOrDislikedByOtherUser({ userSteamId, otherPlayerSteamId }:
+    isUserLikerOrDisliked): Promise<ServiceResponse<LikedOrDisliked>> {
     /* ----------------- */
     /*   Initialization  */
     /* ----------------- */
@@ -39,16 +40,16 @@ export async function isUserLikedOrDisliked({ userSteamId, otherPlayerSteamId }:
         /* ------------- */
         /*   DB Query    */
         /* ------------- */
-        const lod = await runDbAll<LikedOrDisliked>(db, `SELECT likes_dislikes FROM likeDislike WHERE steam_id = ? AND other_player_steam_id = ?`, [
+        const lod = await runDbAll<LikedOrDisliked[]>(db, `SELECT likes_dislikes FROM likeDislike WHERE steam_id = ? AND other_player_steam_id = ?`, [
             userSteamId, otherPlayerSteamId
         ]);
-        console.log(lod,"LOD")
+        console.log(lod[0],"LOD")
         /* ---------------- */
         /*   Return Data    */
         /* ---------------- */
         return getSuccessfulServiceResponse({
             message: "Fetched info if user like or disliked the user he is watching.",
-            data: lod
+            data: lod[0]
         });
     } catch (error) {
         /* -------- */

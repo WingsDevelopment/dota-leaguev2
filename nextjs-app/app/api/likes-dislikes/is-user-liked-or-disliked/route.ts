@@ -1,6 +1,6 @@
 
 import { NextResponse } from "next/server";
-import { isUserLikedOrDisliked } from "@/app/services/likesAndDislikesService/isUserLikedOrDisliked";
+import { isUserLikedOrDislikedByOtherUser } from "@/app/services/likesAndDislikesService/isUserLikedOrDisliked";
 
 export async function GET(req: Request) {
 
@@ -8,5 +8,5 @@ export async function GET(req: Request) {
     const otherPlayerSteamId = String(url.searchParams.get("otherPlayerSteamId"));
     const userSteamId = String(url.searchParams.get("userSteamId"));
     console.log(userSteamId, otherPlayerSteamId,"INFO IN ROUTE")
-    return NextResponse.json(await isUserLikedOrDisliked({ userSteamId, otherPlayerSteamId }))
+    return NextResponse.json(await isUserLikedOrDislikedByOtherUser({ userSteamId, otherPlayerSteamId }))
 }

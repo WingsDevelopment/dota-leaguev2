@@ -17,7 +17,7 @@ export interface UserProfileProps {
   };
   discordId?: string;
   userSteamId: string | null;
-  isUserLiked: number;
+  isUserLiked?: number|null;
 }
 export default function UserProfile({
   user,
@@ -29,21 +29,6 @@ export default function UserProfile({
   if (!user) return;
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    fetchLD();
-  }, []);
-
-  const fetchLD = async () => {
-    try {
-      const steam_id = String(user.steam_id)
-      apiCallerGetLikesAndDislikesBySteamId({ steam_id }).then(() => {
-        router.refresh();
-      });
-    } catch (error) {
-
-    }
-  };
 
   const publicSwitch = async (check: boolean) => {
     const checked = Number(check);
@@ -94,7 +79,6 @@ export default function UserProfile({
                   userSteamId={userSteamId}
                   otherPlayerSteamId={String(user.steam_id)}
                   isUserLiked={isUserLiked}
-                  fetchLD={fetchLD}
                 />
                 <ReportSystem
                   otherPlayerSteamId={String(user.steam_id)}

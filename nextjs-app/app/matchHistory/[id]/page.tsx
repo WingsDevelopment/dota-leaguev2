@@ -8,10 +8,11 @@ import { apiCallerGetMatchHistory } from "@/app/api/match-history-players/show-h
 import { apiCallerGetPlayerBySteamId } from "@/app/api/player/get-player-by-steam-id/caller";
 import { apiCallerGetPlayerSteamIdByDiscordId } from "@/app/api/player/get-player-steam-id-by-discord-id/caller";
 import { apiCallerGetLikesAndDislikesBySteamId } from "@/app/api/likes-dislikes/get-likes-and-dislikes/caller";
+import { apiCallerisUserLikedOrDisliked } from "@/app/api/likes-dislikes/is-user-liked-or-disliked/caller";
 
 export interface MatchHistoryProps {
   params: {
-    id: string | undefined | null;
+    id: string;
     match: string; // Next.js dynamic params are always strings
   };
 }
@@ -54,19 +55,14 @@ const matchHistoryList = matchHistoryRes;
   const likesAndDislikes = likesAndDislikesRes;
   const userSteamIdValue = userSteamId ?? null;
   const isUserLikedOrDisliked = userSteamIdValue
-    ? (
-      await fetcher(
-        `${baseUrl}/api/likes-dislikes/is-user-liked-or-disliked?steam_id=${id}&user_steam_id=${userSteamIdValue}`
-      )
-    )?.data
-    : [];
-
+    ? await apiCallerisUserLikedOrDisliked({ otherPlayerSteamId:id, userSteamId:userSteamIdValue })
+    : null;
   const isOwnProfile = playerList?.discord_id === Number(discordId);
   if (playerList.is_public_profile || isOwnProfile) {
     return (
       <div className="flex flex-col gap-8">
         <UserProfile
-          isUserLiked={isUserLikedOrDisliked[0]?.likes_dislikes ?? null}
+          isUserLiked={isUserLikedOrDisliked?.likes_dislikes}
           ld={likesAndDislikes}
           userSteamId={userSteamIdValue}
           discordId={discordId}
@@ -82,7 +78,7 @@ const matchHistoryList = matchHistoryRes;
     return (
       <div className="flex flex-col gap-8">
         <UserProfile
-          isUserLiked={isUserLikedOrDisliked[0]?.likes_dislikes}
+          isUserLiked={isUserLikedOrDisliked?.likes_dislikes}
           ld={likesAndDislikes}
           userSteamId={userSteamIdValue}
           discordId={discordId}

@@ -75,7 +75,7 @@ export default function ShowHistory({
                           <p>{heroToUppercase(heroMap[match.hero_id])}</p>
                         </div>
                       </TableCell>
-                      <TableCell>{match.result == null ? "Unknown" : match.winner}</TableCell>
+                      <TableCell>{match.result? match.winner : "Unknown"}</TableCell>
                       <TableCell>{formatDuration(match.duration)}</TableCell>
                       <TableCell>{match.kills}</TableCell>
                       <TableCell>{match.deaths}</TableCell>
