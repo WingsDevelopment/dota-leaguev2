@@ -1,38 +1,63 @@
 import { getDbInstance } from "@/db/utils";
 import { closeDatabase } from "@/db/initDatabase";
 import { NextResponse } from "next/server";
-
-enum VoteType {
+import { PrimitiveServiceResponse } from "../common/types";
+import { getPrimitiveServiceErrorResponse, getSuccessfulServiceResponse, runDbAll, runDbCommitTransactions, runDbQuery, runDbRollback, runDbStartTransactions } from "../common/functions";
+/* --------- */
+/*   Enums   */
+/* --------- */
+export enum VoteType {
     LIKE = "like",
     DISLIKE = "dislike",
     UNLIKE = "liked",
     UNDISLIKE = "disliked"
 }
-
-interface PlayerVote {
-    userSteamId: string;
+/* --------- */
+/*   Types   */
+/* --------- */
+export interface PlayerVote {
+    userSteamId: string |null;
     otherPlayerSteamId: string;
     type: VoteType;
 }
-
-export async function putLikesAndDislikes({ userSteamId, otherPlayerSteamId, type }: PlayerVote) {
+export interface LikesAndDislikesUser {
+    likes_dislikes: number
+}
+/**
+ * Sets 0 or 1 for the person that user liked or disliked.
+ *
+ * @async
+ * @function putLikesAndDislikes
+ * @param {getPlayerBySteamId} params - The object containing params for like/dislike.
+ * @returns {Promise<PrimitiveServiceResponse>} A promise that resolves to a primitive service response.
+ *
+ * @example
+ * const response = await putLikesAndDislikes({ userSteamId:"1234", otherPlayerSteamId:"4321", type:"like" });
+ */
+export async function putLikesAndDislikes({ userSteamId, otherPlayerSteamId, type }
+    : PlayerVote): Promise<PrimitiveServiceResponse> {
+    /* ------------------ */
+    /*   Initialization   */
+    /* ------------------ */
     const db = await getDbInstance();
     try {
-        await new Promise((resolve, reject) => db.run("BEGIN TRANSACTION", (err) => (err ? reject(err) : resolve(true))));
+        /* ------------- */
+        /*   Validation  */
+        /* ------------- */
+        if (!userSteamId || !otherPlayerSteamId || !type) {
+            throw new Error("Invalid paramters (userSteamId/otherPlayerSteamId,type).");
+        }
+        /* -------------------- */
+        /*   Begin transaction  */
+        /* -------------------- */
+        await runDbStartTransactions(db)
+        /* ------------- */
+        /*   DB Query    */
+        /* ------------- */
+        const existingVote: LikesAndDislikesUser[] = await runDbAll(db, `SELECT likes_dislikes FROM likeDislike WHERE steam_id = ? AND other_player_steam_id = ?`, [
+            String(userSteamId), String(otherPlayerSteamId)
+        ]);
 
-        const existingVote: Array<Record<string, any>> = await new Promise((resolve, reject) => {
-            db.all(
-                `SELECT likes_dislikes FROM likeDislike WHERE steam_id = ? AND other_player_steam_id = ?`,
-                [String(userSteamId), String(otherPlayerSteamId)],
-                (err, rows) => {
-                    if (err) {
-                        console.error("Error executing query:", err);
-                        return reject(err);
-                    }
-                    resolve(rows as any);
-                }
-            );
-        });
 
         if (existingVote.length > 0) {
             const currentVote = existingVote[0].likes_dislikes;
@@ -53,35 +78,20 @@ export async function putLikesAndDislikes({ userSteamId, otherPlayerSteamId, typ
 
 
             if (type === VoteType.UNLIKE || type === VoteType.UNDISLIKE) {
-                await new Promise((resolve, reject) => {
-                    db.run(
-                        `UPDATE likeDislike SET likes_dislikes = NULL WHERE steam_id = ? AND other_player_steam_id = ?`,
-                        [String(userSteamId), String(otherPlayerSteamId)],
-                        function (err) {
-                            if (err) {
-                                console.error("Error updating database:", err);
-                                return reject(err);
-                            }
-                            resolve(true);
-                        }
-                    );
-                });
+                /* ------------- */
+                /*   DB Query    */
+                /* ------------- */
+                await runDbQuery(db, `UPDATE likeDislike SET likes_dislikes = NULL WHERE steam_id = ? AND other_player_steam_id = ?`, [
+                    String(userSteamId), String(otherPlayerSteamId)
+                ]);
             } else {
-
                 const likeDislikeValue = type === VoteType.LIKE ? 1 : 0;
-                await new Promise((resolve, reject) => {
-                    db.run(
-                        `UPDATE likeDislike SET likes_dislikes = ? WHERE steam_id = ? AND other_player_steam_id = ?`,
-                        [likeDislikeValue, String(userSteamId), String(otherPlayerSteamId)],
-                        function (err) {
-                            if (err) {
-                                console.error("Error updating database:", err);
-                                return reject(err);
-                            }
-                            resolve(true);
-                        }
-                    );
-                });
+                /* ------------- */
+                /*   DB Query    */
+                /* ------------- */
+                await runDbQuery(db, `UPDATE likeDislike SET likes_dislikes = ? WHERE steam_id = ? AND other_player_steam_id = ?`, [
+                    likeDislikeValue, String(userSteamId), String(otherPlayerSteamId)
+                ]);
             }
         } else {
 
@@ -90,28 +100,36 @@ export async function putLikesAndDislikes({ userSteamId, otherPlayerSteamId, typ
             }
 
             const likeDislikeValue = type === VoteType.LIKE ? 1 : 0;
-            await new Promise((resolve, reject) => {
-                db.run(
-                    `INSERT INTO likeDislike (steam_id, other_player_steam_id, likes_dislikes) VALUES (?, ?, ?)`,
-                    [String(userSteamId), String(otherPlayerSteamId), likeDislikeValue],
-                    function (err) {
-                        if (err) {
-                            console.error("Error inserting into database:", err);
-                            return reject(err);
-                        }
-                        resolve(true);
-                    }
-                );
-            });
+            /* ------------- */
+            /*   DB Query    */
+            /* ------------- */
+            await runDbQuery(db, `INSERT INTO likeDislike (steam_id, other_player_steam_id, likes_dislikes) VALUES (?, ?, ?)`, [
+                String(userSteamId), String(otherPlayerSteamId), likeDislikeValue
+            ]);
         }
-
-        await new Promise((resolve, reject) => db.run("COMMIT", (err) => (err ? reject(err) : resolve(true))));
-        closeDatabase(db);
-        return { success: true, message: "Vote processed successfully." };
+        /* ----------------------- */
+        /*   Commit Transaction    */
+        /* ----------------------- */
+        await runDbCommitTransactions(db)
+        /* ---------------- */
+        /*   Return Data    */
+        /* ---------------- */
+        return getSuccessfulServiceResponse({
+            message: "Vote processed successfully.",
+        });
     } catch (error: any) {
-        await new Promise((resolve) => db.run("ROLLBACK", () => resolve(true)));
-        console.error("Error processing vote:", error.message);
-        closeDatabase(db);
-        return NextResponse.json({ success: false, message: error.message }, { status: 400 });
+        /* -------------- */
+        /*   Run Rollback */
+        /* ---------------*/
+        await runDbRollback(db)
+        /* -------- */
+        /*   Error  */
+        /* -------- */
+        return getPrimitiveServiceErrorResponse(error, "Error liking or disliking the user.");
+    } finally {
+        /* -------- */
+        /*  Cleanup */
+        /* -------- */
+        closeDatabase(db)
     }
 }

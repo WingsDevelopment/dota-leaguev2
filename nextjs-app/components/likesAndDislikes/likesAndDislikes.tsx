@@ -1,11 +1,14 @@
 "use client";
-import { apiCallerGetLikesAndDislikesBySteamId } from "@/app/api/likes-dislikes/get-likes-and-dislikes/caller";
-import { apiCallerisUserLikedOrDisliked } from "@/app/api/likes-dislikes/is-user-liked-or-disliked/caller";
+import { apiCallerPutLikeOrDislike } from "@/app/api/likes-dislikes/like-and-dislike/caller";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Button } from "react-day-picker";
 
+export enum VoteType {
+    LIKE = "like",
+    DISLIKE = "dislike",
+    UNLIKE = "liked",
+    UNDISLIKE = "disliked"
+}
 interface LikesAndDislikes {
     userSteamId: string | null;
     otherPlayerSteamId: string;
@@ -20,20 +23,15 @@ export default function LikesAndDislikes({
     const router = useRouter()
 
 
-    const likeAndDislike = async (type: string) => {
+    const likeAndDislike = async (type: VoteType) => {
         try {
-            console.log("THIS HAPPENSSS")
-            const res = await fetch(`/api/likes-dislikes/like-and-dislike`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userSteamId, otherPlayerSteamId, type }),
-            });
-            const data = await res.json(); // Parse the response
-            if (!data.success) {
-                alert(data.message || "Failed to update likes and dislikes."); // Show error message if request fails
-                return;
-            }
-            router.refresh()
+            apiCallerPutLikeOrDislike({
+                userSteamId,
+                otherPlayerSteamId,
+                type
+            }).then(() => {
+                router.refresh()
+            })
         } catch (error) {
             console.error("Failed to update likes and dislikes.", error);
         }
@@ -66,7 +64,7 @@ export default function LikesAndDislikes({
     return (
         <>
             <button
-                onClick={() => likeAndDislike(isUserLiked === 1 ? "liked" : "like")}
+                onClick={() => likeAndDislike(isUserLiked === 1 ? VoteType.UNLIKE : VoteType.LIKE)}
                 className={getButtonStyles("like", isUserLiked ?? null)}
             >
                 <ThumbsUp
@@ -75,7 +73,7 @@ export default function LikesAndDislikes({
                 />
             </button>
             <button
-                onClick={() => likeAndDislike(isUserLiked === 0 ? "disliked" : "dislike")}
+                onClick={() => likeAndDislike(isUserLiked === 0 ? VoteType.UNDISLIKE : VoteType.DISLIKE)}
                 className={getButtonStyles("dislike", isUserLiked ?? null)}
             >
                 <ThumbsDown

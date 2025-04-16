@@ -33,7 +33,6 @@ export async function isUserLikedOrDislikedByOtherUser({ userSteamId, otherPlaye
         /* ------------- */
         /*   Validation  */
         /* ------------- */
-        console.log(userSteamId, otherPlayerSteamId, "correct Info")
         if (!otherPlayerSteamId || !userSteamId) {
             throw new Error("Missing users or other user steam_id.");
         }
@@ -43,7 +42,6 @@ export async function isUserLikedOrDislikedByOtherUser({ userSteamId, otherPlaye
         const lod = await runDbAll<LikedOrDisliked[]>(db, `SELECT likes_dislikes FROM likeDislike WHERE steam_id = ? AND other_player_steam_id = ?`, [
             userSteamId, otherPlayerSteamId
         ]);
-        console.log(lod[0],"LOD")
         /* ---------------- */
         /*   Return Data    */
         /* ---------------- */
