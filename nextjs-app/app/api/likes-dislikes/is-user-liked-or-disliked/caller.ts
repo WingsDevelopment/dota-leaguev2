@@ -7,7 +7,6 @@ export const apiCallerisUserLikedOrDisliked = async ({
     userSteamId, otherPlayerSteamId
 }: isUserLikerOrDisliked): Promise<LikedOrDisliked> => {
     try {
-        console.log(userSteamId, otherPlayerSteamId, "INFO IN CALLER")
         const response = await axios.get(`${baseUrl}/api/likes-dislikes/is-user-liked-or-disliked`, {
             params: { userSteamId, otherPlayerSteamId }
         });
