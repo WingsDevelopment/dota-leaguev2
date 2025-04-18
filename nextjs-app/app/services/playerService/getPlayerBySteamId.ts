@@ -11,7 +11,7 @@ import { ServiceResponse } from "../common/types";
 /*   Types   */
 /* --------- */
 export interface getPlayerBySteamId {
-  steam_id: string | null;
+  steam_id?: string | null;
 }
 export interface Player {
   id: number;

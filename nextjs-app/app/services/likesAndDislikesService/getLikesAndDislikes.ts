@@ -1,34 +1,60 @@
 import { getDbInstance } from "@/db/utils";
 import { closeDatabase } from "@/db/initDatabase";
-
-interface getPlayerBySteamId {
+import { getPrimitiveServiceErrorResponse, getSuccessfulServiceResponse, runDbAll } from "../common/functions";
+import { ServiceResponse } from "../common/types";
+/* --------- */
+/*   Types   */
+/* --------- */
+export interface getPlayerBySteamId {
     steamId: string;
 }
+export interface SumOfLikesAndDislikes {
+    likes: number,
+    dislikes: number
+}
+/* --------- */
+/*   Enums   */
+/* --------- */
 enum LikeType {
     LIKE = 1,
     DISLIKE = 0
 }
-export async function getPlayerLikesAndDislikes({ steamId }: getPlayerBySteamId) {
+/**
+ * Returns the sum of likes and dislikes for the user by steam Id.
+ *
+ * @async
+ * @function getPlayerLikesAndDislikes
+ * @param {getPlayerBySteamId} params - The object containing the steam id.
+ * @returns {Promise<ServiceResponse<SumOfLikesAndDislikes | undefined>>} A promise that resolves to a service response which return Likes and Dislikes or undefined.
+ *
+ * @example
+ * const response = await getMatchHistory({ steamId: "123" });
+ */
+export async function getPlayerLikesAndDislikes({
+    steamId
+}: getPlayerBySteamId): Promise<ServiceResponse<SumOfLikesAndDislikes | undefined>> {
+    /* ----------------- */
+    /*   Initialization  */
+    /* ----------------- */
     const db = await getDbInstance();
     try {
-        const likeDislikeRows: Array<Record<string, any>> = await new Promise((resolve, reject) => {
-            db.all(
-                `SELECT likes_dislikes FROM likeDislike WHERE other_player_steam_id = ?`,
-                [String(steamId)],
-                (err, rows) => {
-                    if (err) {
-                        console.error("Error executing query:", err);
-                        return reject(err);
-                    }
-                    resolve(rows as any);
-                }
-            );
-        });
+        /* ------------- */
+        /*   Validation  */
+        /* ------------- */
+        if (!steamId) {
+            throw new Error("Missing steam_id parameter");
+        }
+        /* ------------- */
+        /*   DB Query    */
+        /* ------------- */
+        const likeDislikeRows = await runDbAll<SumOfLikesAndDislikes[]>(db, `SELECT likes_dislikes FROM likeDislike WHERE other_player_steam_id = ?`, [
+            steamId
+        ]);
 
         let likes = 0;
         let dislikes = 0;
 
-        likeDislikeRows.forEach((row) => {
+        likeDislikeRows.forEach((row: any) => {
             if (row.likes_dislikes === LikeType.LIKE) {
                 likes++;
             } else if (row.likes_dislikes === LikeType.DISLIKE) {
@@ -36,11 +62,22 @@ export async function getPlayerLikesAndDislikes({ steamId }: getPlayerBySteamId)
             }
         });
 
-        closeDatabase(db);
-        return { success: true, data: { likes, dislikes } };
+        /* ---------------- */
+        /*   Return Data    */
+        /* ---------------- */
+        return getSuccessfulServiceResponse({
+            message: "Fetched likes and dislikes successfully.",
+            data: { likes, dislikes }
+        });
     } catch (error) {
-        console.error("Error processing likes/dislikes:", error);
-        closeDatabase(db);
-        return { success: false, message: "Error processing likes/dislikes" };
+        /* -------- */
+        /*   Error  */
+        /* -------- */
+        return getPrimitiveServiceErrorResponse(error, "Error processing likes/dislikes.");
+    } finally {
+        /* -------- */
+        /*  Cleanup */
+        /* -------- */
+        closeDatabase(db)
     }
 }

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import path from "path";
-import fs from "fs";
 import sqlite3 from "sqlite3";
 import { closeDatabase } from "@/db/initDatabase";
 
