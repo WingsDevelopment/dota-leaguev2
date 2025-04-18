@@ -1,11 +1,12 @@
 import { getDbInstance } from "@/db/utils";
 import { closeDatabase } from "@/db/initDatabase";
-import { NextResponse } from "next/server";
 import { getPrimitiveServiceErrorResponse, getSuccessfulServiceResponse, runDbAll } from "../common/functions";
 import { ServiceResponse } from "../common/types";
-
+/* --------- */
+/*   Types   */
+/* --------- */
 export interface isUserLikerOrDisliked {
-    userSteamId: string |null;
+    userSteamId: string | null;
     otherPlayerSteamId: string;
 }
 export interface LikedOrDisliked {

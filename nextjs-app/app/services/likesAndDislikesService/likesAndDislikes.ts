@@ -1,6 +1,5 @@
 import { getDbInstance } from "@/db/utils";
 import { closeDatabase } from "@/db/initDatabase";
-import { NextResponse } from "next/server";
 import { PrimitiveServiceResponse } from "../common/types";
 import { getPrimitiveServiceErrorResponse, getSuccessfulServiceResponse, runDbAll, runDbCommitTransactions, runDbQuery, runDbRollback, runDbStartTransactions } from "../common/functions";
 /* --------- */
@@ -28,7 +27,7 @@ export interface LikesAndDislikesUser {
  *
  * @async
  * @function putLikesAndDislikes
- * @param {getPlayerBySteamId} params - The object containing params for like/dislike.
+ * @param {PlayerVote} params - The object containing params for like/dislike.
  * @returns {Promise<PrimitiveServiceResponse>} A promise that resolves to a primitive service response.
  *
  * @example
@@ -58,7 +57,6 @@ export async function putLikesAndDislikes({ userSteamId, otherPlayerSteamId, typ
             String(userSteamId), String(otherPlayerSteamId)
         ]);
 
-
         if (existingVote.length > 0) {
             const currentVote = existingVote[0].likes_dislikes;
 
@@ -75,8 +73,6 @@ export async function putLikesAndDislikes({ userSteamId, otherPlayerSteamId, typ
             ) {
                 throw new Error("Invalid action: This player has already been liked/disliked.");
             }
-
-
             if (type === VoteType.UNLIKE || type === VoteType.UNDISLIKE) {
                 /* ------------- */
                 /*   DB Query    */
