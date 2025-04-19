@@ -1,106 +1,122 @@
 import datetime
-from typing import Any, Dict, List
-from random import choice
+from typing import Any, Optional
 from discord import ButtonStyle, Interaction, TextChannel
 from discord.ui import View, Button
-
 from discord_db import execute_function_single_row_return
+from queues_config import QUEUES
 
 class ConsoleView(View):
-    def __init__(self, bot, RENDER, callback_normal, callback_draft):
+    def __init__(self, bot, RENDER):
         super().__init__(timeout=None)
         self.bot = bot
-        self.console_channel: TextChannel = bot.console_channel
-        self.callback_normal = callback_normal
-        self.callback_draft = callback_draft
         self.RENDER = RENDER
-        
-        self.signup_draft_button = Button(style=ButtonStyle.green, label="Draft game signup", custom_id="2")
-        self.signup_draft_button.callback = self.signup_draft_callback
-        self.add_item(self.signup_draft_button)
-        
-        self.signup_button = Button(style=ButtonStyle.blurple, label="Normal game signup", custom_id="1")
-        self.signup_button.callback = self.signup_callback
-        self.add_item(self.signup_button)
-        
-        self.leave_button = Button(style=ButtonStyle.red, label="Leave all queues", custom_id="3")
-        self.leave_button.callback = self.leave_callback
-        self.add_item(self.leave_button)
+        self.console_channel: TextChannel = bot.console_channel
 
-    async def signup_callback(self, interaction: Interaction):
+        # Dynamically create a button for each queue
+        for idx, q in enumerate(QUEUES, start=1):
+            btn = Button(style=q.style, label=q.label, custom_id=str(idx))
+            async def _cb(interaction: Interaction, q=q):
+                await self.generic_signup(interaction, q)
+            btn.callback = _cb
+            self.add_item(btn)
+
+        # Leave button
+        leave_btn = Button(style=ButtonStyle.red, label="Leave all queues", custom_id="leave")
+        leave_btn.callback = self.leave_callback
+        self.add_item(leave_btn)
+
+    async def generic_signup(self, interaction: Interaction, q):
         user = interaction.user
+
+        # 1) Registration & ban logic
         try:
-            execute_function_single_row_return('get_player_id', interaction.user.id)
-            player = execute_function_single_row_return("get_player", interaction.user.id)
+            execute_function_single_row_return('get_player_id', user.id)
+            player = execute_function_single_row_return('get_player', user.id)
             banned_until_str = player.get('banned_until')
             if banned_until_str:
                 try:
-                    banned_until = datetime.datetime.fromisoformat(banned_until_str)  # Convert only if not None
+                    banned_until = datetime.datetime.fromisoformat(banned_until_str)
                     if banned_until > datetime.datetime.now():
-                        await interaction.response.send_message(f'You are banned until {banned_until}', delete_after=10)
+                        await interaction.response.send_message(
+                            f"You are banned until {banned_until}", delete_after=10
+                        )
                         return
                 except ValueError:
-                    print(f"Warning: Invalid date format in banned_until for {interaction.user.id}: {banned_until_str}")
+                    print(f"Warning: invalid banned_until format: {banned_until_str}")
         except ValueError:
-            await self.console_channel.send(f'<@{user.id}> You need to signup for the leage', delete_after=5)
+            await interaction.response.send_message(
+                f"<@{user.id}> You need to signup for the league", delete_after=5
+            )
             return
-        if user not in self.bot.sigedUpPlayerPool:  # type: ignore
-            self.bot.sigedUpPlayerPool.append(user)  # type: ignore
-            await self.console_channel.send(f'<@{user.id}> You successfully signed up for a game', delete_after=5)
-            self.RENDER['queue'] = True
-            await self.callback_normal(None)
-        else:
-            await self.console_channel.send(f'<@{user.id}> You have already signed up for the game', delete_after=5)
-        try:
-            await interaction.response.edit_message(view=self)
-        except Exception as e:
-            # Optionally log the exception here
-            pass
 
-    async def signup_draft_callback(self, interaction: Interaction):
-        user = interaction.user
-        try:
-            execute_function_single_row_return('get_player_id', interaction.user.id)
-            player = execute_function_single_row_return("get_player", interaction.user.id)
-            banned_until_str = player.get('banned_until')
-            if banned_until_str:
-                try:
-                    banned_until = datetime.datetime.fromisoformat(banned_until_str)  # Convert only if not None
-                    if banned_until > datetime.datetime.now():
-                        await interaction.response.send_message(f'You are banned until {banned_until}', delete_after=10)
-                        return
-                except ValueError:
-                    print(f"Warning: Invalid date format in banned_until for {interaction.user.id}: {banned_until_str}")
-        except ValueError:
-            await self.console_channel.send(f'<@{user.id}> You need to signup for the leage', delete_after=5)
+        # 2) Custom validation, if defined
+        if q.validation_fn_name:
+            validator = getattr(self, q.validation_fn_name)
+            ok, reason = await validator(user)
+            if not ok:
+                await interaction.response.send_message(reason, delete_after=10)
+                return
+
+        # 3) Add user to the appropriate pool
+        pool: list = getattr(self.bot, q.pool_attr)
+        if any(m.id == user.id for m in pool):
+            await interaction.response.send_message(
+                f"<@{user.id}> You have already signed up for {q.label}", delete_after=5
+            )
             return
-        if not any(member.id == user.id for member in self.bot.sigedUpDraftPlayerPool):  # type: ignore
-            self.bot.sigedUpDraftPlayerPool.append(user)  # type: ignore
-            await self.console_channel.send(f'<@{user.id}> You successfully signed up for a draft game', delete_after=5)
-            self.RENDER['queue_draft'] = True
-            await self.callback_draft(None)
-        else:
-            await self.console_channel.send(f'<@{user.id}> You have already signed up for the draft game', delete_after=5)
-        try:
-            await interaction.response.edit_message(view=self)
-        except Exception as e:
-            pass
+
+        pool.append(user)
+        self.RENDER[q.key] = True
+
+        # 4) Trigger the start-if-full handler in main module
+        import __main__ as main
+        await getattr(main, q.start_fn_name)(None)
+
+        # 5) Update the view and send confirmation
+        await interaction.response.edit_message(view=self)
+        await self.console_channel.send(
+            f"<@{user.id}> You successfully signed up for {q.label}", delete_after=5
+        )
 
     async def leave_callback(self, interaction: Interaction):
-        user = interaction.user  # type: ignore
-        player_to_remove_from_queue = next((member for member in self.bot.sigedUpPlayerPool if member.id == interaction.user.id), None)
-        player_to_remove_from_draft_queue = next((member for member in self.bot.sigedUpDraftPlayerPool if member.id == interaction.user.id), None)
-        if player_to_remove_from_queue is None and player_to_remove_from_draft_queue is None:  # type: ignore
-            await self.console_channel.send(f'<@{user.id}> You are not in the queue', delete_after=5)
+        user = interaction.user
+        removed = False
+        # Remove from every pool
+        for q in QUEUES:
+            pool: list = getattr(self.bot, q.pool_attr)
+            member = next((m for m in pool if m.id == user.id), None)
+            if member:
+                pool.remove(member)
+                self.RENDER[q.key] = True
+                removed = True
+
+        if not removed:
+            await interaction.response.send_message(
+                f"<@{user.id}> You are not in any queue", delete_after=5
+            )
             return
-        if player_to_remove_from_queue:
-            self.bot.sigedUpPlayerPool.remove(player_to_remove_from_queue)
-        if player_to_remove_from_draft_queue:
-            self.bot.sigedUpDraftPlayerPool.remove(player_to_remove_from_draft_queue)
-        await self.console_channel.send(f'<@{user.id}> You left the queue', delete_after=5)
-        self.RENDER['queue'] = True
-        self.RENDER['queue_draft'] = True
-        try:
-            await interaction.response.edit_message(view=self)
-        except Exception as e:
-            pass
+
+        # Trigger re-render of buttons if needed
+        import __main__ as main
+        await main._rerender_queue_console_if_needed()
+
+        # Update the view and send confirmation
+        await interaction.response.edit_message(view=self)
+        await self.console_channel.send(
+            f"<@{user.id}> You left all queues", delete_after=5
+        )
+
+    # --- Custom validators for high MMR queues ---
+    async def validate_high_mmr(self, user: Any) -> tuple[bool, Optional[str]]:
+        player = execute_function_single_row_return('get_player', user.id)
+        vouches = player.get('queue_vouches', []) or []
+        if "5" not in vouches:
+            return False, f"Sorry <@{user.id}> you are not vouched for this queue. Try supreme or ping admins."
+        return True, None
+
+    async def validate_high_mmr_balance(self, user: Any) -> tuple[bool, Optional[str]]:
+        player = execute_function_single_row_return('get_player', user.id)
+        vouches = player.get('queue_vouches', []) or []
+        if "5" not in vouches:
+            return False, f"Sorry <@{user.id}> you are not vouched for this queue. Try supreme or ping admins."
+        return True, None

@@ -61,7 +61,15 @@ CONSOLE_CHANNEL_ID : Union[str, None]= os.getenv('CONSOLE_CHANNEL_ID', None)
 PREFIX = '!'
 SKIP_GAMES = []  # Used when the same league was used for testing or previous season
 
-RENDER = {'leaderboard': False, 'queue': False, 'queue_draft': False}
+# add queue
+RENDER = {
+    'leaderboard':    False,
+    'queue':          False,
+    'queue_draft':    False,
+    'queue_hmmr':     False,
+    'queue_hmmr_bal': False,
+}
+
 AUTO_SCORING_IN_PROGRESS = False
 
 def get_match_winner(match_id):
@@ -159,6 +167,10 @@ bot = Bot(
 
 bot.sigedUpPlayerPool: List[Member] = []  # type: ignore
 bot.sigedUpDraftPlayerPool: List[Member] = []  # type: ignore
+# add queue
+bot.sigedUpHighMMRPool: List[Member] = []
+bot.sigedUpHighMMRBalancePool: List[Member] = []
+
 
 
 @bot.event
@@ -187,9 +199,18 @@ async def on_ready():
 
     await _rerender_queue_console_if_needed(True)
     await _rerender_leaderboard_if_needed(True)
+
+    # leaderboard + all four queues
     asyncio.ensure_future(update_embed_loop(_update_leaderboard, 'leaderboard'))
-    asyncio.ensure_future(update_embed_loop(_update_queue, 'queue'))
-    asyncio.ensure_future(update_embed_loop(_update_draft_queue, 'queue_draft'))
+    for fn, flag in [
+        (_update_queue,          'queue'),
+        (_update_draft_queue,    'queue_draft'),
+        # add queue
+        (_update_hmmr_queue,     'queue_hmmr'),
+        (_update_hmmr_bal_queue, 'queue_hmmr_bal'),
+    ]:
+        asyncio.ensure_future(update_embed_loop(fn, flag))
+
     asyncio.ensure_future(_look_for_timeout_games())
     _log(f'Logged in as {bot.user}')
 
@@ -941,8 +962,68 @@ async def _check_pool_size_and_start_draft(ctx: Context = None):
         else:
             await bot.command_channel.send(f'''Game created, check out <#{bot.draft_channel.id}>''', delete_after=10)
 
+#add queue
+# in main.py, after your existing _check_pool_size_and_start_draft
+async def _check_pool_size_and_start_hmmr(ctx: Context = None):
+    global RENDER
+    # 1) de-dup the high‑MMR pool
+    if remove_duplicates(bot.sigedUpHighMMRPool):
+        RENDER['queue_hmmr'] = True
+        await _rerender_queue_console_if_needed()
+        return
+
+    # 2) if we've reached lobby size, start a DRAFT game via DraftView
+    if len(bot.sigedUpHighMMRPool) >= LOBBY_SIZE:
+        players = bot.sigedUpHighMMRPool[:LOBBY_SIZE]
+        # remove them from the other queues
+        for p in players:
+            if p in bot.sigedUpPlayerPool:
+                bot.sigedUpPlayerPool.remove(p)
+            if p in bot.sigedUpDraftPlayerPool:
+                bot.sigedUpDraftPlayerPool.remove(p)
+        bot.sigedUpHighMMRPool = bot.sigedUpHighMMRPool[LOBBY_SIZE:]
+
+        RENDER['queue_hmmr'] = True
+
+        # build a DraftView (which will call _create_a_draft_game under the hood)
+        draft_view = DraftView(bot, ctx, players, _create_a_draft_game)
+        draft_embed = draft_view.create_view_embed()
+        await bot.draft_channel.send(embed=draft_embed, view=draft_view)
+
+        # notify the invoker
+        if ctx:
+            await ctx.reply(f"Game created, check out <#{bot.draft_channel.id}>", delete_after=10)
+        else:
+            await bot.command_channel.send(f"Game created, check out <#{bot.draft_channel.id}>", delete_after=10)
+
+# add queue
+async def _check_pool_size_and_start_hmmr_balance(ctx: Context = None):
+    global RENDER
+    # 1) de-dup the autobalance pool
+    if remove_duplicates(bot.sigedUpHighMMRBalancePool):
+        RENDER['queue_hmmr_bal'] = True
+        await _rerender_queue_console_if_needed()
+        return
+
+    # 2) if we've reached lobby size, start a NORMAL (auto‑balanced) game
+    if len(bot.sigedUpHighMMRBalancePool) >= LOBBY_SIZE:
+        players = bot.sigedUpHighMMRBalancePool[:LOBBY_SIZE]
+        # remove them from the other queues
+        for p in players:
+            if p in bot.sigedUpPlayerPool:
+                bot.sigedUpPlayerPool.remove(p)
+            if p in bot.sigedUpDraftPlayerPool:
+                bot.sigedUpDraftPlayerPool.remove(p)
+        bot.sigedUpHighMMRBalancePool = bot.sigedUpHighMMRBalancePool[LOBBY_SIZE:]
+
+        RENDER['queue_hmmr_bal'] = True
+
+        # call the normal _create_game path (which handles fair shuffling + DB writes)
+        await _create_game(ctx, players)
+
+
 def _create_queue_embed():
-    embed = Embed(title="Players in queue",
+    embed = Embed(title="Supreme autobalance queue",
                   description=f"Currently {len(bot.sigedUpPlayerPool)}/{LOBBY_SIZE} players looking for a game.", color=0xeee657)  # type: ignore
 
     player_str = ''
@@ -954,7 +1035,7 @@ def _create_queue_embed():
 
 
 def _create_draft_queue_embed():
-    embed = Embed(title=f"Players in draft queue",
+    embed = Embed(title=f"Supreme draft queue",
                   description=f"Currently {len(bot.sigedUpDraftPlayerPool)}/{LOBBY_SIZE} players looking for a game.", color=0xeee657)  # type: ignore
 
     player_str = ''
@@ -962,6 +1043,33 @@ def _create_draft_queue_embed():
         player_str += '<@' + str(player.id) + '>' + '\n'
 
     embed.add_field(name=f"Player", value=player_str, inline=True)
+    return embed
+
+# add queue
+def _create_hmmr_queue_embed():
+    embed = Embed(
+        title="Players in MMR 5.5k+ queue draft",
+        description=f"Currently {len(bot.sigedUpHighMMRPool)}/{LOBBY_SIZE} players",
+        color=0xeee657
+    )
+    embed.add_field(
+        name="Player",
+        value="\n".join(f"<@{m.id}>" for m in bot.sigedUpHighMMRPool) or "—",
+        inline=True
+    )
+    return embed
+
+def _create_hmmr_bal_queue_embed():
+    embed = Embed(
+        title="Players in MMR 5.5k+ queue autobalance",
+        description=f"Currently {len(bot.sigedUpHighMMRBalancePool)}/{LOBBY_SIZE} players",
+        color=0xeee657
+    )
+    embed.add_field(
+        name="Player",
+        value="\n".join(f"<@{m.id}>" for m in bot.sigedUpHighMMRBalancePool) or "—",
+        inline=True
+    )
     return embed
 
 
@@ -996,19 +1104,36 @@ async def _update_console():
      embed.add_field(name="Interact with the bot", value="Use the buttons below to interact with the bot")
      return embed
 
+#add queue
+async def _update_hmmr_queue():
+    messages = await _rerender_queue_console_if_needed()
+    hmmr_msg = messages[2]
+    await hmmr_msg.edit(embed=_create_hmmr_queue_embed())
+
+async def _update_hmmr_bal_queue():
+    messages = await _rerender_queue_console_if_needed()
+    hmmr_bal_msg = messages[3]
+    await hmmr_bal_msg.edit(embed=_create_hmmr_bal_queue_embed())
+
+
+#add queue
 async def _rerender_queue_console_if_needed(on_start=False):
-    messages = [message async for message in bot.console_channel.history(oldest_first=True)]
-    if len(messages) < 3 or on_start:
-        for message in messages:
-            await message.delete()
-        draft_queue_embed = _create_draft_queue_embed()
-        queue_embed = _create_queue_embed()
-        console_embed = await _update_console()
-        draft_queue = await bot.console_channel.send(embed=draft_queue_embed)
-        queue = await bot.console_channel.send(embed=queue_embed)
-        console = await bot.console_channel.send(embed=console_embed, view=ConsoleView(bot, RENDER, _check_pool_size_and_start, _check_pool_size_and_start_draft))
-        return [draft_queue, queue, console]
-    return messages
+    msgs = [m async for m in bot.console_channel.history(oldest_first=True)]
+    if len(msgs) < 5 or on_start:
+        # clear out old
+        for m in msgs:
+            await m.delete()
+
+        # send 4 queue embeds + control panel
+        dq = await bot.console_channel.send(embed=_create_draft_queue_embed())
+        q  = await bot.console_channel.send(embed=_create_queue_embed())
+        h1 = await bot.console_channel.send(embed=_create_hmmr_queue_embed())
+        h2 = await bot.console_channel.send(embed=_create_hmmr_bal_queue_embed())
+        ctl = await bot.console_channel.send(embed=await _update_console(), view=ConsoleView(bot, RENDER))
+
+        return [dq, q, h1, h2, ctl]
+
+    return msgs
 
 async def _rerender_leaderboard_if_needed(on_start=False):
     messages = [message async for message in bot.leaderboard_channel.history(oldest_first=True)]
