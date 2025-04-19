@@ -30,6 +30,7 @@ export interface Player {
   loses: number | null;
   streak: number | null;
   vouched_date: string | null;
+  queue_vouches?: string[];
 }
 /**
  * Gets the player data by steam Id.
@@ -43,7 +44,7 @@ export interface Player {
  * const response = await getPlayerBySteamId({ steamId: 12345 });
  */
 export async function getPlayerBySteamId({
-  steam_id
+  steam_id,
 }: getPlayerBySteamId): Promise<ServiceResponse<Player | undefined>> {
   /* ------------------ */
   /*   Initialization   */

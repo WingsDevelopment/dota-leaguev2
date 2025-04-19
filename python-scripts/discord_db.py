@@ -317,6 +317,7 @@ def create_tables(cursor: Connection) -> None:
                             steam_id TEXT,
                             name TEXT,
                             mmr INTEGER,
+                            queue_vouches TEXT DEFAULT '[]',
                             captain INTEGER DEFAULT 0)''')
 
     # status PREGAME | HOSTED | STARTED | OVER | ABORTED | CANCEL | REHOST
