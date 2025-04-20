@@ -221,6 +221,18 @@ def migrate_players_autoincrement(cursor):
     
     print("Migration applied: Players table updated with AUTOINCREMENT and desired column defaults.")
 
+def add_queue_vouches_migration(cursor):
+    cursor.execute("PRAGMA table_info(Players)")
+    columns = [col[1] for col in cursor.fetchall()]
+    if 'queue_vouches' not in columns:
+        # Store JSON arrays in a TEXT column
+        cursor.execute("ALTER TABLE Players ADD COLUMN queue_vouches TEXT DEFAULT '[]'")
+        # Initialize existing rows
+        cursor.execute("UPDATE Players SET queue_vouches = '[]' WHERE queue_vouches IS NULL")
+        print("Migration applied: Added 'queue_vouches' column with default '[]'")
+    else:
+        print("No migration needed: 'queue_vouches' already exists.")
+
 def run_migrations(db_path):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -238,7 +250,8 @@ def run_migrations(db_path):
         ("remove_likes_dislikes_players_columns",remove_likes_dislikes_players),
         ("create_like_dislike_table",create_like_dislike_table),
         ("create_user_report_table",create_user_report_table),
-        ("migrate_players_autoincrement", migrate_players_autoincrement)
+        ("migrate_players_autoincrement", migrate_players_autoincrement),
+        ("add_queue_vouches", add_queue_vouches_migration)
     ]
     
     for migration_name, migration_func in migrations:
