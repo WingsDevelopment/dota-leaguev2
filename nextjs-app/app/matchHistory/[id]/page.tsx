@@ -1,11 +1,9 @@
+import { baseUrl } from "@/app/common/constraints";
+import { headers } from "next/headers";
 import ShowHistory from "@/components/matchHistory/showHistory";
 import { auth, ExtendedUser } from "@/auth";
 import UserProfile from "@/components/userProfile/userProfile";
-import { apiCallerGetMatchHistory } from "@/app/api/match-history-players/show-history/caller";
-import { apiCallerGetPlayerBySteamId } from "@/app/api/player/get-player-by-steam-id/caller";
-import { apiCallerGetPlayerSteamIdByDiscordId } from "@/app/api/player/get-player-steam-id-by-discord-id/caller";
-import { apiCallerGetLikesAndDislikesBySteamId } from "@/app/api/likes-dislikes/get-likes-and-dislikes/caller";
-import { apiCallerisUserLikedOrDisliked } from "@/app/api/likes-dislikes/is-user-liked-or-disliked/caller";
+import { fetcher } from "@/lib/fetch";
 
 export interface MatchHistoryProps {
   params: {
@@ -40,46 +38,58 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
   const { id } = params;
   const [matchHistoryRes, playerRes, userSteamIdRes, likesAndDislikesRes] =
     await Promise.all([
-      apiCallerGetMatchHistory({ steamId: id }),
-      await apiCallerGetPlayerBySteamId({ steam_id: id }),
-      await apiCallerGetPlayerSteamIdByDiscordId({ discordId }),
-      await apiCallerGetLikesAndDislikesBySteamId({ steam_id: id }),
+      fetcher(
+        `${baseUrl}/api/match-history-players/show-history?steam_id=${id}`
+      ),
+      fetcher(`${baseUrl}/api/player/get-player-by-steam-id?steam_id=${id}`),
+      fetcher(
+        `${baseUrl}/api/player/get-player-by-discord-id?discord_id=${discordId}`
+      ),
+      fetcher(
+        `${baseUrl}/api/likes-dislikes/get-likes-and-dislikes?steam_id=${id}`
+      ),
     ]);
 
-  const matchHistoryList = matchHistoryRes;
-  const playerList = playerRes;
-  const userSteamId = userSteamIdRes.steam_id;
-  const likesAndDislikes = likesAndDislikesRes;
-  const userSteamIdValue = userSteamId ?? null;
+  const matchHistoryList = matchHistoryRes?.data || [];
+  const playerList = playerRes?.data || [];
+  const userSteamId = userSteamIdRes?.data || [];
+  const likesAndDislikes = likesAndDislikesRes?.data || [];
+
+  const userSteamIdValue = userSteamId[0]?.steam_id || null;
   const isUserLikedOrDisliked = userSteamIdValue
-    ? await apiCallerisUserLikedOrDisliked({
-        otherPlayerSteamId: id,
-        userSteamId: userSteamIdValue,
-      })
-    : null;
-  const isOwnProfile = playerList?.discord_id === Number(discordId);
-  if (playerList.is_public_profile || !isOwnProfile) {
+    ? (
+        await fetcher(
+          `${baseUrl}/api/likes-dislikes/is-user-liked-or-disliked?steam_id=${id}&user_steam_id=${userSteamIdValue}`
+        )
+      )?.data
+    : [];
+
+  const isOwnProfile = playerList[0]?.discordId === discordId;
+  if (playerList[0]?.is_public_profile || !isOwnProfile) {
     return (
       <div className="flex flex-col gap-8">
         <UserProfile
-          isUserLiked={isUserLikedOrDisliked?.likes_dislikes}
+          isUserLiked={isUserLikedOrDisliked[0]?.likes_dislikes ?? null}
           ld={likesAndDislikes}
           userSteamId={userSteamIdValue}
           discordId={discordId}
-          user={playerList}
+          user={playerList[0]}
         />
-        <ShowHistory matchHistoryList={matchHistoryList} discordId={discordId} />
+        <ShowHistory
+          matchHistoryList={matchHistoryList}
+          discordId={discordId}
+        />
       </div>
     );
   } else {
     return (
       <div className="flex flex-col gap-8">
         <UserProfile
-          isUserLiked={isUserLikedOrDisliked?.likes_dislikes}
+          isUserLiked={isUserLikedOrDisliked[0]?.likes_dislikes}
           ld={likesAndDislikes}
           userSteamId={userSteamIdValue}
           discordId={discordId}
-          user={playerList}
+          user={playerList[0]}
         />
         <h1 className="text-3xl font-bold text-center mt-20">
           Sorry, this match history is private.

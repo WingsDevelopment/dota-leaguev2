@@ -1,6 +1,4 @@
 "use client";
-import { apiCallersetApprovePlayers } from "@/app/api/register-players/register-players-approve/caller";
-import { apiCallersetDeclinePlayers } from "@/app/api/register-players/register-players-decline/caller";
 import {
   Card,
   CardContent,
@@ -16,38 +14,80 @@ import {
   TableHeaderCell,
   TableRow,
 } from "@/components/ui/table";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-
 import { useState } from "react";
-import {
-  Vouch,
-  VouchStatus,
-} from "../../app/services/registerPlayersService/readPlayers";
 
-export default function RegisterCrud({ registerList }: { registerList: Vouch[] }) {
-  const router = useRouter();
-  const [filterStatus, setFilterStatus] = useState<VouchStatus | "ALL">("PENDING");
+type VouchStatus = "PENDING" | "APPROVED" | "DECLINED";
 
-  const handleRequest = async (registrationId: number, requestType: string) => {
-    if (!confirm(`Are you sure you want to ${requestType} this player?`)) return;
+interface vouch {
+  id: number;
+  status: VouchStatus;
+  steam_id: number;
+  name: string;
+  discord_id: number;
+  mmr: number;
+}
 
-    if (requestType === "approve") {
-      apiCallersetApprovePlayers({ registrationId, requestType }).then(() => {
-        router.refresh();
-      });
-    } else if (requestType === "decline") {
-      apiCallersetDeclinePlayers({ registrationId, requestType }).then(() => {
-        router.refresh();
-      });
+export default function RegisterCrud({
+  registerList,
+}: {
+  registerList: vouch[];
+}) {
+  const [vouchItems, setVouchItems] = useState(registerList);
+  const [filterStatus, setFilterStatus] = useState<VouchStatus | "ALL">(
+    "PENDING"
+  );
+  const [loading, setLoading] = useState(false);
+
+  const fetchVouch = async () => {
+    try {
+      const res = await fetch("/api/register-players/register-players-read");
+      if (!res.ok) throw new Error("Failed to fetch vouch list");
+      const updatedVouchList = await res.json();
+
+      setVouchItems(updatedVouchList.registerPlayers);
+    } catch (error) {}
+  };
+  const handleRequest = async (id: number, approveOrDecline: string) => {
+    setLoading(true);
+    const requestType = approveOrDecline;
+    const confirmed = confirm(
+      `Are you sure you want to ${requestType} this player?`
+    );
+    if (!confirmed) return;
+    const registrationId = id;
+    try {
+      const response = await fetch(
+        "/api/register-players/register-players-approve",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ registrationId, requestType }),
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to approve");
+      }
+
+      alert(`Player ${requestType}ed successfully`);
+      fetchVouch();
+    } catch (error) {
+      console.error("Error approving player:", error);
+      alert("Error approving player");
+    } finally {
+      setLoading(false);
     }
   };
 
   // Filter the registerList based on the selected status
   const filteredVouchList =
     filterStatus === "ALL"
-      ? registerList
-      : registerList.filter((vouch) => vouch.status === filterStatus);
+      ? vouchItems
+      : vouchItems.filter((vouch) => vouch.status === filterStatus);
 
   return (
     <div>
@@ -57,11 +97,12 @@ export default function RegisterCrud({ registerList }: { registerList: Vouch[] }
             <h1 className="text-3xl font-bold mb-4">Request Vouch</h1>
           </CardTitle>
           <CardDescription>
-            Before clicking approving anyone, make sure to click the steam_id link and
-            make sure the player gave correct profile by checking their profile in steam.
+            Before clicking approving anyone, make sure to click the steam_id
+            link and make sure the player gave correct profile by checking their
+            profile in steam.
             <br />
-            If you see on steam error profile not found or similar, please decline that
-            request.
+            If you see on steam error profile not found or similar, please
+            decline that request.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -73,7 +114,9 @@ export default function RegisterCrud({ registerList }: { registerList: Vouch[] }
             <select
               id="status-filter"
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value as VouchStatus | "ALL")}
+              onChange={(e) =>
+                setFilterStatus(e.target.value as VouchStatus | "ALL")
+              }
               className="p-2 border rounded"
             >
               <option value="ALL">All</option>
@@ -98,7 +141,7 @@ export default function RegisterCrud({ registerList }: { registerList: Vouch[] }
                 </tr>
               </TableHeader>
               <TableBody>
-                {filteredVouchList.map((vouchItem: Vouch) => {
+                {filteredVouchList.map((vouchItem: vouch) => {
                   return (
                     <TableRow key={vouchItem.id}>
                       <TableCell>{vouchItem.id}</TableCell>
@@ -118,7 +161,10 @@ export default function RegisterCrud({ registerList }: { registerList: Vouch[] }
                       <TableCell>
                         {vouchItem.status === "PENDING" && (
                           <button
-                            onClick={() => handleRequest(vouchItem.id, "approve")}
+                            disabled={loading}
+                            onClick={() =>
+                              handleRequest(vouchItem.id, "approve")
+                            }
                             className="bg-green-500 text-white px-2 py-1 rounded"
                           >
                             Approve
@@ -128,7 +174,10 @@ export default function RegisterCrud({ registerList }: { registerList: Vouch[] }
                       <TableCell>
                         {vouchItem.status === "PENDING" && (
                           <button
-                            onClick={() => handleRequest(vouchItem.id, "decline")}
+                            disabled={loading}
+                            onClick={() =>
+                              handleRequest(vouchItem.id, "decline")
+                            }
                             className="bg-red-500 text-white px-2 py-1 rounded"
                           >
                             Decline

@@ -11,7 +11,6 @@ import { useSession } from "next-auth/react";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import Image from "next/image";
-import { apiCallerCreatePlayers } from "../api/register-players/register-players-create/caller";
 
 interface registerLeague {
   steam_id: number;
@@ -31,15 +30,24 @@ export default function VouchRequest() {
   });
 
   const onSubmit = async (data: registerLeague) => {
-
     try {
-      await apiCallerCreatePlayers({ steam_id: data.steam_id, mmr: data.mmr })
+      const res = await fetch("/api/register-players/register-players-create", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          steam_id: data.steam_id,
+          mmr: data.mmr,
+          name: session?.user?.name,
+          discord_id: session?.user?.id,
+        }),
+      });
+      if (!res.ok) {
+        throw new Error("Could not register the player");
+      }
       reset();
+
       alert("Success, ping admins for approval");
-    } catch (error) {
-      console.error("failed to vouch.")
-      alert("Failed to vouch.")
-    }
+    } catch (error) {}
   };
 
   if (!session) {

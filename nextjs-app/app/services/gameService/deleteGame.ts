@@ -1,6 +1,6 @@
 import { getDbInstance } from "../../../db/utils";
 import { closeDatabase } from "../../../db/initDatabase";
-import { calculateElo } from "../../lib/utils";
+import { calculateElo } from "../../../lib/utils";
 
 interface DeleteGameParams {
   id: number;
@@ -65,17 +65,24 @@ export async function deleteGame({
       // Compute average MMR for each team.
       const radiantAvg =
         radiantPlayers.length > 0
-          ? radiantPlayers.reduce((sum, p) => sum + p.mmr, 0) / radiantPlayers.length
+          ? radiantPlayers.reduce((sum, p) => sum + p.mmr, 0) /
+            radiantPlayers.length
           : 0;
       const direAvg =
         direPlayers.length > 0
           ? direPlayers.reduce((sum, p) => sum + p.mmr, 0) / direPlayers.length
           : 0;
-      console.log(`Radiant average MMR: ${radiantAvg}, Dire average MMR: ${direAvg}`);
+      console.log(
+        `Radiant average MMR: ${radiantAvg}, Dire average MMR: ${direAvg}`
+      );
 
       // Calculate Elo change.
       // Using the same logic as your PUT route: if result === 0 (Radiant wins), then parameter is 1; if result === 1 (Dire wins), parameter is -1.
-      const eloChange = calculateElo(radiantAvg, direAvg, result === 0 ? 1 : -1);
+      const eloChange = calculateElo(
+        radiantAvg,
+        direAvg,
+        result === 0 ? 1 : -1
+      );
       console.log(`Calculated Elo change: ${eloChange}`);
 
       // Update each player's MMR in reverse.
@@ -104,7 +111,9 @@ export async function deleteGame({
         }
       }
     } else {
-      console.log(`Game ${id} is not in OVER status; no Elo changes to revert.`);
+      console.log(
+        `Game ${id} is not in OVER status; no Elo changes to revert.`
+      );
     }
 
     // Delete the game.

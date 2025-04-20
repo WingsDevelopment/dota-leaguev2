@@ -33,6 +33,7 @@ export default async function DashboardPage() {
   const res = await fetch(`${baseUrl}/api/leaderboard`, { cache: "no-store" });
   const data = await res.json();
   const leaderboard = data.leaderboard || [];
+  console.log({ leaderboard });
 
   return (
     <>
@@ -184,7 +185,8 @@ export default async function DashboardPage() {
                                       "*".repeat(
                                         Math.max(
                                           0,
-                                          String("Komsija Radetov").length - player.streak
+                                          String("Komsija Radetov").length -
+                                            player.streak
                                         )
                                       )}{" "}
                                     <br />

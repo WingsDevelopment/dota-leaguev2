@@ -1,6 +1,7 @@
 "use client";
-import { heroMap } from "@/app/matchHistory/[id]/hero_and_items_images";
-import { MatchHistory } from "@/app/services/matchHistoryService/getMatchHistory";
+import {
+  heroMap,
+} from "@/app/matchHistory/[id]/hero_and_items_images";
 import {
   Card,
   CardContent,
@@ -21,10 +22,30 @@ import {
   getHeroImage,
   getItemImage,
   heroToUppercase,
-} from "@/app/lib/utils";
+} from "@/lib/utils";
 import React from "react";
 import { useState } from "react";
 
+export interface MatchHistory {
+  id: number;
+  match_id: number;
+  league_id: number;
+  start_time: number;
+  duration: number;
+  game_mode: string;
+  lobby_type: string;
+  region: string;
+  winner: "radiant" | "dire";
+  radiant_score: number;
+  dire_score: number;
+  additional_info: string;
+  hero_id: number;
+  kills: number;
+  deaths: number;
+  assists: number;
+  items: string;
+  result?: string; // "Win" or "Loss" calculated from API
+}
 export default function ShowHistory({
   matchHistoryList,
   discordId,
@@ -33,6 +54,7 @@ export default function ShowHistory({
   discordId?: string;
 }) {
   const [showIframe, setShowIframe] = useState<number | null>(null);
+  console.log(matchHistoryList);
   // ako je tvoj discord id i disabled je match histry mozes da vidis u suprotnom ne.
   return (
     <div>
@@ -72,7 +94,7 @@ export default function ShowHistory({
                           <p>{heroToUppercase(heroMap[match.hero_id])}</p>
                         </div>
                       </TableCell>
-                      <TableCell>{match.result || match.winner || "Unknown"}</TableCell>
+                      <TableCell>{match.result || match.winner}</TableCell>
                       <TableCell>{formatDuration(match.duration)}</TableCell>
                       <TableCell>{match.kills}</TableCell>
                       <TableCell>{match.deaths}</TableCell>
@@ -88,7 +110,12 @@ export default function ShowHistory({
                             )
                               return <div />;
                             return (
-                              <img src={link[0]} alt="Item" title={link[1]} width={50} />
+                              <img
+                                src={link[0]}
+                                alt="Item"
+                                title={link[1]}
+                                width={50}
+                              />
                             );
                           })}
                         </div>
@@ -97,12 +124,16 @@ export default function ShowHistory({
                         <button
                           onClick={() =>
                             setShowIframe(
-                              showIframe === match.match_id ? null : match.match_id
+                              showIframe === match.match_id
+                                ? null
+                                : match.match_id
                             )
                           }
                           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
                         >
-                          {showIframe === match.match_id ? "Hide Match" : "Show Match"}
+                          {showIframe === match.match_id
+                            ? "Hide Match"
+                            : "Show Match"}
                         </button>
                       </TableCell>
                     </TableRow>

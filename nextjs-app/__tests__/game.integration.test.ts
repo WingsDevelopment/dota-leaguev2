@@ -5,15 +5,16 @@ import { createGameWithPlayers } from "@/app/services/gameService/createGameWith
 import { getGamesWithPlayers } from "@/app/services/gameService/getGamesWithPlayers";
 import { deleteGame } from "@/app/services/gameService/deleteGame";
 import { mockPlayers } from "@/app/mocks/playerMock";
-import { calculateElo } from "@/app/lib/utils";
+import { calculateElo } from "@/lib/utils";
 
 // Helpers for tests:
 async function clearDatabase() {
   const db = await getDbInstance();
   try {
     await new Promise<void>((resolve, reject) => {
-      db.exec("DELETE FROM Game; DELETE FROM GamePlayers; DELETE FROM Players;", (err) =>
-        err ? reject(err) : resolve()
+      db.exec(
+        "DELETE FROM Game; DELETE FROM GamePlayers; DELETE FROM Players;",
+        (err) => (err ? reject(err) : resolve())
       );
     });
   } finally {
@@ -32,7 +33,13 @@ async function seedPlayers() {
       await new Promise<void>((resolve, reject) => {
         db.run(
           insertPlayer,
-          [player.discord_id, player.steam_id, player.name, player.mmr, player.captain],
+          [
+            player.discord_id,
+            player.steam_id,
+            player.name,
+            player.mmr,
+            player.captain,
+          ],
           (err) => {
             if (err) return reject(err);
             resolve();
@@ -92,7 +99,14 @@ describe("Game Service - DELETE and Elo Reversion Tests", () => {
   });
 
   test("should delete non-OVER games without changing player MMR", async () => {
-    const statuses = ["PREGAME", "HOSTED", "STARTED", "ABORTED", "CANCEL", "REHOST"];
+    const statuses = [
+      "PREGAME",
+      "HOSTED",
+      "STARTED",
+      "ABORTED",
+      "CANCEL",
+      "REHOST",
+    ];
     const gameIds: Record<string, number> = {};
 
     // Create a game for each non-OVER status.
@@ -114,15 +128,14 @@ describe("Game Service - DELETE and Elo Reversion Tests", () => {
     // For each game, record initial player MMR and delete the game.
     for (const status of statuses) {
       const db = await getDbInstance();
-      const playersData: Array<{ player_id: number; team: number }> = await new Promise(
-        (resolve, reject) => {
+      const playersData: Array<{ player_id: number; team: number }> =
+        await new Promise((resolve, reject) => {
           db.all(
             `SELECT player_id, team FROM GamePlayers WHERE game_id = ?`,
             [gameIds[status]],
             (err, rows) => (err ? reject(err) : resolve(rows as any))
           );
-        }
-      );
+        });
       const initialMmrs: Record<number, number> = {};
       for (const { player_id } of playersData) {
         initialMmrs[player_id] = await getPlayerMmr(player_id);
@@ -137,14 +150,19 @@ describe("Game Service - DELETE and Elo Reversion Tests", () => {
         status,
         result: null,
       });
-      console.log(`Deleted game ${gameIds[status]} with status ${status}.`, res);
+      console.log(
+        `Deleted game ${gameIds[status]} with status ${status}.`,
+        res
+      );
       expect(res.success).toBe(true);
 
       // Verify that the game is deleted.
       const db2 = await getDbInstance();
       const gameRow = await new Promise((resolve, reject) => {
-        db2.get(`SELECT id FROM Game WHERE id = ?`, [gameIds[status]], (err, row) =>
-          err ? reject(err) : resolve(row)
+        db2.get(
+          `SELECT id FROM Game WHERE id = ?`,
+          [gameIds[status]],
+          (err, row) => (err ? reject(err) : resolve(row))
         );
       });
       expect(gameRow).toBeUndefined();
@@ -194,7 +212,8 @@ describe("Game Service - DELETE and Elo Reversion Tests", () => {
     const direPlayers = players.filter((p) => p.team === 1);
     const radiantAvg =
       radiantPlayers.reduce((sum, p) => sum + p.mmr, 0) / radiantPlayers.length;
-    const direAvg = direPlayers.reduce((sum, p) => sum + p.mmr, 0) / direPlayers.length;
+    const direAvg =
+      direPlayers.reduce((sum, p) => sum + p.mmr, 0) / direPlayers.length;
     const eloChange = calculateElo(radiantAvg, direAvg, 1); // result=0 means Radiant wins => parameter=1.
     console.log(`Calculated Elo change for game ${gameId}: ${eloChange}`);
 

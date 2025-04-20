@@ -3,7 +3,7 @@
 import * as React from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
-import { cn } from "@/app/lib/utils";
+import { cn } from "@/lib/utils";
 
 export interface ModalProps extends React.ComponentPropsWithoutRef<typeof Dialog.Root> {}
 
@@ -51,10 +51,7 @@ export const ModalButtonGroup = ({ children }: { children: React.ReactNode }) =>
   return <div className="flex flex-wrap gap-2 justify-center">{children}</div>; // Ensures buttons are aligned
 };
 
-export const ModalClose = ({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<typeof Dialog.Close>) => {
+export const ModalClose = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof Dialog.Close>) => {
   return (
     <Dialog.Close className={cn("absolute top-2 right-2", className)} {...props}>
       <X className="w-5 h-5 text-gray-500 hover:text-gray-700" />
