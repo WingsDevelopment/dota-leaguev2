@@ -33,7 +33,6 @@ export default function ReportsTableContainer({
 }: {
   reportList: UserReport[];
 }) {
-  console.log(reportList,"list")
   /* ------------- */
   /*   Metadata    */
   /* ------------- */

@@ -2,6 +2,7 @@
 import {
   heroMap,
 } from "@/app/matchHistory/[id]/hero_and_items_images";
+import { MatchHistory } from "@/app/services/matchHistoryService/getMatchHistory";
 import {
   Card,
   CardContent,
@@ -26,26 +27,7 @@ import {
 import React from "react";
 import { useState } from "react";
 
-export interface MatchHistory {
-  id: number;
-  match_id: number;
-  league_id: number;
-  start_time: number;
-  duration: number;
-  game_mode: string;
-  lobby_type: string;
-  region: string;
-  winner: "radiant" | "dire";
-  radiant_score: number;
-  dire_score: number;
-  additional_info: string;
-  hero_id: number;
-  kills: number;
-  deaths: number;
-  assists: number;
-  items: string;
-  result?: string; // "Win" or "Loss" calculated from API
-}
+
 export default function ShowHistory({
   matchHistoryList,
   discordId,
@@ -93,7 +75,7 @@ export default function ShowHistory({
                           <p>{heroToUppercase(heroMap[match.hero_id])}</p>
                         </div>
                       </TableCell>
-                      <TableCell>{match.result || match.winner}</TableCell>
+                      <TableCell>{match.result || match.winner || "Unknown"}</TableCell>
                       <TableCell>{formatDuration(match.duration)}</TableCell>
                       <TableCell>{match.kills}</TableCell>
                       <TableCell>{match.deaths}</TableCell>

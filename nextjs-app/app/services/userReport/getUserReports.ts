@@ -62,7 +62,6 @@ export async function getUserReports(): Promise<ServiceResponse<UserReport[]>> {
       LEFT JOIN Players p2 ON ur.other_player_steam_id = p2.steam_id;
     `;
     const reports = await runDbAll<UserReport[]>(db, query);
-    console.log(reports)
     /* ---------------- */
     /*   Return Data    */
     /* ---------------- */
