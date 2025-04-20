@@ -18,6 +18,18 @@ export async function isUserAdmin() {
   // console.log("includes", adminIds.includes(String(session?.user?.id)));
   // return adminIds.includes(String((session?.user as ExtendedUser)?.discordId));
 }
+export async function isUserAdminHack() {
+  // return true;
+  if (process.env.NODE_ENV === "development") {
+    return true;
+  }
+  const session = await auth();
+  const adminIds = (process.env.ADMIN_IDS || "").split(",");
+  console.log("adminIds", adminIds);
+  console.log("session", session);
+  console.log("includes", adminIds.includes(String(session?.user?.id)));
+  return adminIds.includes(String((session?.user as ExtendedUser)?.discordId));
+}
 
 export const RADIANT = 0;
 export const DIRE = 1;

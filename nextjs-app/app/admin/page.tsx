@@ -1,12 +1,12 @@
 import RegisterCrud from "@/components/admin/register-crud";
 import { apiCallerGetRegisterPlayers2 } from "../api/register-players/read/caller";
+import { isUserAdminHack } from "../common/constraints";
 /* -------------------- */
 /*   Server Component   */
 /* -------------------- */
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
 
 export default async function Page() {
+  if (!(await isUserAdminHack())) return "Unauthorized";
   /* ------- */
   /*   JSX   */
   /* ------- */
