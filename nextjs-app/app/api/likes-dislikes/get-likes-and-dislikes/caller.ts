@@ -11,7 +11,7 @@ export const apiCallerGetLikesAndDislikesBySteamId = async ({
   steam_id,
 }: getPlayerBySteamId): Promise<SumOfLikesAndDislikes> => {
   try {
-    const response = await axios.get(`${baseUrl}/api/likes-dislikes/get-likes-and-dislikes`, {
+    const response = await axios.get(`/api/likes-dislikes/get-likes-and-dislikes`, {
       params: { steam_id },
     });
 

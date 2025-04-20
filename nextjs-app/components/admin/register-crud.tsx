@@ -25,7 +25,7 @@ import { useState } from "react";
 
 export type VouchStatus = "PENDING" | "APPROVED" | "DECLINED";
 
-export interface vouch {
+export interface Vouch {
   id: number;
   status: VouchStatus;
   steam_id: number;
@@ -34,7 +34,7 @@ export interface vouch {
   mmr: number;
 }
 
-export default function RegisterCrud({ registerList }: { registerList: vouch[] }) {
+export default function RegisterCrud({ registerList }: { registerList: Vouch[] }) {
   const router = useRouter();
   const [filterStatus, setFilterStatus] = useState<VouchStatus | "ALL">("PENDING");
 
@@ -107,7 +107,7 @@ export default function RegisterCrud({ registerList }: { registerList: vouch[] }
                 </tr>
               </TableHeader>
               <TableBody>
-                {filteredVouchList.map((vouchItem: vouch) => {
+                {filteredVouchList.map((vouchItem: Vouch) => {
                   return (
                     <TableRow key={vouchItem.id}>
                       <TableCell>{vouchItem.id}</TableCell>

@@ -1,3 +1,4 @@
+"use client";
 export type NotificationType = "success" | "error" | "warning";
 
 export interface Notification {
@@ -16,5 +17,5 @@ export const Notify = (notification: Notification) => {
     console.warn(message);
   }
 
-  return alert(message);
+  alert(message);
 };

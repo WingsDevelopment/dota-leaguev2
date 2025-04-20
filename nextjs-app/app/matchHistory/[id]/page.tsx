@@ -43,22 +43,25 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
   const { id } = params;
   const [matchHistoryRes, playerRes, userSteamIdRes, likesAndDislikesRes] =
     await Promise.all([
-      apiCallerGetMatchHistory({steamId:id}),
+      apiCallerGetMatchHistory({ steamId: id }),
       await apiCallerGetPlayerBySteamId({ steam_id: id }),
       await apiCallerGetPlayerSteamIdByDiscordId({ discordId }),
-      await apiCallerGetLikesAndDislikesBySteamId({steam_id: id})
+      await apiCallerGetLikesAndDislikesBySteamId({ steam_id: id }),
     ]);
 
-const matchHistoryList = matchHistoryRes;
+  const matchHistoryList = matchHistoryRes;
   const playerList = playerRes;
   const userSteamId = userSteamIdRes.steam_id;
   const likesAndDislikes = likesAndDislikesRes;
   const userSteamIdValue = userSteamId ?? null;
   const isUserLikedOrDisliked = userSteamIdValue
-    ? await apiCallerisUserLikedOrDisliked({ otherPlayerSteamId:id, userSteamId:userSteamIdValue })
+    ? await apiCallerisUserLikedOrDisliked({
+        otherPlayerSteamId: id,
+        userSteamId: userSteamIdValue,
+      })
     : null;
   const isOwnProfile = playerList?.discord_id === Number(discordId);
-  if (playerList.is_public_profile || isOwnProfile) {
+  if (playerList.is_public_profile || !isOwnProfile) {
     return (
       <div className="flex flex-col gap-8">
         <UserProfile
@@ -68,10 +71,7 @@ const matchHistoryList = matchHistoryRes;
           discordId={discordId}
           user={playerList}
         />
-        <ShowHistory
-          matchHistoryList={matchHistoryList}
-          discordId={discordId}
-        />
+        <ShowHistory matchHistoryList={matchHistoryList} discordId={discordId} />
       </div>
     );
   } else {
