@@ -137,24 +137,34 @@ async def _look_for_timeout_games():
             games = execute_function_with_return('get_game_where_status_timeout')
         except ValueError:
             games = []
+
         for game in games:
             try:
-                players = execute_function_with_return('get_players_arrived', game['id'])
+                arrived = execute_function_with_return('get_players_arrived', game['id'])
             except ValueError:
-                players = []
+                arrived = []
+
+            # build a list of returning Member objects
+            returning = [Player(p['id']) for p in arrived]
+
+            # decide which pool to restore into
             if game['type'] == 'DRAFT':
+                bot.sigedUpDraftPlayerPool = returning + bot.sigedUpDraftPlayerPool
                 RENDER['queue_draft'] = True
-                returning_players = [Player(player['id']) for player in players if player['id'] not in [player.id for player in bot.sigedUpDraftPlayerPool]]
-                bot.sigedUpDraftPlayerPool = returning_players + bot.sigedUpDraftPlayerPool
-                await _check_pool_size_and_start_draft()
             else:
+                bot.sigedUpPlayerPool = returning + bot.sigedUpPlayerPool
                 RENDER['queue'] = True
-                returning_players = [Player(player['id']) for player in players if player['id'] not in [player.id for player in bot.sigedUpPlayerPool]]
-                bot.sigedUpPlayerPool = returning_players + bot.sigedUpPlayerPool
-                await _check_pool_size_and_start()
+
+            # now re‐run **all** four startup checks (they all take ctx=None safely)
+            await _check_pool_size_and_start(None)
+            await _check_pool_size_and_start_draft(None)
+            await _check_pool_size_and_start_hmmr(None)
+            await _check_pool_size_and_start_hmmr_balance(None)
+
             execute_function_no_return('set_game_status_aborted', game['id'])
+
         await asyncio.sleep(5)
-        
+       
 
 intents = Intents.default().all()
 api = d2api.APIWrapper(STEAM_API_TOKEN)
@@ -911,7 +921,7 @@ def remove_duplicates(queue: List[Member]) -> bool:
         queue[:] = new_queue
     return duplicates_found
 
-async def _check_pool_size_and_start(ctx: Context):
+async def _check_pool_size_and_start(ctx: Context = None):
     global RENDER
     # First check for and remove any duplicates from the normal queue.
     if remove_duplicates(bot.sigedUpPlayerPool):
