@@ -1,4 +1,4 @@
-import { axiosWrapper } from "../../../../lib/fetch";
+import { axiosWrapper } from "../../../lib/fetch";
 import type { PrimitiveServiceResponse } from "../../../services/common/types";
 
 export const apiCallerReviewReport = async (

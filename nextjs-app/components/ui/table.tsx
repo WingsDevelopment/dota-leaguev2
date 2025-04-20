@@ -1,9 +1,8 @@
 // components/ui/table.tsx
 import * as React from "react";
-import { cn } from "@/lib/utils"; // Assumes you have a utility to merge class names
+import { cn } from "@/app/lib/utils"; // Assumes you have a utility to merge class names
 
-export interface TableProps
-  extends React.TableHTMLAttributes<HTMLTableElement> {}
+export interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> {}
 
 export const Table = React.forwardRef<HTMLTableElement, TableProps>(
   ({ className, ...props }, ref) => {
@@ -21,42 +20,37 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps>(
 );
 Table.displayName = "Table";
 
-export interface TableHeaderProps
-  extends React.HTMLAttributes<HTMLTableSectionElement> {}
+export interface TableHeaderProps extends React.HTMLAttributes<HTMLTableSectionElement> {}
 
-export const TableHeader = React.forwardRef<
-  HTMLTableSectionElement,
-  TableHeaderProps
->(({ className, ...props }, ref) => {
-  return (
-    <thead
-      ref={ref}
-      className={cn("bg-gray-100 dark:bg-gray-800", className)}
-      {...props}
-    />
-  );
-});
+export const TableHeader = React.forwardRef<HTMLTableSectionElement, TableHeaderProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <thead
+        ref={ref}
+        className={cn("bg-gray-100 dark:bg-gray-800", className)}
+        {...props}
+      />
+    );
+  }
+);
 TableHeader.displayName = "TableHeader";
 
-export interface TableBodyProps
-  extends React.HTMLAttributes<HTMLTableSectionElement> {}
+export interface TableBodyProps extends React.HTMLAttributes<HTMLTableSectionElement> {}
 
-export const TableBody = React.forwardRef<
-  HTMLTableSectionElement,
-  TableBodyProps
->(({ className, ...props }, ref) => {
-  return (
-    <tbody
-      ref={ref}
-      className={cn("divide-y divide-gray-200 dark:divide-gray-700", className)}
-      {...props}
-    />
-  );
-});
+export const TableBody = React.forwardRef<HTMLTableSectionElement, TableBodyProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <tbody
+        ref={ref}
+        className={cn("divide-y divide-gray-200 dark:divide-gray-700", className)}
+        {...props}
+      />
+    );
+  }
+);
 TableBody.displayName = "TableBody";
 
-export interface TableRowProps
-  extends React.HTMLAttributes<HTMLTableRowElement> {}
+export interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {}
 
 export const TableRow = React.forwardRef<HTMLTableRowElement, TableRowProps>(
   ({ className, ...props }, ref) => {
@@ -91,8 +85,7 @@ export const TableHeaderCell = React.forwardRef<
 });
 TableHeaderCell.displayName = "TableHeaderCell";
 
-export interface TableCellProps
-  extends React.TdHTMLAttributes<HTMLTableCellElement> {}
+export interface TableCellProps extends React.TdHTMLAttributes<HTMLTableCellElement> {}
 
 export const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(
   ({ className, ...props }, ref) => {

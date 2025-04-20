@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDbInstance } from "@/db/utils";
 import { isUserAdmin } from "@/app/common/constraints";
-import { calculateElo } from "../../../../lib/utils";
+import { calculateElo } from "../../../lib/utils";
 import { closeDatabase } from "@/db/initDatabase";
 
 export async function PUT(req: NextRequest) {
@@ -90,16 +90,11 @@ export async function PUT(req: NextRequest) {
     // Calculate the average MMR for each team.
     const radiantAvg =
       radiantPlayers.reduce((sum, p) => sum + p.mmr, 0) / radiantPlayers.length;
-    const direAvg =
-      direPlayers.reduce((sum, p) => sum + p.mmr, 0) / direPlayers.length;
+    const direAvg = direPlayers.reduce((sum, p) => sum + p.mmr, 0) / direPlayers.length;
 
     // Compute the ELO change.
     // team_won is assumed to be 0 (radiant wins) or 1 (dire wins).
-    const eloChange = calculateElo(
-      radiantAvg,
-      direAvg,
-      team_won === 0 ? 1 : -1
-    );
+    const eloChange = calculateElo(radiantAvg, direAvg, team_won === 0 ? 1 : -1);
 
     // Update MMR, wins, and loses for each player based on the match result.
     await Promise.all(
@@ -112,10 +107,7 @@ export async function PUT(req: NextRequest) {
               [eloChange, player_id],
               (err) => {
                 if (err) {
-                  console.error(
-                    `Error updating winning player ${player_id}:`,
-                    err
-                  );
+                  console.error(`Error updating winning player ${player_id}:`, err);
                   return reject(err);
                 }
                 resolve(null);
@@ -128,10 +120,7 @@ export async function PUT(req: NextRequest) {
               [eloChange, player_id],
               (err) => {
                 if (err) {
-                  console.error(
-                    `Error updating losing player ${player_id}:`,
-                    err
-                  );
+                  console.error(`Error updating losing player ${player_id}:`, err);
                   return reject(err);
                 }
                 resolve(null);
@@ -177,9 +166,6 @@ export async function PUT(req: NextRequest) {
     );
     closeDatabase(db);
 
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

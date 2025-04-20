@@ -1,7 +1,7 @@
 import { baseUrl } from "@/app/common/constraints";
-import { Notify } from "@/lib/notification";
+import { Notify } from "@/app/lib/notification";
 import { Player } from "../../../services/playerService/getPlayerBySteamId";
-import { axiosWrapper } from "../../../../lib/fetch";
+import { axiosWrapper } from "../../../lib/fetch";
 
 export const apiCallerGetPlayers = async (): Promise<Player[]> => {
   try {

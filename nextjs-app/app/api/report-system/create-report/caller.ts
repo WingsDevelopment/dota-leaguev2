@@ -1,6 +1,6 @@
 import { PrimitiveServiceResponse } from "@/app/services/common/types";
 import { userReport } from "@/app/services/userReport/createUserReport";
-import { axiosWrapper } from "../../../../lib/fetch";
+import { axiosWrapper } from "../../../lib/fetch";
 
 export const apiCallerCreateReports = async (
   reportPayload: userReport

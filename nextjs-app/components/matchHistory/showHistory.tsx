@@ -1,7 +1,5 @@
 "use client";
-import {
-  heroMap,
-} from "@/app/matchHistory/[id]/hero_and_items_images";
+import { heroMap } from "@/app/matchHistory/[id]/hero_and_items_images";
 import { MatchHistory } from "@/app/services/matchHistoryService/getMatchHistory";
 import {
   Card,
@@ -23,10 +21,9 @@ import {
   getHeroImage,
   getItemImage,
   heroToUppercase,
-} from "@/lib/utils";
+} from "@/app/lib/utils";
 import React from "react";
 import { useState } from "react";
-
 
 export default function ShowHistory({
   matchHistoryList,
@@ -91,12 +88,7 @@ export default function ShowHistory({
                             )
                               return <div />;
                             return (
-                              <img
-                                src={link[0]}
-                                alt="Item"
-                                title={link[1]}
-                                width={50}
-                              />
+                              <img src={link[0]} alt="Item" title={link[1]} width={50} />
                             );
                           })}
                         </div>
@@ -105,16 +97,12 @@ export default function ShowHistory({
                         <button
                           onClick={() =>
                             setShowIframe(
-                              showIframe === match.match_id
-                                ? null
-                                : match.match_id
+                              showIframe === match.match_id ? null : match.match_id
                             )
                           }
                           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
                         >
-                          {showIframe === match.match_id
-                            ? "Hide Match"
-                            : "Show Match"}
+                          {showIframe === match.match_id ? "Hide Match" : "Show Match"}
                         </button>
                       </TableCell>
                     </TableRow>

@@ -5,6 +5,9 @@ import { apiCallerGetReports } from "../../api/report-system/get-reports/caller"
 /*   Server Component   */
 /* -------------------- */
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export default async function Page() {
   /* ------- */
   /*   JSX   */

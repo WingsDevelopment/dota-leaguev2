@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Switch, SwitchLabel, SwitchWrapper } from "../ui/slider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import LikesAndDislikes from "../likesAndDislikes/likesAndDislikes";
-import { getAvatarUrl, mapUserDataToViewModel } from "@/lib/utils";
+import { getAvatarUrl, mapUserDataToViewModel } from "@/app/lib/utils";
 import ReportSystem from "../reportSystem/reportSystem";
 import { apiCallerUpdatePlayerProfileVisibility } from "@/app/api/player/update-is-public-profile/caller";
 import { useRouter } from "next/navigation";
@@ -17,7 +17,7 @@ export interface UserProfileProps {
   };
   discordId?: string;
   userSteamId: string | null;
-  isUserLiked?: number|null;
+  isUserLiked?: number | null;
 }
 export default function UserProfile({
   user,
@@ -119,7 +119,9 @@ export default function UserProfile({
             <CardDescription></CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-xl font-semibold">{user.loses === null ? 0 : user.loses}</p>
+            <p className="text-xl font-semibold">
+              {user.loses === null ? 0 : user.loses}
+            </p>
           </CardContent>
         </Card>
 
@@ -140,7 +142,9 @@ export default function UserProfile({
             <CardDescription></CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-xl font-semibold">{user.streak === null ? 0 : user.streak}</p>
+            <p className="text-xl font-semibold">
+              {user.streak === null ? 0 : user.streak}
+            </p>
           </CardContent>
         </Card>
 

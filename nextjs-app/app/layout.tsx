@@ -2,7 +2,7 @@ import { SessionProvider } from "next-auth/react";
 import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/app/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { MainNav } from "../components/dashboard/main-nav";
 import SocialLinks from "../components/ui/social-links";
@@ -21,11 +21,7 @@ const fontSans = FontSans({
  * @param {React.ReactNode} props.children - The children elements to render within the layout.
  * @returns {JSX.Element} The root layout for the application.
  */
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body

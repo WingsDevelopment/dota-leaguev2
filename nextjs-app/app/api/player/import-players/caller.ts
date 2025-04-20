@@ -1,7 +1,7 @@
 import type { PrimitiveServiceResponse } from "../../../services/common/types";
 import { Leaderboard } from "@/app/services/playerService/importPlayers";
-import { Notify } from "@/lib/notification";
-import { axiosWrapper } from "../../../../lib/fetch";
+import { Notify } from "@/app/lib/notification";
+import { axiosWrapper } from "../../../lib/fetch";
 
 export const apiCallerImportPlayers = async ({
   leaderboard,

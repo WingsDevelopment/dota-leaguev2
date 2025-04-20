@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as SwitchPrimitive from "@radix-ui/react-switch";
-import { cn } from "@/lib/utils";
+import { cn } from "@/app/lib/utils";
 
 const Switch = React.forwardRef<
   HTMLButtonElement,
@@ -14,9 +14,7 @@ const Switch = React.forwardRef<
     )}
     {...props}
   >
-    <SwitchPrimitive.Thumb
-      className="block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 will-change-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-1"
-    />
+    <SwitchPrimitive.Thumb className="block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 will-change-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-1" />
   </SwitchPrimitive.Root>
 ));
 Switch.displayName = "Switch";

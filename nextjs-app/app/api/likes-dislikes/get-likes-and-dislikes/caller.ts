@@ -3,9 +3,9 @@ import {
   Player,
 } from "@/app/services/playerService/getPlayerBySteamId";
 import { baseUrl } from "@/app/common/constraints";
-import { Notify } from "@/lib/notification";
+import { Notify } from "@/app/lib/notification";
 import { SumOfLikesAndDislikes } from "@/app/services/likesAndDislikesService/getLikesAndDislikes";
-import { axiosWrapper } from "../../../../lib/fetch";
+import { axiosWrapper } from "../../../lib/fetch";
 
 export const apiCallerGetLikesAndDislikesBySteamId = async ({
   steam_id,

@@ -1,8 +1,8 @@
 import { PrimitiveServiceResponse } from "@/app/services/common/types";
 import { RegisterPlayers } from "@/app/services/registerPlayersService/approvePlayers";
 import { isUserAdmin } from "@/app/common/constraints";
-import { Notify } from "@/lib/notification";
-import { axiosWrapper } from "../../../../lib/fetch";
+import { Notify } from "@/app/lib/notification";
+import { axiosWrapper } from "../../../lib/fetch";
 
 export const apiCallersetDeclinePlayers = async ({
   registrationId,

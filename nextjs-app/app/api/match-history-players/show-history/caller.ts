@@ -1,8 +1,8 @@
 import { baseUrl } from "@/app/common/constraints";
-import { Notify } from "@/lib/notification";
+import { Notify } from "@/app/lib/notification";
 import { MatchHistory } from "@/app/matchHistory/[id]/page";
 import { MatchHistoryParams } from "@/app/services/matchHistoryService/getMatchHistory";
-import { axiosWrapper } from "../../../../lib/fetch";
+import { axiosWrapper } from "../../../lib/fetch";
 
 export const apiCallerGetMatchHistory = async ({
   steamId,

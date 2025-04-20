@@ -1,9 +1,6 @@
-import { baseUrl } from "@/app/common/constraints";
-import { headers } from "next/headers";
 import ShowHistory from "@/components/matchHistory/showHistory";
 import { auth, ExtendedUser } from "@/auth";
 import UserProfile from "@/components/userProfile/userProfile";
-import { fetcher } from "@/lib/fetch";
 import { apiCallerGetMatchHistory } from "@/app/api/match-history-players/show-history/caller";
 import { apiCallerGetPlayerBySteamId } from "@/app/api/player/get-player-by-steam-id/caller";
 import { apiCallerGetPlayerSteamIdByDiscordId } from "@/app/api/player/get-player-steam-id-by-discord-id/caller";

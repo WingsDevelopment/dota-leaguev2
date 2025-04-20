@@ -1,7 +1,7 @@
 import { baseUrl } from "@/app/common/constraints";
-import { Notify } from "@/lib/notification";
+import { Notify } from "@/app/lib/notification";
 import { Vouch } from "../../../services/registerPlayersService/readPlayers";
-import { axiosWrapper } from "../../../../lib/fetch";
+import { axiosWrapper } from "../../../lib/fetch";
 
 export const apiCallerGetRegisterPlayers2 = async (): Promise<Vouch[]> => {
   try {

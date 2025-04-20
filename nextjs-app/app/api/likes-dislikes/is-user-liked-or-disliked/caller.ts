@@ -1,10 +1,10 @@
 import { baseUrl } from "@/app/common/constraints";
-import { Notify } from "@/lib/notification";
+import { Notify } from "@/app/lib/notification";
 import {
   isUserLikerOrDisliked,
   LikedOrDisliked,
 } from "@/app/services/likesAndDislikesService/isUserLikedOrDisliked";
-import { axiosWrapper } from "../../../../lib/fetch";
+import { axiosWrapper } from "../../../lib/fetch";
 
 export const apiCallerisUserLikedOrDisliked = async ({
   userSteamId,

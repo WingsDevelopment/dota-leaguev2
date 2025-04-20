@@ -1,5 +1,5 @@
-import { axiosWrapper } from "../../../../lib/fetch";
-import { Notify } from "../../../../lib/notification";
+import { axiosWrapper } from "../../../lib/fetch";
+import { Notify } from "../../../lib/notification";
 import { PrimitiveServiceResponse } from "../../../services/common/types";
 import { QueueUnvouchParams } from "../../../services/playerService/queueUnvouchPlayer";
 

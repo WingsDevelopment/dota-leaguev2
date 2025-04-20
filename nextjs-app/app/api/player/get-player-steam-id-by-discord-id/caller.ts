@@ -4,8 +4,8 @@ import {
 } from "@/app/services/playerService/getPlayerBySteamId";
 import { baseUrl } from "@/app/common/constraints";
 import { getPlayerByDiscordId } from "@/app/services/playerService/getPlayerSteamIdByDiscordId";
-import { Notify } from "@/lib/notification";
-import { axiosWrapper } from "../../../../lib/fetch";
+import { Notify } from "@/app/lib/notification";
+import { axiosWrapper } from "../../../lib/fetch";
 
 export const apiCallerGetPlayerSteamIdByDiscordId = async ({
   discordId,

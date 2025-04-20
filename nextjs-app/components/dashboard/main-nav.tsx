@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn } from "@/app/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,24 +13,14 @@ import {
 import { SignIn } from "./signIn";
 import { ModeToggle } from "@/components/ui/ModeToggle";
 
-export function MainNav({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLElement>) {
+export function MainNav({ className, ...props }: React.HTMLAttributes<HTMLElement>) {
   return (
     <nav
-      className={cn(
-        "flex items-center justify-between gap-4 px-4 py-2",
-        className
-      )}
+      className={cn("flex items-center justify-between gap-4 px-4 py-2", className)}
       {...props}
     >
       <div className="flex items-center">
-        <Link
-          href="/"
-          className="flex items-center gap-2 font-semibold"
-          prefetch={false}
-        >
+        <Link href="/" className="flex items-center gap-2 font-semibold" prefetch={false}>
           <span>RADEKOMSA LEAGUE</span>
         </Link>
       </div>

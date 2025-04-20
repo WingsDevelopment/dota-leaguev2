@@ -1,6 +1,6 @@
 import { PrimitiveServiceResponse } from "@/app/services/common/types";
 import { DeletePlayer } from "@/app/services/registerPlayersService/deletePlayers";
-import { axiosWrapper } from "../../../../lib/fetch";
+import { axiosWrapper } from "../../../lib/fetch";
 
 export const apiCallerDeletePlayers = async ({
   steam_id,

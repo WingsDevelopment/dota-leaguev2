@@ -1,7 +1,7 @@
-import { Notify } from "@/lib/notification";
+import { Notify } from "@/app/lib/notification";
 import { PlayerVote } from "@/app/services/likesAndDislikesService/likesAndDislikes";
 import { PrimitiveServiceResponse } from "@/app/services/common/types";
-import { axiosWrapper } from "../../../../lib/fetch";
+import { axiosWrapper } from "../../../lib/fetch";
 
 export const apiCallerPutLikeOrDislike = async ({
   userSteamId,

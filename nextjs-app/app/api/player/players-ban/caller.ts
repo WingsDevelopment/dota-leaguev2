@@ -1,7 +1,7 @@
 import type { PrimitiveServiceResponse } from "../../../services/common/types";
 import { BanParams } from "@/app/services/playerService/banPlayer";
-import { Notify } from "@/lib/notification";
-import { axiosWrapper } from "../../../../lib/fetch";
+import { Notify } from "@/app/lib/notification";
+import { axiosWrapper } from "../../../lib/fetch";
 
 export const apiCallerBanPlayer = async ({
   steam_id,

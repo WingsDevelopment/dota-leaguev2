@@ -1,7 +1,7 @@
 import { PrimitiveServiceResponse } from "@/app/services/common/types";
 import { RegisterPlayers } from "@/app/services/registerPlayersService/approvePlayers";
 import { isUserAdmin } from "@/app/common/constraints";
-import { axiosWrapper } from "../../../../lib/fetch";
+import { axiosWrapper } from "../../../lib/fetch";
 
 export const apiCallersetApprovePlayers = async ({
   registrationId,

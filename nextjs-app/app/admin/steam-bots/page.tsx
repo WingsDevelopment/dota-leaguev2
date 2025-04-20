@@ -1,7 +1,10 @@
 import { baseUrl } from "../../common/constraints";
-import { fetcher } from "@/lib/fetch";
 import { AdminGuard } from "@/components/guards/admin-guard";
 import SteamBots from "./steam-bots";
+import { fetcher } from "../../../lib/fetch";
+
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 export default async function Page() {
   return (

@@ -1,7 +1,7 @@
-import { Notify } from "@/lib/notification";
+import { Notify } from "@/app/lib/notification";
 import type { QueueVouchParams } from "@/app/services/playerService/queueVouchPlayer";
 import type { PrimitiveServiceResponse } from "../../../services/common/types";
-import { axiosWrapper } from "../../../../lib/fetch";
+import { axiosWrapper } from "../../../lib/fetch";
 
 export const apiCallerQueueVouchPlayer = async (
   params: QueueVouchParams
