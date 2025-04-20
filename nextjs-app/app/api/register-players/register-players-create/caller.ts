@@ -1,7 +1,6 @@
 import { PrimitiveServiceResponse } from "@/app/services/common/types";
-import { PlayerDataVouch } from "@/app/services/registerPlayersService/createPlayers";
-import axios from "axios";
 import { Notify } from "@/lib/notification";
+import { axiosWrapper } from "../../../../lib/fetch";
 interface PlayerDataFromInput {
   steam_id: number;
   mmr: number;
@@ -11,7 +10,7 @@ export const apiCallerCreatePlayers = async ({
   mmr,
 }: PlayerDataFromInput): Promise<PrimitiveServiceResponse> => {
   try {
-    const response = await axios.put(
+    const response = await axiosWrapper.put(
       "/api/register-players/register-players-create",
       { steam_id, mmr }
     );

@@ -1,11 +1,11 @@
-import axios from "axios";
 import { baseUrl } from "@/app/common/constraints";
 import { Notify } from "@/lib/notification";
-import { Vouch } from "../../../../components/admin/register-crud";
+import { Vouch } from "../../../services/registerPlayersService/readPlayers";
+import { axiosWrapper } from "../../../../lib/fetch";
 
 export const apiCallerGetRegisterPlayers2 = async (): Promise<Vouch[]> => {
   try {
-    const response = await axios.get(`${baseUrl}/api/register-players/read`);
+    const response = await axiosWrapper.get(`${baseUrl}/api/register-players/read`);
     const data = response.data;
     if (!data.success) throw new Error(data.message);
     return data.data;

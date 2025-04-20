@@ -1,14 +1,16 @@
-import axios from "axios";
+import axiosWrapper from "axiosWrapper";
 import type { PrimitiveServiceResponse } from "../../../services/common/types";
 import { PublicProfile } from "@/app/services/playerService/updateIsPublicProfile";
 import { Notify } from "@/lib/notification";
 
-export const apiCallerUpdatePlayerProfileVisibility = async (
-  { checked, discord_id }: PublicProfile
-): Promise<PrimitiveServiceResponse> => {
+export const apiCallerUpdatePlayerProfileVisibility = async ({
+  checked,
+  discord_id,
+}: PublicProfile): Promise<PrimitiveServiceResponse> => {
   try {
-    const response = await axios.post("/api/player/update-is-public-profile", {
-      checked, discord_id
+    const response = await axiosWrapper.post("/api/player/update-is-public-profile", {
+      checked,
+      discord_id,
     });
 
     const data = response.data as PrimitiveServiceResponse;

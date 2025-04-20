@@ -1,18 +1,21 @@
-import axios from "axios";
 import {
   getPlayerBySteamId,
   Player,
 } from "@/app/services/playerService/getPlayerBySteamId";
 import { baseUrl } from "@/app/common/constraints";
 import { Notify } from "@/lib/notification";
+import { axiosWrapper } from "../../../../lib/fetch";
 
 export const apiCallerGetPlayerBySteamId = async ({
   steam_id,
 }: getPlayerBySteamId): Promise<Player> => {
   try {
-    const response = await axios.get(`${baseUrl}/api/player/get-player-by-steam-id`, {
-      params: { steam_id },
-    });
+    const response = await axiosWrapper.get(
+      `${baseUrl}/api/player/get-player-by-steam-id`,
+      {
+        params: { steam_id },
+      }
+    );
 
     const data = response.data;
     if (!data.success) throw new Error(data.message);

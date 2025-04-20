@@ -16,23 +16,14 @@ import {
   TableHeaderCell,
   TableRow,
 } from "@/components/ui/table";
-import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import router from "next/router";
 
 import { useState } from "react";
-
-export type VouchStatus = "PENDING" | "APPROVED" | "DECLINED";
-
-export interface Vouch {
-  id: number;
-  status: VouchStatus;
-  steam_id: number;
-  name: string;
-  discord_id: number;
-  mmr: number;
-}
+import {
+  Vouch,
+  VouchStatus,
+} from "../../app/services/registerPlayersService/readPlayers";
 
 export default function RegisterCrud({ registerList }: { registerList: Vouch[] }) {
   const router = useRouter();

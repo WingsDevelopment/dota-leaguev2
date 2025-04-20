@@ -6,7 +6,17 @@ import {
   getSuccessfulServiceResponse,
   runDbAll,
 } from "../common/functions";
-import { Vouch } from "@/components/admin/register-crud";
+
+export type VouchStatus = "PENDING" | "APPROVED" | "DECLINED";
+
+export interface Vouch {
+  id: number;
+  status: VouchStatus;
+  steam_id: number;
+  name: string;
+  discord_id: number;
+  mmr: number;
+}
 
 /**
  * Approves players who registered.

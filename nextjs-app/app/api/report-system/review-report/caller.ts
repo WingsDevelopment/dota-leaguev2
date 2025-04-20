@@ -1,11 +1,11 @@
-import axios from "axios";
+import { axiosWrapper } from "../../../../lib/fetch";
 import type { PrimitiveServiceResponse } from "../../../services/common/types";
 
 export const apiCallerReviewReport = async (
   reportId: number
 ): Promise<PrimitiveServiceResponse> => {
   try {
-    const response = await axios.put("/api/report-system/review-report", {
+    const response = await axiosWrapper.put("/api/report-system/review-report", {
       id: reportId,
     });
 

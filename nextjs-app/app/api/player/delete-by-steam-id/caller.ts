@@ -1,6 +1,6 @@
 import { PrimitiveServiceResponse } from "@/app/services/common/types";
 import { Notify } from "@/lib/notification";
-import axios from "axios";
+import { axiosWrapper } from "../../../../lib/fetch";
 
 export const apiCallerDeletePlayerBySteamId = async ({
   steamId,
@@ -8,7 +8,7 @@ export const apiCallerDeletePlayerBySteamId = async ({
   steamId: string;
 }): Promise<PrimitiveServiceResponse> => {
   try {
-    const response = await axios.post("/api/player/delete-by-steam-id", {
+    const response = await axiosWrapper.post("/api/player/delete-by-steam-id", {
       data: { steamId },
     });
 

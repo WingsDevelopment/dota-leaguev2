@@ -1,15 +1,15 @@
 import { PrimitiveServiceResponse } from "@/app/services/common/types";
 import { getPlayerByDiscordId } from "@/app/services/playerService/getPlayerSteamIdByDiscordId";
 import { Notify } from "@/lib/notification";
-import axios from "axios";
+import { axiosWrapper } from "../../../../lib/fetch";
 
-export const apiCallerDeletePlayerBySteamId = async (
-  { discordId }: getPlayerByDiscordId
-): Promise<PrimitiveServiceResponse> => {
+export const apiCallerDeletePlayerBySteamId = async ({
+  discordId,
+}: getPlayerByDiscordId): Promise<PrimitiveServiceResponse> => {
   try {
-    const response = await axios.post("/api/player/delete-by-discord-id",
-      { data: { discordId } }
-    );
+    const response = await axiosWrapper.post("/api/player/delete-by-discord-id", {
+      data: { discordId },
+    });
 
     const data = response.data as PrimitiveServiceResponse;
     if (!data.success) throw new Error(data.message);

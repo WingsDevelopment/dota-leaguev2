@@ -1,9 +1,8 @@
 import { PrimitiveServiceResponse } from "@/app/services/common/types";
-import axios from "axios";
-import { userReport } from "@/app/services/userReport/createUserReport";
 import { RegisterPlayers } from "@/app/services/registerPlayersService/approvePlayers";
 import { isUserAdmin } from "@/app/common/constraints";
 import { Notify } from "@/lib/notification";
+import { axiosWrapper } from "../../../../lib/fetch";
 
 export const apiCallersetDeclinePlayers = async ({
   registrationId,
@@ -13,7 +12,7 @@ export const apiCallersetDeclinePlayers = async ({
     if (!isUserAdmin()) {
       throw new Error("User is not authorized for this action.");
     }
-    const response = await axios.post(
+    const response = await axiosWrapper.post(
       "/api/register-players/register-players-decline",
       { registrationId, requestType }
     );
