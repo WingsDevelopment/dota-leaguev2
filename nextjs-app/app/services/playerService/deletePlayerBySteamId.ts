@@ -21,11 +21,7 @@ import { getPlayerBySteamId } from "./getPlayerBySteamId";
  * @example
  * const response = await deletePlayerBySteamId({ steamId: 12345 });
  */
-export async function deletePlayerBySteamId({
-  steamId,
-}: {
-  steamId?: string;
-}): Promise<PrimitiveServiceResponse> {
+export async function deletePlayerBySteamId({ steam_id }: getPlayerBySteamId): Promise<PrimitiveServiceResponse> {
   /* ------------------ */
   /*   Initialization   */
   /* ------------------ */
@@ -34,15 +30,17 @@ export async function deletePlayerBySteamId({
     /* ------------- */
     /*   Validation  */
     /* ------------- */
-    if (!steamId) {
+    if (!steam_id) {
       throw new Error("Missing required field: steam_id");
     }
     /* ------------- */
     /*   DB Query    */
     /* ------------- */
-    const changes: any = await runDbQuery(db, `DELETE FROM Players WHERE steam_id = ?`, [
-      steamId,
-    ]);
+    const changes: any = await runDbQuery(
+      db,
+      `DELETE FROM Players WHERE steam_id = ?`,
+      [steam_id]
+    );
     if (changes.changes === 0) {
       throw new Error("Player not found.");
     }
@@ -50,7 +48,8 @@ export async function deletePlayerBySteamId({
     /*   Return Data    */
     /* ---------------- */
     return getSuccessfulServiceResponse({
-      message: "Deleted player by steam id successfully.",
+      message: "Deleted player by steam id successfully."
+
     });
   } catch (error) {
     /* -------- */
