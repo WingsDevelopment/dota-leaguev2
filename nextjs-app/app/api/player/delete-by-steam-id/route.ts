@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
-  const steamId = searchParams.get("steam_id");
+  const steam_id = searchParams.get("steam_id");
 
- return NextResponse.json(await deletePlayerBySteamId({ steamId }))
+ return NextResponse.json(await deletePlayerBySteamId({ steam_id }))
 }

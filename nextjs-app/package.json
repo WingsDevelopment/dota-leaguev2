@@ -27,6 +27,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
+    "cors": "^2.8.5",
     "date-fns": "^3.6.0",
     "install": "^0.13.0",
     "lucide-react": "^0.479.0",
