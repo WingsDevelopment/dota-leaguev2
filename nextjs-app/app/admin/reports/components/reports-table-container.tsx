@@ -20,20 +20,10 @@ import { useRouter } from "next/navigation";
 import { apiCallerReviewReport } from "../../../api/report-system/review-report/caller";
 import type { UserReport } from "../../../services/userReport/getUserReports";
 import {
-  ApiCallerConfig,
-  apiCallerGetReports,
+  apiCallerGetReports
 } from "../../../api/report-system/get-reports/caller";
+import { getApiClientCallerConfig } from "@/app/api/common/clientUtils";
 
-export function getApiClientCallerConfig(): ApiCallerConfig {
-  return {
-    origin: "client",
-    withCredentials: true,
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-  };
-}
 
 /* --------- */
 /*   Types   */

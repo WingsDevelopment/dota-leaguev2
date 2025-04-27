@@ -2,12 +2,18 @@ import { getApiServerCallerConfig } from "@/lib/getApiServerCallerConfig";
 
 import axios from "axios";
 import { Vouch } from "../../../services/registerPlayersService/readPlayers";
+import { ApiCallerConfig } from "../../common/interfaces";
+import { getBaseUrl } from "@/app/common/constraints";
 
-export const apiCallerGetPlayers = async (): Promise<Vouch[]> => {
+export const apiCallerGetPlayers = async ({
+  config,
+}: {
+  config?: ApiCallerConfig;
+}): Promise<Vouch[]> => {
   try {
     const response = await axios.get(
-      `/api/register-players/register-players-read`,
-      getApiServerCallerConfig()
+      `${getBaseUrl(config?.origin)}/api/register-players/register-players-read`,
+      config
     );
     const data = response.data;
 

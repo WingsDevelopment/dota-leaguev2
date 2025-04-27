@@ -1,7 +1,8 @@
 import axios from "axios";
 import { baseUrl } from "@/app/common/constraints";
 import { Notify } from "@/lib/notification";
-import { Vouch } from "../../../../components/admin/register-crud";
+import { Vouch } from "@/app/services/registerPlayersService/readPlayers";
+
 
 export const apiCallerGetRegisterPlayers2 = async (): Promise<Vouch[]> => {
   try {

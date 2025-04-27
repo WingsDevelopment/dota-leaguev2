@@ -1,6 +1,7 @@
+import { Origin } from "@/app/api/common/interfaces";
 import { ExtendedUser, auth } from "@/auth";
 import path from "path";
-import type { Origin } from "../../api/report-system/get-reports/caller";
+
 
 // export const baseUrl = "https://radekomsa.site";
 export const baseUrl = "http://127.0.0.1:3000";

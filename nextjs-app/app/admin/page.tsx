@@ -1,19 +1,17 @@
-import PlayerCrud from "../../components/admin/player-crud";
+import RegisterCrud from "@/components/admin/register-crud";
 import { getApiServerCallerConfig } from "../../lib/getApiServerCallerConfig";
-import { apiCallerGetReports } from "../api/report-system/get-reports/caller";
-import ReportsTableContainer from "./reports/components/reports-table-container";
+import { apiCallerGetPlayers } from "../api/register-players/register-players-read/caller";
 
 export default async function Page() {
   const config = getApiServerCallerConfig();
-  const reports = await apiCallerGetReports({
+  const players = await apiCallerGetPlayers({
     config,
   });
-  console.log({ log: "FETCHED FROM SERVER!!", reports });
+  console.log({ log: "FETCHED FROM SERVER!!", players });
 
   return (
     <div className="flex flex-col gap-4">
-      {/* <RegisterCrud registerList={players} /> */}
-      <ReportsTableContainer reportList={reports} />
+      <RegisterCrud registerList={players} />
     </div>
   );
 }

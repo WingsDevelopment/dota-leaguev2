@@ -21,14 +21,23 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import router from "next/router";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Vouch,
   VouchStatus,
 } from "../../app/services/registerPlayersService/readPlayers";
+import { getApiClientCallerConfig } from "@/app/api/common/clientUtils";
+import { apiCallerGetPlayers } from "@/app/api/register-players/register-players-read/caller";
 
 export default function RegisterCrud({ registerList }: { registerList: Vouch[] }) {
   const router = useRouter();
+  useEffect(() => {
+    apiCallerGetPlayers({
+      config: getApiClientCallerConfig(),
+    }).then((data) => {
+      console.log({ log: "FETCHED FROM CLIENT!!", data });
+    });
+  });
   const [filterStatus, setFilterStatus] = useState<VouchStatus | "ALL">("PENDING");
 
   const handleRequest = async (registrationId: number, requestType: string) => {
