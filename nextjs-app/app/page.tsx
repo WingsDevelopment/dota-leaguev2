@@ -1,6 +1,6 @@
 // app/dashboard/page.tsx
 import { Metadata } from "next";
-import { auth } from "@/auth";
+import { auth, ExtendedUser } from "@/auth";
 import {
   Card,
   CardContent,
@@ -27,9 +27,11 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const session = await auth();
-
+  const discord_id= session?.user?.id
+  console.log((session?.user as ExtendedUser)?.discordId,"discord id drugacije")
+  console.log(discord_id,"DISCORD ID MAIN PAGE")
   // Provide a fallback base URL if NEXT_PUBLIC_API_URL is not defined.
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+  const baseUrl = "http://127.0.0.1:3000";
   const res = await fetch(`${baseUrl}/api/leaderboard`, { cache: "no-store" });
   const data = await res.json();
   const leaderboard = data.leaderboard || [];

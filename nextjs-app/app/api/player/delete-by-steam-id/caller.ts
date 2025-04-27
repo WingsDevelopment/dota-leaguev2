@@ -4,11 +4,11 @@ import { Notify } from "@/lib/notification";
 import axios from "axios";
 
 export const apiCallerDeletePlayerBySteamId = async (
-  { steamId }: getPlayerBySteamId
+  { steam_id }: getPlayerBySteamId
 ): Promise<PrimitiveServiceResponse> => {
   try {
     const response = await axios.post("/api/player/delete-by-steam-id",
-      { data: { steamId } }
+      { data: { steam_id } }
     );
 
     const data = response.data as PrimitiveServiceResponse;

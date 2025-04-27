@@ -1,7 +1,7 @@
 import axios from "axios";
-import { Player } from "@/components/admin/player-crud";
 import { baseUrl } from "@/app/common/constraints";
 import { Notify } from "@/lib/notification";
+import { Player } from "@/app/services/playerService/getPlayerBySteamId";
 
 export const apiCallerGetPlayers = async (
 ): Promise<Player[]> => {

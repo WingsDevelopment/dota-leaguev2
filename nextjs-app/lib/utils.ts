@@ -3,6 +3,7 @@ import { UserProfileProps } from "@/components/userProfile/userProfile";
 import { type ClassValue, clsx } from "clsx";
 import { intervalToDuration } from "date-fns";
 import { twMerge } from "tailwind-merge";
+import { headers } from "next/headers";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -60,7 +61,7 @@ export function getAvatarUrl(anyString: String) {
   return `https://api.dicebear.com/7.x/identicon/svg?seed=${anyString}`;
 }
 
-export function mapUserDataToViewModel(user:UserProfileProps["user"]) {
+export function mapUserDataToViewModel(user: UserProfileProps["user"]) {
   const wins = Number(user?.wins) || 0;
   const loses = Number(user?.loses) || 0;
 
@@ -80,7 +81,17 @@ export function mapUserDataToViewModel(user:UserProfileProps["user"]) {
     : "Not Available"; // Fallback text if no date
 
   return {
-    winRate:winRate,
-    formattedDate:formattedDate
+    winRate: winRate,
+    formattedDate: formattedDate
   }
+}
+
+export function getApiClientCallerConfig() {
+  return {
+    withCredentials: true,
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+  };
 }
