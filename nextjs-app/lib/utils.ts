@@ -3,7 +3,6 @@ import { UserProfileProps } from "@/components/userProfile/userProfile";
 import { type ClassValue, clsx } from "clsx";
 import { intervalToDuration } from "date-fns";
 import { twMerge } from "tailwind-merge";
-import { headers } from "next/headers";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -15,8 +14,7 @@ export function calculateElo(
   result: number
 ): number {
   const k = 50;
-  const expectedScoreRadiant =
-    1 / (1 + Math.pow(10, (direElo - radiantElo) / 400));
+  const expectedScoreRadiant = 1 / (1 + Math.pow(10, (direElo - radiantElo) / 400));
   let actualScoreRadiant = (result + 1) / 2;
   if (radiantElo === direElo) {
     actualScoreRadiant = result === 1 ? 1 : 0;
@@ -51,10 +49,9 @@ export function heroToUppercase(name?: string) {
 
   let stringSplit = name.split("_");
   for (let i = 0; i < stringSplit.length; i++) {
-    stringSplit[i] =
-      stringSplit[i].charAt(0).toUpperCase() + stringSplit[i].substring(1);
+    stringSplit[i] = stringSplit[i].charAt(0).toUpperCase() + stringSplit[i].substring(1);
   }
-  return stringSplit.join(' ');
+  return stringSplit.join(" ");
 }
 
 export function getAvatarUrl(anyString: String) {
@@ -70,28 +67,18 @@ export function mapUserDataToViewModel(user: UserProfileProps["user"]) {
 
   const formattedDate = user.vouched_date
     ? new Date(user.vouched_date).toLocaleString("de-DE", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false, // 24-hour format
-    })
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false, // 24-hour format
+      })
     : "Not Available"; // Fallback text if no date
 
   return {
     winRate: winRate,
-    formattedDate: formattedDate
-  }
-}
-
-export function getApiClientCallerConfig() {
-  return {
-    withCredentials: true,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
+    formattedDate: formattedDate,
   };
 }

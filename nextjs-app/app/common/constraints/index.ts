@@ -1,14 +1,24 @@
 import { ExtendedUser, auth } from "@/auth";
 import path from "path";
+import type { Origin } from "../../api/report-system/get-reports/caller";
 
-export const baseUrl = "https://radekomsa.site"
-// export const baseUrl = "http://localhost:3000" 
+// export const baseUrl = "https://radekomsa.site";
+export const baseUrl = "http://127.0.0.1:3000";
+
+export const getBaseUrl = (origin?: Origin) => {
+  if (origin == null || origin === "server") {
+    return baseUrl;
+  }
+  return "";
+};
 
 export const dbPath =
   process.env.DATABASE_PATH || path.join(process.cwd(), "db", "league.db");
 
 export async function isUserAdmin() {
+  console.log("?");
   if (process.env.NODE_ENV === "development") {
+    console.log("??");
     return true;
   }
   const session = await auth();
@@ -16,8 +26,11 @@ export async function isUserAdmin() {
   console.log("adminIds", adminIds);
   console.log("session", session);
   console.log("includes", adminIds.includes(String(session?.user?.id)));
-  console.log("includes", adminIds.includes(String((session?.user as ExtendedUser)?.discordId)))
-  console.log((session?.user as ExtendedUser)?.discordId, "Milos Discord Id")
+  console.log(
+    "includes",
+    adminIds.includes(String((session?.user as ExtendedUser)?.discordId))
+  );
+  console.log((session?.user as ExtendedUser)?.discordId, "Milos Discord Id");
   return adminIds.includes(String((session?.user as ExtendedUser)?.discordId));
 }
 

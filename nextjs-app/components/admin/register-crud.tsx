@@ -22,19 +22,12 @@ import { useRouter } from "next/navigation";
 import router from "next/router";
 
 import { useState } from "react";
+import {
+  Vouch,
+  VouchStatus,
+} from "../../app/services/registerPlayersService/readPlayers";
 
-export type VouchStatus = "PENDING" | "APPROVED" | "DECLINED";
-
-export interface vouch {
-  id: number;
-  status: VouchStatus;
-  steam_id: number;
-  name: string;
-  discord_id: number;
-  mmr: number;
-}
-
-export default function RegisterCrud({ registerList }: { registerList: vouch[] }) {
+export default function RegisterCrud({ registerList }: { registerList: Vouch[] }) {
   const router = useRouter();
   const [filterStatus, setFilterStatus] = useState<VouchStatus | "ALL">("PENDING");
 
@@ -107,7 +100,7 @@ export default function RegisterCrud({ registerList }: { registerList: vouch[] }
                 </tr>
               </TableHeader>
               <TableBody>
-                {filteredVouchList.map((vouchItem: vouch) => {
+                {filteredVouchList.map((vouchItem: Vouch) => {
                   return (
                     <TableRow key={vouchItem.id}>
                       <TableCell>{vouchItem.id}</TableCell>

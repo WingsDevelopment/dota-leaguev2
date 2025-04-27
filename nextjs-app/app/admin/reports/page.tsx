@@ -12,7 +12,7 @@ export default async function Page() {
 
   return (
     <div className="flex flex-col gap-4">
-      <ReportsTableContainer reportList={await apiCallerGetReports()} />
+      {/* <ReportsTableContainer reportList={await apiCallerGetReports()} /> */}
     </div>
   );
 }

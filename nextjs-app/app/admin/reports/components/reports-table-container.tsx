@@ -14,11 +14,26 @@ import {
   TableHeaderCell,
   TableRow,
 } from "@/components/ui/table";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { apiCallerReviewReport } from "../../../api/report-system/review-report/caller";
 import type { UserReport } from "../../../services/userReport/getUserReports";
+import {
+  ApiCallerConfig,
+  apiCallerGetReports,
+} from "../../../api/report-system/get-reports/caller";
+
+export function getApiClientCallerConfig(): ApiCallerConfig {
+  return {
+    origin: "client",
+    withCredentials: true,
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+  };
+}
 
 /* --------- */
 /*   Types   */
@@ -38,12 +53,21 @@ export default function ReportsTableContainer({
   /* ------------- */
   const router = useRouter();
 
+  /* ------------- */
+  /*   to remove   */
+  /* ------------- */
+  useEffect(() => {
+    apiCallerGetReports({
+      config: getApiClientCallerConfig(),
+    }).then((data) => {
+      console.log({ log: "FETCHED FROM CLIENT!!", data });
+    });
+  });
+
   /* --------------- */
   /*   Local State   */
   /* --------------- */
-  const [filterStatus, setFilterStatus] = useState<ReportStatus | "ALL">(
-    "UNREVIEWED"
-  );
+  const [filterStatus, setFilterStatus] = useState<ReportStatus | "ALL">("UNREVIEWED");
 
   /* ---------------- */
   /*   Custom Logic   */
@@ -53,9 +77,7 @@ export default function ReportsTableContainer({
       filterStatus === "ALL"
         ? reportList
         : reportList.filter((report) =>
-            filterStatus === "REVIEWED"
-              ? report.reviewed === 1
-              : report.reviewed === 0
+            filterStatus === "REVIEWED" ? report.reviewed === 1 : report.reviewed === 0
           ),
     [reportList, filterStatus]
   );
@@ -82,8 +104,8 @@ export default function ReportsTableContainer({
             <h1 className="text-3xl font-bold mb-4">Player Reports</h1>
           </CardTitle>
           <CardDescription>
-            After reviewing the game and taking appropriate action, you can
-            resolve the report.
+            After reviewing the game and taking appropriate action, you can resolve the
+            report.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -95,9 +117,7 @@ export default function ReportsTableContainer({
             <select
               id="status-filter"
               value={filterStatus}
-              onChange={(e) =>
-                setFilterStatus(e.target.value as ReportStatus | "ALL")
-              }
+              onChange={(e) => setFilterStatus(e.target.value as ReportStatus | "ALL")}
               className="p-2 border rounded"
             >
               <option value="ALL">All</option>
@@ -139,9 +159,7 @@ export default function ReportsTableContainer({
                     <TableCell>{report.time}</TableCell>
                     <TableCell>
                       {report.reviewed === 0 ? (
-                        <Button onClick={() => handleSolve(report.id)}>
-                          Solve
-                        </Button>
+                        <Button onClick={() => handleSolve(report.id)}>Solve</Button>
                       ) : (
                         <></>
                       )}
