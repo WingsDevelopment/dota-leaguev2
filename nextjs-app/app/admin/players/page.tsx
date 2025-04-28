@@ -1,10 +1,16 @@
 import PlayerCrud from "@/components/admin/player-crud";
 import { apiCallerGetPlayers } from "@/app/api/player/players-read/caller";
+import { getApiServerCallerConfig } from "@/lib/getApiServerCallerConfig";
 
 export default async function Page() {
+    const config = getApiServerCallerConfig();
+    const playerList = await apiCallerGetPlayers({
+      config
+    });
+    console.log(playerList,"PLAYERLIST")
   return (
     <div className="flex flex-col gap-4">
-      <PlayerCrud playerList={await apiCallerGetPlayers()} />
+      <PlayerCrud playerList={playerList} />
     </div>
   );
 }

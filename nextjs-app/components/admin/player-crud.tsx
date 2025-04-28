@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -30,9 +30,18 @@ import { apiCallerUnbanPlayer } from "@/app/api/player/players-unban/caller";
 import { Player } from "@/app/services/playerService/getPlayerBySteamId";
 import { apiCallerQueueUnvouchPlayer } from "../../app/api/player/player-queue-unvouch/caller";
 import { apiCallerQueueVouchPlayer } from "../../app/api/player/player-queue-vouch/caller";
+import { apiCallerGetPlayers } from "@/app/api/player/players-read/caller";
+import { getApiClientCallerConfig } from "@/app/api/common/clientUtils";
 
 export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
   const router = useRouter();
+  useEffect(() => {
+    apiCallerGetPlayers({
+      config: getApiClientCallerConfig(),
+    }).then((data) => {
+      console.log({ log: "FETCHED FROM CLIENT!!", data });
+    });
+  });
   const [openModal, setOpenModal] = useState<number | "none">("none");
 
   async function sendBanRequest(

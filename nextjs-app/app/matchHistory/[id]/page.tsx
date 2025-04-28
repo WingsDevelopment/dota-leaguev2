@@ -9,6 +9,7 @@ import { apiCallerGetPlayerBySteamId } from "@/app/api/player/get-player-by-stea
 import { apiCallerGetPlayerSteamIdByDiscordId } from "@/app/api/player/get-player-steam-id-by-discord-id/caller";
 import { apiCallerGetLikesAndDislikesBySteamId } from "@/app/api/likes-dislikes/get-likes-and-dislikes/caller";
 import { apiCallerisUserLikedOrDisliked } from "@/app/api/likes-dislikes/is-user-liked-or-disliked/caller";
+import { getApiServerCallerConfig } from "@/lib/getApiServerCallerConfig";
 
 export interface MatchHistoryProps {
   params: {
@@ -41,12 +42,13 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
   const session = await auth();
   const discordId = (session?.user as ExtendedUser)?.discordId;
   const { id } = params;
+  const config = getApiServerCallerConfig();
   const [matchHistoryRes, playerRes, userSteamIdRes, likesAndDislikesRes] =
     await Promise.all([
-      apiCallerGetMatchHistory({ steamId: id }),
+      apiCallerGetMatchHistory({ steamId: id, config }),
       await apiCallerGetPlayerBySteamId({ steam_id: id }),
       await apiCallerGetPlayerSteamIdByDiscordId({ discordId }),
-      await apiCallerGetLikesAndDislikesBySteamId({ steam_id: id }),
+      await apiCallerGetLikesAndDislikesBySteamId({ steam_id: id, config }),
     ]);
 
   const matchHistoryList = matchHistoryRes;
@@ -56,9 +58,9 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
   const userSteamIdValue = userSteamId ?? null;
   const isUserLikedOrDisliked = userSteamIdValue
     ? await apiCallerisUserLikedOrDisliked({
-        otherPlayerSteamId: id,
-        userSteamId: userSteamIdValue,
-      })
+      otherPlayerSteamId: id,
+      userSteamId: userSteamIdValue,
+    })
     : null;
   const isOwnProfile = playerList?.discord_id === Number(discordId);
   if (playerList.is_public_profile || !isOwnProfile) {

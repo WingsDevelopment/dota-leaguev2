@@ -1,19 +1,22 @@
 import axios from "axios";
-import { baseUrl } from "@/app/common/constraints";
+import { baseUrl, getBaseUrl } from "@/app/common/constraints";
 import { Notify } from "@/lib/notification";
 import { Player } from "@/app/services/playerService/getPlayerBySteamId";
+import { ApiCallerConfig } from "../../common/interfaces";
 
-export const apiCallerGetPlayers = async (): Promise<Player[]> => {
+export const apiCallerGetPlayers = async ({
+  config,
+}: {
+  config?: ApiCallerConfig;
+}): Promise<Player[]> => {
   try {
-    const response = await axios.get(`${baseUrl}/api/player/players-read`);
+    const response = await axios.get(`${getBaseUrl(config?.origin)}/api/player/players-read`,
+      config);
     const data = response.data;
     if (!data.success) throw new Error(data.message);
     return data.data;
   } catch (error) {
-    Notify({
-      message: `Failed to fetch the players!, ${error}`,
-      type: "error",
-    });
+    console.error(`Failed to fetch players`, error);
     throw error;
   }
 };
