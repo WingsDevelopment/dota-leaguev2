@@ -42,18 +42,6 @@ export default function ReportsTableContainer({
   /*   Metadata    */
   /* ------------- */
   const router = useRouter();
-
-  /* ------------- */
-  /*   to remove   */
-  /* ------------- */
-  useEffect(() => {
-    apiCallerGetReports({
-      config: getApiClientCallerConfig(),
-    }).then((data) => {
-      console.log({ log: "FETCHED FROM CLIENT!!", data });
-    });
-  });
-
   /* --------------- */
   /*   Local State   */
   /* --------------- */

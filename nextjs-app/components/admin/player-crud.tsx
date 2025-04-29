@@ -35,13 +35,6 @@ import { getApiClientCallerConfig } from "@/app/api/common/clientUtils";
 
 export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
   const router = useRouter();
-  useEffect(() => {
-    apiCallerGetPlayers({
-      config: getApiClientCallerConfig(),
-    }).then((data) => {
-      console.log({ log: "FETCHED FROM CLIENT!!", data });
-    });
-  });
   const [openModal, setOpenModal] = useState<number | "none">("none");
 
   async function sendBanRequest(

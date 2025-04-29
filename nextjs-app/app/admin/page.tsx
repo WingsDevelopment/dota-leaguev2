@@ -7,7 +7,7 @@ export default async function Page() {
   const players = await apiCallerGetPlayers({
     config,
   });
-  console.log({ log: "FETCHED FROM SERVER!!", players });
+
 
   return (
     <div className="flex flex-col gap-4">

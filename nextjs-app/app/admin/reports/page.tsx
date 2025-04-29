@@ -14,7 +14,6 @@ export default async function Page() {
   const reports = await apiCallerGetReports({
     config,
   });
-  console.log({ log: "FETCHED FROM SERVER!!", reports });
 
   return (
     <div className="flex flex-col gap-4">

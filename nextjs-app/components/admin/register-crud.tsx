@@ -31,13 +31,6 @@ import { apiCallerGetPlayers } from "@/app/api/register-players/register-players
 
 export default function RegisterCrud({ registerList }: { registerList: Vouch[] }) {
   const router = useRouter();
-  useEffect(() => {
-    apiCallerGetPlayers({
-      config: getApiClientCallerConfig(),
-    }).then((data) => {
-      console.log({ log: "FETCHED FROM CLIENT!!", data });
-    });
-  });
   const [filterStatus, setFilterStatus] = useState<VouchStatus | "ALL">("PENDING");
 
   const handleRequest = async (registrationId: number, requestType: string) => {

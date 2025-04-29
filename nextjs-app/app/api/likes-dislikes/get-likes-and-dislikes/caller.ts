@@ -1,19 +1,15 @@
 import axios from "axios";
-import {
-  getPlayerBySteamId,
-  Player,
-} from "@/app/services/playerService/getPlayerBySteamId";
-import { baseUrl, getBaseUrl } from "@/app/common/constraints";
+import { getBaseUrl } from "@/app/common/constraints";
 import { Notify } from "@/lib/notification";
 import { SumOfLikesAndDislikes } from "@/app/services/likesAndDislikesService/getLikesAndDislikes";
 import { ApiCallerConfig } from "../../common/interfaces";
 
 export const apiCallerGetLikesAndDislikesBySteamId = async ({
-  steam_id, config
-}: { steam_id: string, config?: ApiCallerConfig }): Promise<SumOfLikesAndDislikes> => {
+  params: { steam_id }, config: { config }
+}: { params: { steam_id: string }, config: { config?: ApiCallerConfig } }): Promise<SumOfLikesAndDislikes> => {
   try {
     const response = await axios.get(`${getBaseUrl(config?.origin)}/api/likes-dislikes/get-likes-and-dislikes`, {
-      params: { steam_id, config },
+      params: { steam_id, config }
     });
 
     const data = response.data;
@@ -22,6 +18,5 @@ export const apiCallerGetLikesAndDislikesBySteamId = async ({
   } catch (error) {
     console.error(`Failed to get likes and dislikes for requested steam Id!`, error);
     throw error;
-
   }
 };
