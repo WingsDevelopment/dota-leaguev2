@@ -36,7 +36,7 @@ export default function ReportsTableContainer({
 }: {
   reportList: UserReport[];
 }) {
-
+  const config = getApiClientCallerConfig()
   /* ------------- */
   /*   Metadata    */
   /* ------------- */
@@ -65,7 +65,7 @@ export default function ReportsTableContainer({
   const handleSolve = async (reportId: number) => {
     if (!confirm("Are you sure ?")) return;
 
-    apiCallerReviewReport({ params: { reportId }, config: getApiClientCallerConfig() }).then(() => {
+    apiCallerReviewReport({ params: { reportId }, config }).then(() => {
       router.refresh();
     });
   };
