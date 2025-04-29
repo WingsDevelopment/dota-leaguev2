@@ -19,11 +19,9 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { apiCallerReviewReport } from "../../../api/report-system/review-report/caller";
 import type { UserReport } from "../../../services/userReport/getUserReports";
-import {
-  apiCallerGetReports
-} from "../../../api/report-system/get-reports/caller";
+import { getApiServerCallerConfig } from "@/lib/getApiServerCallerConfig";
+import { apiCallerGetReports } from "@/app/api/report-system/get-reports/caller";
 import { getApiClientCallerConfig } from "@/app/api/common/clientUtils";
-
 
 /* --------- */
 /*   Types   */
@@ -38,6 +36,7 @@ export default function ReportsTableContainer({
 }: {
   reportList: UserReport[];
 }) {
+
   /* ------------- */
   /*   Metadata    */
   /* ------------- */
@@ -55,8 +54,8 @@ export default function ReportsTableContainer({
       filterStatus === "ALL"
         ? reportList
         : reportList.filter((report) =>
-            filterStatus === "REVIEWED" ? report.reviewed === 1 : report.reviewed === 0
-          ),
+          filterStatus === "REVIEWED" ? report.reviewed === 1 : report.reviewed === 0
+        ),
     [reportList, filterStatus]
   );
 
@@ -66,7 +65,7 @@ export default function ReportsTableContainer({
   const handleSolve = async (reportId: number) => {
     if (!confirm("Are you sure ?")) return;
 
-    apiCallerReviewReport(reportId).then(() => {
+    apiCallerReviewReport({ params: { reportId }, config: getApiClientCallerConfig() }).then(() => {
       router.refresh();
     });
   };
@@ -152,3 +151,4 @@ export default function ReportsTableContainer({
     </div>
   );
 }
+
