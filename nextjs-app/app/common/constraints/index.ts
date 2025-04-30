@@ -22,7 +22,6 @@ export async function isUserAdmin() {
   }
   const session = await auth();
   const adminIds = (process.env.ADMIN_IDS || "").split(",");
-  console.log((session?.user as ExtendedUser)?.discordId, "Milos Discord Id");
   return adminIds.includes(String((session?.user as ExtendedUser)?.discordId));
 }
 
