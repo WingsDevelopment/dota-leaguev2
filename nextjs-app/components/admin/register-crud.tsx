@@ -16,20 +16,17 @@ import {
   TableHeaderCell,
   TableRow,
 } from "@/components/ui/table";
-import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import router from "next/router";
-
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Vouch,
   VouchStatus,
 } from "../../app/services/registerPlayersService/readPlayers";
 import { getApiClientCallerConfig } from "@/app/api/common/clientUtils";
-import { apiCallerGetPlayers } from "@/app/api/register-players/register-players-read/caller";
 
 export default function RegisterCrud({ registerList }: { registerList: Vouch[] }) {
+  const config = getApiClientCallerConfig()
   const router = useRouter();
   const [filterStatus, setFilterStatus] = useState<VouchStatus | "ALL">("PENDING");
 
@@ -41,7 +38,7 @@ export default function RegisterCrud({ registerList }: { registerList: Vouch[] }
         router.refresh();
       });
     } else if (requestType === "decline") {
-      apiCallersetDeclinePlayers({ registrationId, requestType }).then(() => {
+      apiCallersetDeclinePlayers({ params: { registrationId, requestType }, config }).then(() => {
         router.refresh();
       });
     }

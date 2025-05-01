@@ -12,12 +12,14 @@ import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import Image from "next/image";
 import { apiCallerCreatePlayers } from "../api/register-players/register-players-create/caller";
+import { getApiClientCallerConfig } from "../api/common/clientUtils";
 
 interface registerLeague {
   steam_id: number;
   mmr: number;
 }
 export default function VouchRequest() {
+  const config= getApiClientCallerConfig()
   const { data: session } = useSession();
   const {
     handleSubmit,
@@ -33,7 +35,7 @@ export default function VouchRequest() {
   const onSubmit = async (data: registerLeague) => {
 
     try {
-      await apiCallerCreatePlayers({ steam_id: data.steam_id, mmr: data.mmr })
+      await apiCallerCreatePlayers({params:{steam_id: data.steam_id, mmr: data.mmr},config })
       reset();
       alert("Success, ping admins for approval");
     } catch (error) {

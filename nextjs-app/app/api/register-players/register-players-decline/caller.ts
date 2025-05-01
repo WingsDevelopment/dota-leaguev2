@@ -1,21 +1,18 @@
 import { PrimitiveServiceResponse } from "@/app/services/common/types";
 import axios from "axios";
-import { userReport } from "@/app/services/userReport/createUserReport";
 import { RegisterPlayers } from "@/app/services/registerPlayersService/approvePlayers";
-import { isUserAdmin } from "@/app/common/constraints";
+import { getBaseUrl, isUserAdmin } from "@/app/common/constraints";
 import { Notify } from "@/lib/notification";
+import { ApiCallerConfig } from "../../common/interfaces";
 
 export const apiCallersetDeclinePlayers = async ({
-  registrationId,
-  requestType,
-}: RegisterPlayers): Promise<PrimitiveServiceResponse> => {
+  params: { registrationId, requestType }, config
+
+}: { params: RegisterPlayers, config: ApiCallerConfig }): Promise<PrimitiveServiceResponse> => {
   try {
-    if (!isUserAdmin()) {
-      throw new Error("User is not authorized for this action.");
-    }
     const response = await axios.post(
-      "/api/register-players/register-players-decline",
-      { registrationId, requestType }
+      `${getBaseUrl(config?.origin)}/api/register-players/register-players-decline`,
+      { registrationId, requestType }, config
     );
     const data = response.data as PrimitiveServiceResponse;
     if (!data.success) throw new Error(data.message);
