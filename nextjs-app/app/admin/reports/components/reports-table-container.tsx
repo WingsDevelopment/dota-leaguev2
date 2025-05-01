@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Card,
   CardContent,
@@ -14,13 +15,11 @@ import {
   TableHeaderCell,
   TableRow,
 } from "@/components/ui/table";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { apiCallerReviewReport } from "../../../api/report-system/review-report/caller";
 import type { UserReport } from "../../../services/userReport/getUserReports";
-import { getApiServerCallerConfig } from "@/lib/getApiServerCallerConfig";
-import { apiCallerGetReports } from "@/app/api/report-system/get-reports/caller";
 import { getApiClientCallerConfig } from "@/app/api/common/clientUtils";
 
 /* --------- */
@@ -36,7 +35,7 @@ export default function ReportsTableContainer({
 }: {
   reportList: UserReport[];
 }) {
-  const config = getApiClientCallerConfig()
+  const config = getApiClientCallerConfig();
   /* ------------- */
   /*   Metadata    */
   /* ------------- */
@@ -54,8 +53,8 @@ export default function ReportsTableContainer({
       filterStatus === "ALL"
         ? reportList
         : reportList.filter((report) =>
-          filterStatus === "REVIEWED" ? report.reviewed === 1 : report.reviewed === 0
-        ),
+            filterStatus === "REVIEWED" ? report.reviewed === 1 : report.reviewed === 0
+          ),
     [reportList, filterStatus]
   );
 
@@ -151,4 +150,3 @@ export default function ReportsTableContainer({
     </div>
   );
 }
-

@@ -19,7 +19,7 @@ interface registerLeague {
   mmr: number;
 }
 export default function VouchRequest() {
-  const config= getApiClientCallerConfig()
+  const config = getApiClientCallerConfig();
   const { data: session } = useSession();
   const {
     handleSubmit,
@@ -33,15 +33,12 @@ export default function VouchRequest() {
   });
 
   const onSubmit = async (data: registerLeague) => {
-
-    try {
-      await apiCallerCreatePlayers({params:{steam_id: data.steam_id, mmr: data.mmr},config })
+    apiCallerCreatePlayers({
+      params: { steam_id: data.steam_id, mmr: data.mmr },
+      config,
+    }).then(() => {
       reset();
-      alert("Success, ping admins for approval");
-    } catch (error) {
-      console.error("failed to vouch.")
-      alert("Failed to vouch.")
-    }
+    });
   };
 
   if (!session) {
@@ -89,9 +86,7 @@ export default function VouchRequest() {
               type="text"
             />
           </CardDescription>
-          {errors.mmr && (
-            <p className="text-red-500 text-sm">{errors.mmr.message}</p>
-          )}
+          {errors.mmr && <p className="text-red-500 text-sm">{errors.mmr.message}</p>}
           <CardDescription>
             <Button type="submit">Register</Button>
           </CardDescription>
