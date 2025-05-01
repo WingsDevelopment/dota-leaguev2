@@ -3,18 +3,18 @@ import { closeDatabase } from "@/db/initDatabase";
 import { NextResponse } from "next/server";
 
 interface getPlayerBySteamId {
-    steamId: string;
+    discordId: string;
 }
 
-export async function getPlayerBySteamId({ steamId }: getPlayerBySteamId) {
+export async function getPlayerByDiscordId({ discordId }: getPlayerBySteamId) {
     const db = await getDbInstance();
     try {
 
-        const player: Array<Record<string, any>> = await new Promise(
+        const steamId: Array<Record<string, any>> = await new Promise(
             (resolve, reject) => {
                 db.all(
-                    `SELECT * FROM Players WHERE steam_id = ?`,
-                    [String(steamId)],
+                    `SELECT steam_id FROM Players WHERE discord_id = ?`,
+                    [String(discordId)],
                     (err, rows) => {
                         if (err) {
                             console.error("Error executing query:", err);
@@ -25,9 +25,8 @@ export async function getPlayerBySteamId({ steamId }: getPlayerBySteamId) {
                 );
             }
         );
-
         closeDatabase(db);
-        return { success: true, data: player };
+        return { success: true, data: steamId };
     } catch (error) {
         console.error("Error processing ban/unban:", error);
         closeDatabase(db);

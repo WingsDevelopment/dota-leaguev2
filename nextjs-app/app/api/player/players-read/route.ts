@@ -1,11 +1,40 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { getDbInstance } from "@/db/utils";
 import { isUserAdmin } from "@/app/common/constraints";
-import { GetPlayers } from "@/app/services/playerService/getPlayers";
-import { getUnauthorizedError } from "../../common/functions";
+import { closeDatabase } from "@/db/initDatabase";
 
 export async function GET() {
+  const db = await getDbInstance();
+
   if (!(await isUserAdmin())) {
-    return getUnauthorizedError();
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  return NextResponse.json(await GetPlayers());
+  try {
+    // Use the environment variable if set.
+
+    // Execute the game query.
+    const players: Array<Record<string, any>> = await new Promise(
+      (resolve, reject) => {
+        db.all(`SELECT * FROM Players`, [], (err, rows) => {
+          if (err) {
+            console.error("Error executing query:", err);
+            return reject(err);
+          }
+          resolve(rows as any);
+        });
+      }
+    );
+
+    closeDatabase(db);
+    return NextResponse.json({ players });
+  } catch (error) {
+
+
+    console.error("Error reading games:", error);
+    closeDatabase(db);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 }
