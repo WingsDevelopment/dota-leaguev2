@@ -10,12 +10,11 @@ export const apiCallerDeletePlayers = async ({
 }: { params: { steam_id: DeletePlayer }, config: ApiCallerConfig }): Promise<PrimitiveServiceResponse> => {
   // Needs to be tested when DELETE is implemented on front.
   try {
-    const response = await axios.delete(`${getBaseUrl(config?.origin)}/api/register-players/register-players-delete`,
-      {
-        params: { steam_id },
-        headers: config?.headers
+    const response = await axios.delete(`${getBaseUrl(config?.origin)}/api/register-players/register-players-delete`, 
+       {...config,
+        params:{steam_id},
       }
-    );
+  );
     const data = response.data as PrimitiveServiceResponse;
     if (!data.success) throw new Error(data.message);
     return data;
