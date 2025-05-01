@@ -8,7 +8,6 @@ export const apiCallerGetReports = async ({
 }: {
   config?: ApiCallerConfig;
 }): Promise<UserReport[]> => {
-  console.log({ config });
   try {
     const response = await axios.get(
       `${getBaseUrl(config?.origin)}/api/report-system/get-reports`,

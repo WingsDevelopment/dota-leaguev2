@@ -13,6 +13,7 @@ import { useState } from "react";
 import router from "next/router";
 import { apiCallerCreateReports } from "@/app/api/report-system/create-report/caller";
 import { ReportType } from "@/app/services/userReport/common/type";
+import { getApiClientCallerConfig } from "@/app/api/common/clientUtils";
 
 /* ---------------*/
 /*   Interfaces   */
@@ -34,6 +35,7 @@ export default function ReportSystem({
   userSteamId,
   otherPlayerSteamId,
 }: ReportSystem) {
+  const config = getApiClientCallerConfig()
   const [openModal, setOpenModal] = useState<number | null>(null);
   const {
     handleSubmit,
@@ -57,7 +59,7 @@ export default function ReportSystem({
       match_id: data.matchId ?? null,
     };
     try {
-      apiCallerCreateReports(reportPayload);
+      apiCallerCreateReports({params:{reportPayload},config});
       alert("Player reported successfully");
     } catch (error) {
       console.error("Failed to submit the report", error);
