@@ -22,7 +22,7 @@ export const apiCallerCreatePlayers = async ({
     return data;
   } catch (error) {
     Notify({
-      message: `Failed to approve the player! ${error}`,
+      message: `Failed to vouch the player! ${error}`,
       type: "error",
     });
     throw error;

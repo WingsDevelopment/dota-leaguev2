@@ -23,5 +23,10 @@ export const apiCallerGetPlayers = async ({
   } catch (error) {
     console.error(`Failed to fetch players`, error);
     throw error;
+    // Notify({
+    //   message: `Failed to like or dislike! ${error}`,
+    //   type: "error",
+    // });
+    // throw error;
   }
 };

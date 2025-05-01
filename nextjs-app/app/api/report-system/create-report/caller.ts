@@ -3,6 +3,7 @@ import axios from "axios";
 import { userReport } from "@/app/services/userReport/createUserReport";
 import { ApiCallerConfig } from "../../common/interfaces";
 import { getBaseUrl } from "@/app/common/constraints";
+import { Notify } from "@/lib/notification";
 
 export const apiCallerCreateReports = async ({
     params: { reportPayload }, config
@@ -15,7 +16,10 @@ export const apiCallerCreateReports = async ({
         if (!data.success) throw new Error(data.message);
         return data;
     } catch (error) {
-        console.error("Failed to create the report!", error);
+        Notify({
+            message: `Failed to create the report! ${error}`,
+            type: "error",
+        });
         throw error;
     }
 };

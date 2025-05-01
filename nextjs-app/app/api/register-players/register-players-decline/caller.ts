@@ -19,7 +19,7 @@ export const apiCallersetDeclinePlayers = async ({
     return data;
   } catch (error) {
     Notify({
-      message: `Failed to approve the player! ${error}`,
+      message: `Failed to decline the player! ${error}`,
       type: "error",
     });
     throw error;
