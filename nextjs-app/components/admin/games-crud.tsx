@@ -44,7 +44,6 @@ interface Game {
 }
 
 export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
-  console.log({ gamesList });
   const [games, setGames] = useState(gamesList);
   const [filterStatus, setFilterStatus] = useState<GameStatus | "ALL">(
     "STARTED"
@@ -171,20 +170,16 @@ export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
             <h1 className="text-3xl font-bold mb-4">Games</h1>
           </CardTitle>
           <CardDescription>
-            <ul>
-              <li>
+
                 If game is in status OVER, and you delete it, MMR will be
                 reverted
-              </li>
-              <li>
+                <br/>
                 If game is in status any other status except OVER, and you
                 delete it, MMR will NOT be changed
-              </li>
-              <li>
+                <br/>
                 If you resolve winner by clicking (dire/radiant won) game will
                 be set to status OVER and MMR will be updated.
-              </li>
-            </ul>
+
           </CardDescription>
         </CardHeader>
         <CardContent>

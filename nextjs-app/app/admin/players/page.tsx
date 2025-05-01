@@ -1,15 +1,16 @@
-import { baseUrl } from "../../common/constraints";
-import { fetcher } from "@/lib/fetch";
 import PlayerCrud from "@/components/admin/player-crud";
+import { apiCallerGetPlayers } from "@/app/api/player/players-read/caller";
+import { getApiServerCallerConfig } from "@/lib/getApiServerCallerConfig";
 
 export default async function Page() {
+    const config = getApiServerCallerConfig();
+    const playerList = await apiCallerGetPlayers({
+      config
+    });
+    console.log(playerList,"PLAYERLIST")
   return (
     <div className="flex flex-col gap-4">
-      <PlayerCrud
-        playerList={
-          (await fetcher(`${baseUrl}/api/player/players-read`))?.players || []
-        }
-      />
+      <PlayerCrud playerList={playerList} />
     </div>
   );
 }
