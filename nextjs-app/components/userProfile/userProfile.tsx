@@ -8,7 +8,9 @@ import ReportSystem from "../reportSystem/reportSystem";
 import { apiCallerUpdatePlayerProfileVisibility } from "@/app/api/player/update-is-public-profile/caller";
 import { useRouter } from "next/navigation";
 import { Player } from "@/app/services/playerService/getPlayerBySteamId";
-import { apiCallerGetLikesAndDislikesBySteamId } from "@/app/api/likes-dislikes/get-likes-and-dislikes/caller";
+import { getApiServerCallerConfig } from "@/lib/getApiServerCallerConfig";
+import { getApiClientCallerConfig } from "@/app/api/common/clientUtils";
+
 export interface UserProfileProps {
   user: Player;
   ld: {
@@ -17,7 +19,8 @@ export interface UserProfileProps {
   };
   discordId?: string;
   userSteamId: string | null;
-  isUserLiked?: number|null;
+  isUserLiked?: number | null;
+  isPublicProfile:boolean
 }
 export default function UserProfile({
   user,
@@ -25,26 +28,26 @@ export default function UserProfile({
   userSteamId,
   ld,
   isUserLiked,
+  isPublicProfile
 }: UserProfileProps) {
   if (!user) return;
+  const config = getApiClientCallerConfig()
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
 
   const publicSwitch = async (check: boolean) => {
     const checked = Number(check);
     const confirmation = confirm("Are you sure ?");
     if (!confirmation) return;
-    setLoading(true);
     try {
       await apiCallerUpdatePlayerProfileVisibility({
-        checked,
-        discord_id: String(user.discord_id),
+        params: {
+          checked,
+          discord_id: String(user.discord_id),
+        }, config
       });
       router.refresh();
     } catch (error) {
       console.error("Failed to change view of Match History.", error);
-    } finally {
-      setLoading(false);
     }
   };
   const { winRate, formattedDate } = mapUserDataToViewModel(user);
@@ -93,7 +96,7 @@ export default function UserProfile({
         <div className="mt-5">
           <SwitchWrapper>
             <SwitchLabel className="text-sm">Match History Public</SwitchLabel>
-            <Switch onCheckedChange={publicSwitch} />
+            <Switch checked={isPublicProfile} onCheckedChange={publicSwitch} />
           </SwitchWrapper>
         </div>
       ) : (

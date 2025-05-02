@@ -1,9 +1,6 @@
-import { baseUrl } from "@/app/common/constraints";
-import { headers } from "next/headers";
 import ShowHistory from "@/components/matchHistory/showHistory";
 import { auth, ExtendedUser } from "@/auth";
 import UserProfile from "@/components/userProfile/userProfile";
-import { fetcher } from "@/lib/fetch";
 import { apiCallerGetMatchHistory } from "@/app/api/match-history-players/show-history/caller";
 import { apiCallerGetPlayerBySteamId } from "@/app/api/player/get-player-by-steam-id/caller";
 import { apiCallerGetPlayerSteamIdByDiscordId } from "@/app/api/player/get-player-steam-id-by-discord-id/caller";
@@ -43,53 +40,64 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
   const discordId = (session?.user as ExtendedUser)?.discordId;
   const { id } = params;
   const config = getApiServerCallerConfig();
-  const [matchHistoryRes, playerRes, userSteamIdRes, likesAndDislikesRes] =
-    await Promise.all([
-      apiCallerGetMatchHistory({ steamId: id, config }),
-      await apiCallerGetPlayerBySteamId({ steam_id: id }),
-      await apiCallerGetPlayerSteamIdByDiscordId({ discordId }),
-      await apiCallerGetLikesAndDislikesBySteamId({params:{steam_id:id},config:{config} }),
-    ]);
-
-  const matchHistoryList = matchHistoryRes;
-  const playerList = playerRes;
-  const userSteamId = userSteamIdRes.steam_id;
-  const likesAndDislikes = likesAndDislikesRes;
-  const userSteamIdValue = userSteamId ?? null;
-  const isUserLikedOrDisliked = userSteamIdValue
-    ? await apiCallerisUserLikedOrDisliked({
-      otherPlayerSteamId: id,
-      userSteamId: userSteamIdValue,
-    })
-    : null;
-  const isOwnProfile = playerList?.discord_id === Number(discordId);
-  if (playerList.is_public_profile || !isOwnProfile) {
-    return (
-      <div className="flex flex-col gap-8">
-        <UserProfile
-          isUserLiked={isUserLikedOrDisliked?.likes_dislikes}
-          ld={likesAndDislikes}
-          userSteamId={userSteamIdValue}
-          discordId={discordId}
-          user={playerList}
-        />
-        <ShowHistory matchHistoryList={matchHistoryList} discordId={discordId} />
-      </div>
-    );
+  if (discordId) {
+    const [matchHistoryRes, playerRes, userSteamIdRes, likesAndDislikesRes] =
+      await Promise.all([
+        apiCallerGetMatchHistory({ steamId: id, config }),
+        await apiCallerGetPlayerBySteamId({ params: { steam_id: id }, config }),
+        await apiCallerGetPlayerSteamIdByDiscordId({ params: { discordId }, config }),
+        await apiCallerGetLikesAndDislikesBySteamId({ params: { steam_id: id }, config: { config } }),
+      ]);
+    const matchHistoryList = matchHistoryRes;
+    const playerList = playerRes;
+    const userSteamId = userSteamIdRes.steam_id;
+    const likesAndDislikes = likesAndDislikesRes;
+    const userSteamIdValue = userSteamId ?? null;
+    const isUserLikedOrDisliked = userSteamIdValue
+      ? await apiCallerisUserLikedOrDisliked({
+        otherPlayerSteamId: id,
+        userSteamId: userSteamIdValue,
+      })
+      : null;
+    const isOwnProfile = playerList?.discord_id === Number(discordId);
+    if (playerList.is_public_profile || isOwnProfile) {
+      return (
+        <div className="flex flex-col gap-8">
+          <UserProfile
+            isPublicProfile={playerList.is_public_profile}
+            isUserLiked={isUserLikedOrDisliked?.likes_dislikes}
+            ld={likesAndDislikes}
+            userSteamId={userSteamIdValue}
+            discordId={discordId}
+            user={playerList}
+          />
+          <ShowHistory matchHistoryList={matchHistoryList} discordId={discordId} />
+        </div>
+      );
+    } else {
+      return (
+        <div className="flex flex-col gap-8">
+          <UserProfile
+            isPublicProfile={playerList.is_public_profile}
+            isUserLiked={isUserLikedOrDisliked?.likes_dislikes}
+            ld={likesAndDislikes}
+            userSteamId={userSteamIdValue}
+            discordId={discordId}
+            user={playerList}
+          />
+          <h1 className="text-3xl font-bold text-center mt-20">
+            Sorry, this match history is private.
+          </h1>
+        </div>
+      );
+    }
   } else {
     return (
-      <div className="flex flex-col gap-8">
-        <UserProfile
-          isUserLiked={isUserLikedOrDisliked?.likes_dislikes}
-          ld={likesAndDislikes}
-          userSteamId={userSteamIdValue}
-          discordId={discordId}
-          user={playerList}
-        />
+      <div className="flex flex-col gap-8 mt-19">
         <h1 className="text-3xl font-bold text-center mt-20">
-          Sorry, this match history is private.
+          Sorry, you need to be logged in to see the profile.
         </h1>
       </div>
-    );
+    )
   }
 }

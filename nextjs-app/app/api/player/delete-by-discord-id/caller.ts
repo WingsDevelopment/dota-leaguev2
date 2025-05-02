@@ -2,13 +2,16 @@ import { PrimitiveServiceResponse } from "@/app/services/common/types";
 import { getPlayerByDiscordId } from "@/app/services/playerService/getPlayerSteamIdByDiscordId";
 import { Notify } from "@/lib/notification";
 import axios from "axios";
+import { ApiCallerConfig } from "../../common/interfaces";
+import { getBaseUrl } from "@/app/common/constraints";
 
 export const apiCallerDeletePlayerBySteamId = async (
-  { discordId }: getPlayerByDiscordId
+  { params: { discordId }, config }: { params: getPlayerByDiscordId, config: ApiCallerConfig }
 ): Promise<PrimitiveServiceResponse> => {
   try {
-    const response = await axios.post("/api/player/delete-by-discord-id",
-      { data: { discordId } }
+    //Needs testing when implemented
+    const response = await axios.post(`${getBaseUrl(config?.origin)}/api/player/delete-by-discord-id`,
+      { params: { discordId } }, config
     );
 
     const data = response.data as PrimitiveServiceResponse;
