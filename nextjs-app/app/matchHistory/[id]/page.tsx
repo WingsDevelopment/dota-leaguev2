@@ -44,7 +44,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
 
   const [matchHistoryRes, playerRes, userSteamIdRes, likesAndDislikesRes] =
     await Promise.all([
-      apiCallerGetMatchHistory({ steamId: id, config }),
+      apiCallerGetMatchHistory({ params:{steamId: id}, config }),
       await apiCallerGetPlayerBySteamId({ params: { steam_id: id }, config }),
       discordId ? await apiCallerGetPlayerSteamIdByDiscordId({ params: { discordId }, config }) : null,
       await apiCallerGetLikesAndDislikesBySteamId({ params: { steam_id: id }, config: { config } }),
