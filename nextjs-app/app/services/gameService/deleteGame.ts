@@ -1,61 +1,74 @@
 import { getDbInstance } from "../../../db/utils";
 import { closeDatabase } from "../../../db/initDatabase";
 import { calculateElo } from "../../../lib/utils";
-
-interface DeleteGameParams {
+import { PrimitiveServiceResponse } from "../common/types";
+import { getPrimitiveServiceErrorResponse, getSuccessfulServiceResponse, runDbAll, runDbCommitTransactions, runDbQuery, runDbRollback, runDbStartTransactions } from "../common/functions";
+/* --------- */
+/*   Types   */
+/* --------- */
+export interface DeleteGameParams {
   id: number;
   status: string;
   result: number | null;
 }
+/**
+ * Returns the sum of likes and dislikes for the user by steam Id.
+ *
+ * @async
+ * @function getPlayerLikesAndDislikes
+ * @param {getPlayerBySteamId} params - The object containing the steam id.
+ * @returns {Promise<PrimitiveServiceResponse>} A promise that resolves to a service response which return Likes and Dislikes or undefined.
+ *
+ * @example
+ * const response = await deleteGame({ id: 1, status:"OVER", result:0 });
+ */
+export async function deleteGame({ id, status, result }: DeleteGameParams): Promise<PrimitiveServiceResponse> {
 
-export async function deleteGame({
-  id,
-  status,
-  result,
-}: DeleteGameParams): Promise<{ success: boolean; message?: string }> {
   const db = await getDbInstance();
   try {
+    if (!id) {
+      throw new Error("There is no game id!!!");
+    }
     console.log(
       `Starting deletion for game ${id} with status "${status}" and result ${result}`
     );
 
-    // Begin transaction.
-    await new Promise<void>((resolve, reject) => {
-      db.run("BEGIN TRANSACTION", (err) => (err ? reject(err) : resolve()));
-    });
+    /* ---------------------- */
+    /*   Begin Transcation    */
+    /* ---------------------- */
+    await runDbStartTransactions(db)
 
     // Check if the game exists.
-    const gameExists = await new Promise<any>((resolve, reject) => {
-      db.get(`SELECT id FROM Game WHERE id = ?`, [id], (err, row) => {
-        if (err) return reject(err);
-        resolve(row);
-      });
-    });
+    const gameExists: any = await runDbQuery(
+      db,
+      `SELECT id FROM Game WHERE id = ?`,
+      [id]
+    );
 
     if (!gameExists) {
       console.log(`Game ${id} does not exist. Rolling back.`);
-      await new Promise<void>((resolve, reject) => {
-        db.run("ROLLBACK", (err) => (err ? reject(err) : resolve()));
-      });
-      closeDatabase(db);
-      return { success: false, message: "Game already deleted" };
+      /* ------------- */
+      /*   Rollback    */
+      /* ------------- */
+      await runDbRollback(db)
+      throw new Error("Game is already deleted.");
     }
 
     // If the game is in "OVER" status, update player MMR values using calculateElo.
     if (status === "OVER" && result !== null) {
       console.log("Game is OVER. Recalculating Elo for players...");
-      // Fetch players with their current MMR.
-      const players: Array<{ player_id: number; team: number; mmr: number }> =
-        await new Promise((resolve, reject) => {
-          db.all(
-            `SELECT gp.player_id, gp.team, p.mmr 
+      /* ------------- */
+      /*   DB Query    */
+      /* ------------- */
+      const players = await runDbAll<[any]>(
+        db,
+        `SELECT gp.player_id, gp.team, p.mmr 
            FROM GamePlayers gp 
            JOIN Players p ON gp.player_id = p.id 
            WHERE gp.game_id = ?`,
-            [id],
-            (err, rows) => (err ? reject(err) : resolve(rows as any))
-          );
-        });
+        [id]
+      );
+
       console.log("Players fetched for Elo recalculation:", players);
 
       // Separate players by team.
@@ -66,7 +79,7 @@ export async function deleteGame({
       const radiantAvg =
         radiantPlayers.length > 0
           ? radiantPlayers.reduce((sum, p) => sum + p.mmr, 0) /
-            radiantPlayers.length
+          radiantPlayers.length
           : 0;
       const direAvg =
         direPlayers.length > 0
@@ -93,21 +106,23 @@ export async function deleteGame({
           `Updating player ${player_id} (team ${team}): applying adjustment ${adjustment}`
         );
         if (team === result) {
-          await new Promise<void>((resolve, reject) => {
-            db.run(
-              `UPDATE Players SET mmr = mmr + ?, wins = wins - 1 WHERE id = ?`,
-              [adjustment, player_id],
-              (err) => (err ? reject(err) : resolve())
-            );
-          });
+          /* ------------- */
+          /*   DB Query    */
+          /* ------------- */
+          await runDbQuery(
+            db,
+            `UPDATE Players SET mmr = mmr + ?, wins = wins - 1 WHERE id = ?`,
+            [adjustment, player_id]
+          );
         } else {
-          await new Promise<void>((resolve, reject) => {
-            db.run(
-              `UPDATE Players SET mmr = mmr + ?, loses = loses - 1 WHERE id = ?`,
-              [adjustment, player_id],
-              (err) => (err ? reject(err) : resolve())
-            );
-          });
+          /* ------------- */
+          /*   DB Query    */
+          /* ------------- */
+          await runDbQuery(
+            db,
+            `UPDATE Players SET mmr = mmr + ?, loses = loses - 1 WHERE id = ?`,
+            [adjustment, player_id]
+          );
         }
       }
     } else {
@@ -116,28 +131,39 @@ export async function deleteGame({
       );
     }
 
-    // Delete the game.
-    await new Promise<void>((resolve, reject) => {
-      db.run(`DELETE FROM Game WHERE id = ?`, [id], (err) =>
-        err ? reject(err) : resolve()
-      );
-    });
+    /* ------------- */
+    /*   DB Query    */
+    /* ------------- */
+    await runDbQuery(
+      db,
+      `DELETE FROM Game WHERE id = ?`,
+      [id]
+    );
     console.log(`Game ${id} deleted.`);
 
-    // Commit transaction.
-    await new Promise<void>((resolve, reject) => {
-      db.run("COMMIT", (err) => (err ? reject(err) : resolve()));
+    /* --------------------- */
+    /*   Commit Transaction  */
+    /* --------------------- */
+    await runDbCommitTransactions(db)
+    /* ---------------- */
+    /*   Return Data    */
+    /* ---------------- */
+    return getSuccessfulServiceResponse({
+      message: "Deleted game successfully."
     });
-
-    closeDatabase(db);
-    return { success: true };
   } catch (error) {
-    console.error("Error processing deleteGame:", error);
-    // Rollback if there is any error.
-    await new Promise<void>((resolve, reject) => {
-      db.run("ROLLBACK", (err) => (err ? reject(err) : resolve()));
-    });
+    /* ----------- */
+    /*   Rollback  */
+    /* ----------- */
+    await runDbRollback(db)
+    /* -------- */
+    /*   Error  */
+    /* -------- */
+    return getPrimitiveServiceErrorResponse(error, "Error deleting the game.");
+  } finally {
+    /* -------- */
+    /*  Cleanup */
+    /* -------- */
     closeDatabase(db);
-    throw error;
   }
 }

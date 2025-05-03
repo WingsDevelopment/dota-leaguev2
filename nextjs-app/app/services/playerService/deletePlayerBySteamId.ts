@@ -49,7 +49,6 @@ export async function deletePlayerBySteamId({ steam_id }: getPlayerBySteamId): P
     /* ---------------- */
     return getSuccessfulServiceResponse({
       message: "Deleted player by steam id successfully."
-
     });
   } catch (error) {
     /* -------- */

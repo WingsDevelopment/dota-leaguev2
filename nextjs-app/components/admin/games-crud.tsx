@@ -18,6 +18,9 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DIRE, RADIANT } from "../../app/common/constraints";
+import { apiCallerGamesDelete } from "@/app/api/games-crud/games-crud-delete/caller";
+import { getApiClientCallerConfig } from "@/app/api/common/clientUtils";
+import { useRouter } from "next/navigation";
 
 type GameStatus =
   | "PREGAME"
@@ -44,6 +47,8 @@ interface Game {
 }
 
 export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
+  const config= getApiClientCallerConfig()
+  const router= useRouter()
   const [games, setGames] = useState(gamesList);
   const [filterStatus, setFilterStatus] = useState<GameStatus | "ALL">(
     "STARTED"
@@ -99,7 +104,6 @@ export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
   const handleDelete = async (gameId: number) => {
     const confirmation = confirm("Are you sure ?");
     if (!confirmation) return;
-    setLoading(true);
     // Look up the game from the games state.
     const game = games.find((g) => g.id === gameId);
     if (!game) {
@@ -107,23 +111,13 @@ export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
       return alert("Game not found");
     }
     try {
-      const res = await fetch("/api/games-crud/games-crud-delete", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: gameId,
-          status: game.status,
-          result: game.result,
-        }),
-      });
-      if (!res.ok) {
-        throw new Error("Failed to delete game");
-      }
-      fetchGames();
+      apiCallerGamesDelete({params:{id: gameId,
+        status: game.status,
+        result: game.result},config}).then(()=>{
+         router.refresh() 
+        })
     } catch (error) {
       console.error("Failed to delete the game", error);
-    } finally {
-      setLoading(false);
     }
   };
 
