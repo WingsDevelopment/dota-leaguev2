@@ -44,7 +44,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
 
   const [matchHistoryRes, playerRes, userSteamIdRes, likesAndDislikesRes] =
     await Promise.all([
-      apiCallerGetMatchHistory({ params:{steamId: id}, config }),
+      apiCallerGetMatchHistory({ params: { steamId: id }, config }),
       await apiCallerGetPlayerBySteamId({ params: { steam_id: id }, config }),
       discordId ? await apiCallerGetPlayerSteamIdByDiscordId({ params: { discordId }, config }) : null,
       await apiCallerGetLikesAndDislikesBySteamId({ params: { steam_id: id }, config: { config } }),
@@ -56,8 +56,10 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
   const userSteamIdValue = userSteamId ?? null;
   const isUserLikedOrDisliked = userSteamIdValue
     ? await apiCallerisUserLikedOrDisliked({
-      otherPlayerSteamId: id,
-      userSteamId: userSteamIdValue,
+      params: {
+        otherPlayerSteamId: id,
+        userSteamId: userSteamIdValue
+      }, config
     })
     : null;
   const isOwnProfile = playerList?.discord_id === Number(discordId);

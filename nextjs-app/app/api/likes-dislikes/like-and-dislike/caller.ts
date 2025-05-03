@@ -1,17 +1,17 @@
 import axios from "axios";
-import { baseUrl } from "@/app/common/constraints";
+import { getBaseUrl } from "@/app/common/constraints";
 import { Notify } from "@/lib/notification";
-import { LikedOrDisliked } from "@/app/services/likesAndDislikesService/isUserLikedOrDisliked";
 import { PlayerVote } from "@/app/services/likesAndDislikesService/likesAndDislikes";
 import { PrimitiveServiceResponse } from "@/app/services/common/types";
+import { ApiCallerConfig } from "../../common/interfaces";
 
 export const apiCallerPutLikeOrDislike = async ({
-    userSteamId, otherPlayerSteamId, type
-}: PlayerVote): Promise<PrimitiveServiceResponse> => {
+    params: { userSteamId, otherPlayerSteamId, type }, config
+}: { params: PlayerVote, config: ApiCallerConfig }): Promise<PrimitiveServiceResponse> => {
     try {
-        const response = await axios.post(`/api/likes-dislikes/like-and-dislike`, {
+        const response = await axios.post(`${getBaseUrl(config?.origin)}/api/likes-dislikes/like-and-dislike`, {
             userSteamId, otherPlayerSteamId, type
-        });
+        }, config);
 
         const data = response.data as PrimitiveServiceResponse;
         if (!data.success) throw new Error(data.message);
