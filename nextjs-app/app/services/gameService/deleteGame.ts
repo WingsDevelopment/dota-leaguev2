@@ -12,7 +12,7 @@ export interface DeleteGameParams {
   result: number | null;
 }
 /**
- * Returns the sum of likes and dislikes for the user by steam Id.
+ * Deletes the game and refunds mmr based on status.
  *
  * @async
  * @function getPlayerLikesAndDislikes

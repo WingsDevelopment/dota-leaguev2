@@ -9,7 +9,6 @@ export async function DELETE(req: NextRequest) {
   }
 
   const { id, status, result } = await req.json();
-
   const res = await deleteGame({ id, status, result });
   return NextResponse.json(res);
 }

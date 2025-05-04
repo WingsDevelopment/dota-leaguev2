@@ -21,6 +21,8 @@ import { DIRE, RADIANT } from "../../app/common/constraints";
 import { apiCallerGamesDelete } from "@/app/api/games-crud/games-crud-delete/caller";
 import { getApiClientCallerConfig } from "@/app/api/common/clientUtils";
 import { useRouter } from "next/navigation";
+import { apiCallerGamesUpdateOrCancel } from "@/app/api/games-crud/games-crud-update-cancel/caller";
+import { apiCallerGamesDeclareWinnerOrLoser } from "@/app/api/games-crud/games-crud-update-winner-loser/caller";
 
 type GameStatus =
   | "PREGAME"
@@ -47,75 +49,50 @@ interface Game {
 }
 
 export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
-  const config= getApiClientCallerConfig()
-  const router= useRouter()
-  const [games, setGames] = useState(gamesList);
+  const config = getApiClientCallerConfig()
+  const router = useRouter()
   const [filterStatus, setFilterStatus] = useState<GameStatus | "ALL">(
     "STARTED"
   );
-  const [loading, setLoading] = useState(false);
 
-  const fetchGames = async () => {
-    try {
-      const res = await fetch("/api/games-crud/games-crud-read");
-      if (!res.ok) throw new Error("Failed to fetch games");
-      const updatedGames = await res.json();
-      setGames(updatedGames.games);
-    } catch (error) {
-      console.error("Error fetching games", error);
-    }
-  };
 
   // Pass gameId directly instead of using an index.
-  const handleTeamWin = async (gameId: number, teamNum: number) => {
+  const handleTeamWin = async (id: number, team_won: number) => {
     const confirmation = confirm("Are you sure ?");
     if (!confirmation) return;
-    setLoading(true);
     // Find the game from our games array.
-    const game = games.find((g) => g.id === gameId);
+    const game = gamesList.find((g) => g.id === id);
     if (!game) {
-      setLoading(false);
       return alert("Game not found");
     }
     try {
-      const res = await fetch(
-        "/api/games-crud/games-crud-update-winner-looser",
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            id: gameId,
-            team_won: teamNum,
-            status: game.status,
-          }),
-        }
-      );
-      if (!res.ok) {
-        throw new Error("Failed to update MMR based on winning team");
-      }
-      fetchGames();
+      apiCallerGamesDeclareWinnerOrLoser({params:{id,team_won,status:game.status},config}).then(()=>{
+        router.refresh()
+      })
+      
     } catch (error) {
       console.error("Could not resolve a winner/looser", error);
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   const handleDelete = async (gameId: number) => {
     const confirmation = confirm("Are you sure ?");
     if (!confirmation) return;
     // Look up the game from the games state.
-    const game = games.find((g) => g.id === gameId);
+    const game = gamesList.find((g) => g.id === gameId);
     if (!game) {
-      setLoading(false);
       return alert("Game not found");
     }
     try {
-      apiCallerGamesDelete({params:{id: gameId,
-        status: game.status,
-        result: game.result},config}).then(()=>{
-         router.refresh() 
-        })
+      apiCallerGamesDelete({
+        params: {
+          id: gameId,
+          status: game.status,
+          result: game.result
+        }, config
+      }).then(() => {
+        router.refresh()
+      })
     } catch (error) {
       console.error("Failed to delete the game", error);
     }
@@ -124,37 +101,26 @@ export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
   const handleCancel = async (gameId: number) => {
     const confirmation = confirm("Are you sure ?");
     if (!confirmation) return;
-    setLoading(true);
-    const game = games.find((g) => g.id === gameId);
+    const game = gamesList.find((g) => g.id === gameId);
     if (!game) {
-      setLoading(false);
       return alert("Game not found");
     }
     if (game.status !== "PREGAME" && game.status !== "HOSTED") {
-      setLoading(false);
       return alert(`${game.status} IS NOT A VALID GAME STATUS!!!`);
     }
     try {
-      const res = await fetch("/api/games-crud/games-crud-update-cancel", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: gameId, status: game.status }),
-      });
-      if (!res.ok) {
-        throw new Error("Failed to Cancel the game!");
-      }
-      fetchGames();
+      apiCallerGamesUpdateOrCancel({ params: { id: gameId, status: game.status }, config }).then(() => {
+        router.refresh()
+      })
     } catch (error) {
       console.error("Failed to Cancel the game!", error);
-    } finally {
-      setLoading(false);
     }
   };
 
   const filteredRegisterList =
     filterStatus === "ALL"
-      ? games
-      : games.filter((game) => game.status === filterStatus);
+      ? gamesList
+      : gamesList.filter((game) => game.status === filterStatus);
 
   return (
     <div>
@@ -165,14 +131,14 @@ export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
           </CardTitle>
           <CardDescription>
 
-                If game is in status OVER, and you delete it, MMR will be
-                reverted
-                <br/>
-                If game is in status any other status except OVER, and you
-                delete it, MMR will NOT be changed
-                <br/>
-                If you resolve winner by clicking (dire/radiant won) game will
-                be set to status OVER and MMR will be updated.
+            If game is in status OVER, and you delete it, MMR will be
+            reverted
+            <br />
+            If game is in status any other status except OVER, and you
+            delete it, MMR will NOT be changed
+            <br />
+            If you resolve winner by clicking (dire/radiant won) game will
+            be set to status OVER and MMR will be updated.
 
           </CardDescription>
         </CardHeader>
@@ -239,7 +205,6 @@ export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
                     </TableCell>
                     <TableCell>
                       <Button
-                        disabled={loading}
                         onClick={() => handleDelete(game.id)}
                       >
                         Delete
@@ -248,7 +213,6 @@ export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
                     <TableCell>
                       {["PREGAME", "HOSTED"].includes(game.status) && (
                         <Button
-                          disabled={loading}
                           onClick={() => handleCancel(game.id)}
                         >
                           Cancel
@@ -258,7 +222,6 @@ export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
                     <TableCell>
                       {game.status !== "OVER" && (
                         <Button
-                          disabled={loading}
                           onClick={() => handleTeamWin(game.id, DIRE)}
                         >
                           Dire Won
@@ -268,7 +231,6 @@ export default function GamesCrud({ gamesList }: { gamesList: Game[] }) {
                     <TableCell>
                       {game.status !== "OVER" && (
                         <Button
-                          disabled={loading}
                           onClick={() => handleTeamWin(game.id, RADIANT)}
                         >
                           Radiant Won
