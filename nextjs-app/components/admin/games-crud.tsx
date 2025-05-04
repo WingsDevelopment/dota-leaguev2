@@ -34,7 +34,7 @@ type GameStatus =
   | "REHOST";
 type GameType = "DRAFT" | "NORMAL";
 
-interface Game {
+export interface Game {
   id: number;
   status: GameStatus;
   result: number;

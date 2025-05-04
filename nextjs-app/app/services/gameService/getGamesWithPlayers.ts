@@ -1,11 +1,20 @@
 import { closeDatabase } from "../../../db/initDatabase";
 import { getDbInstance } from "../../../db/utils";
+import { getPrimitiveServiceErrorResponse, getSuccessfulServiceResponse } from "../common/functions";
+import { PrimitiveServiceResponse } from "../common/types";
 import { queryPromise } from "../common/utils";
 
 /**
- * Retrieves all games from the database with their players, grouped by team.
+ * Deletes the game and refunds mmr based on status.
+ *
+ * @async
+ * @function getPlayerLikesAndDislikes
+ * @returns {Promise<PrimitiveServiceResponse>} A promise that resolves to a service response which return Likes and Dislikes or undefined.
+ *
+ * @example
+ * const response = await deleteGame({ id: 1, status:"OVER", result:0 });
  */
-export async function getGamesWithPlayers(): Promise<any[]> {
+export async function getGamesWithPlayers(): Promise<PrimitiveServiceResponse> {
   const db = await getDbInstance();
   try {
     // Get all games.
@@ -15,8 +24,10 @@ export async function getGamesWithPlayers(): Promise<any[]> {
     );
 
     if (games.length === 0) {
-      closeDatabase(db);
-      return [];
+      return getSuccessfulServiceResponse({
+        message: "No games, returning empty array.",
+        data: []
+      });
     }
 
     // Extract game IDs for the IN clause.
@@ -55,10 +66,21 @@ export async function getGamesWithPlayers(): Promise<any[]> {
       players: gamePlayersByGame[game.id] || { radiant: [], dire: [] },
     }));
 
-    closeDatabase(db);
-    return gamesWithPlayers;
+
+    return getSuccessfulServiceResponse({
+      message: "Deleted game successfully.",
+      data: gamesWithPlayers
+    });
   } catch (error) {
+
+    /* -------- */
+    /*   Error  */
+    /* -------- */
+    return getPrimitiveServiceErrorResponse(error, "Error deleting the game.");
+  } finally {
+    /* -------- */
+    /*  Cleanup */
+    /* -------- */
     closeDatabase(db);
-    throw error;
   }
 }
