@@ -16,16 +16,21 @@ export interface DeleteGameParams {
  *
  * @async
  * @function getPlayerLikesAndDislikes
- * @param {getPlayerBySteamId} params - The object containing the steam id.
- * @returns {Promise<PrimitiveServiceResponse>} A promise that resolves to a service response which return Likes and Dislikes or undefined.
+ * @param {DeleteGameParams} params - The object containing params for deleting the game.
+ * @returns {Promise<PrimitiveServiceResponse>} A promise that resolves to a service response.
  *
  * @example
  * const response = await deleteGame({ id: 1, status:"OVER", result:0 });
  */
 export async function deleteGame({ id, status, result }: DeleteGameParams): Promise<PrimitiveServiceResponse> {
-
+  /* ----------------- */
+  /*   Initialization  */
+  /* ----------------- */
   const db = await getDbInstance();
   try {
+    /* ------------- */
+    /*   Validation  */
+    /* ------------- */
     if (!id) {
       throw new Error("There is no game id!!!");
     }
@@ -38,7 +43,9 @@ export async function deleteGame({ id, status, result }: DeleteGameParams): Prom
     /* ---------------------- */
     await runDbStartTransactions(db)
 
-    // Check if the game exists.
+    /* ------------- */
+    /*   DB Query    */
+    /* ------------- */
     const gameExists: any = await runDbQuery(
       db,
       `SELECT id FROM Game WHERE id = ?`,

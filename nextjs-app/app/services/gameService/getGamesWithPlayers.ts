@@ -5,25 +5,34 @@ import { PrimitiveServiceResponse } from "../common/types";
 import { queryPromise } from "../common/utils";
 
 /**
- * Deletes the game and refunds mmr based on status.
+ * Returns games with player names.
  *
  * @async
- * @function getPlayerLikesAndDislikes
- * @returns {Promise<PrimitiveServiceResponse>} A promise that resolves to a service response which return Likes and Dislikes or undefined.
+ * @function getGamesWithPlayers
+ * @returns {Promise<PrimitiveServiceResponse>} A promise that resolves to a primitive service response.
  *
  * @example
- * const response = await deleteGame({ id: 1, status:"OVER", result:0 });
+ * const response = await deleteGame();
  */
 export async function getGamesWithPlayers(): Promise<PrimitiveServiceResponse> {
+  /* ----------------- */
+  /*   Initialization  */
+  /* ----------------- */
   const db = await getDbInstance();
   try {
     // Get all games.
+    /* ------------- */
+    /*   DB Query    */
+    /* ------------- */
     const games: Array<Record<string, any>> = await queryPromise(
       db,
       `SELECT * FROM Game`
     );
 
     if (games.length === 0) {
+      /* ---------------- */
+      /*   Return Data    */
+      /* ---------------- */
       return getSuccessfulServiceResponse({
         message: "No games, returning empty array.",
         data: []
@@ -35,6 +44,9 @@ export async function getGamesWithPlayers(): Promise<PrimitiveServiceResponse> {
     const placeholders = gameIds.map(() => "?").join(",");
 
     // Get players for these games, joined with Players.
+    /* ------------- */
+    /*   DB Query    */
+    /* ------------- */
     const gamePlayers = await queryPromise(
       db,
       `SELECT gp.game_id, p.name, gp.team
@@ -66,9 +78,11 @@ export async function getGamesWithPlayers(): Promise<PrimitiveServiceResponse> {
       players: gamePlayersByGame[game.id] || { radiant: [], dire: [] },
     }));
 
-
+    /* ---------------- */
+    /*   Return Data    */
+    /* ---------------- */
     return getSuccessfulServiceResponse({
-      message: "Deleted game successfully.",
+      message: "Fetched games successfully.",
       data: gamesWithPlayers
     });
   } catch (error) {
@@ -76,7 +90,7 @@ export async function getGamesWithPlayers(): Promise<PrimitiveServiceResponse> {
     /* -------- */
     /*   Error  */
     /* -------- */
-    return getPrimitiveServiceErrorResponse(error, "Error deleting the game.");
+    return getPrimitiveServiceErrorResponse(error, "Error fetching the games.");
   } finally {
     /* -------- */
     /*  Cleanup */

@@ -74,7 +74,7 @@ export async function cancelPregameOrHostedGame({ id, status }
         /* -------- */
         /*   Error  */
         /* -------- */
-        return getPrimitiveServiceErrorResponse(error, "Error deleting the game.");
+        return getPrimitiveServiceErrorResponse(error, "Error canceling the game.");
     } finally {
         /* -------- */
         /*  Cleanup */
