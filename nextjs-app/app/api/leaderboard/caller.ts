@@ -19,5 +19,7 @@ export const apiCallerGetLeaderBoard = async ({
     } catch (error) {
         console.error(`Failed to get leaderboard!`, error);
         throw error;
+    }finally{
+        config.onSettledCallback()
     }
 };

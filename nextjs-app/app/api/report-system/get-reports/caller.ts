@@ -6,7 +6,7 @@ import { ApiCallerConfig } from "../../common/interfaces";
 export const apiCallerGetReports = async ({
   config,
 }: {
-  config?: ApiCallerConfig;
+  config: ApiCallerConfig;
 }): Promise<UserReport[]> => {
   try {
     const response = await axios.get(
@@ -27,5 +27,7 @@ export const apiCallerGetReports = async ({
     //   type: "error",
     // });
     // throw error;
+  } finally {
+    config.onSettledCallback()
   }
 };

@@ -23,5 +23,7 @@ export const apiCallerUpdatePlayerProfileVisibility = async (
       type: "error",
     });
     throw error;
+  } finally {
+    config.onSettledCallback()
   }
 };

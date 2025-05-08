@@ -22,5 +22,7 @@ export const apiCallerGamesUpdateOrCancel = async ({
             type: "error",
         });
         throw error;
+    } finally {
+        config.onSettledCallback()
     }
 };

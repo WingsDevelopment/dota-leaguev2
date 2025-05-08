@@ -7,7 +7,7 @@ import { ApiCallerConfig } from "../../common/interfaces";
 export const apiCallerGetPlayers = async ({
   config,
 }: {
-  config?: ApiCallerConfig;
+  config: ApiCallerConfig;
 }): Promise<Player[]> => {
   try {
     const response = await axios.get(`${getBaseUrl(config?.origin)}/api/player/players-read`,
@@ -18,5 +18,7 @@ export const apiCallerGetPlayers = async ({
   } catch (error) {
     console.error(`Failed to fetch players`, error);
     throw error;
+  } finally {
+    config.onSettledCallback()
   }
 };

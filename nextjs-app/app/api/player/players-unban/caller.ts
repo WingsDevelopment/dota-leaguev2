@@ -6,7 +6,7 @@ import { ApiCallerConfig } from "../../common/interfaces";
 import { getBaseUrl } from "@/app/common/constraints";
 
 export const apiCallerUnbanPlayer = async (
-    { params: {steam_id}, config }: { params:BanParams, config: ApiCallerConfig }
+    { params: { steam_id }, config }: { params: BanParams, config: ApiCallerConfig }
 ): Promise<PrimitiveServiceResponse> => {
     try {
         const response = await axios.put(`${getBaseUrl(config?.origin)}/api/player/players-unban`,
@@ -23,5 +23,7 @@ export const apiCallerUnbanPlayer = async (
             type: "error",
         });
         throw error;
+    } finally {
+        config.onSettledCallback()
     }
 };

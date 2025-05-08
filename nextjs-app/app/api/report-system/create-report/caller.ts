@@ -21,5 +21,7 @@ export const apiCallerCreateReports = async ({
             type: "error",
         });
         throw error;
+    } finally {
+        config.onSettledCallback()
     }
 };

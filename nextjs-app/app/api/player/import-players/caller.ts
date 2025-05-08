@@ -12,7 +12,7 @@ export const apiCallerImportPlayers = async (
   try {
     const response = await axios.post(`${getBaseUrl(config?.origin)}/api/player/import-players`, {
       leaderboard
-    },config);
+    }, config);
 
     const data = response.data as PrimitiveServiceResponse;
     if (!data.success) throw new Error(data.message);
@@ -24,5 +24,7 @@ export const apiCallerImportPlayers = async (
       type: "error",
     });
     throw error;
+  } finally {
+    config.onSettledCallback()
   }
 };

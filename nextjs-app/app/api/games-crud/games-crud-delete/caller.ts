@@ -19,5 +19,7 @@ export const apiCallerGamesDelete = async ({
     } catch (error) {
         console.error(`Failed to delete the player!`, error);
         throw error;
+    }finally{
+        config.onSettledCallback()
     }
 };

@@ -22,5 +22,7 @@ export const apiCallersetApprovePlayers = async (
             type: "error",
         });
         throw error;
+    } finally {
+        config.onSettledCallback()
     }
 };

@@ -23,5 +23,7 @@ export const apiCallerReviewReport = async ({
       type: "error",
     });
     throw error;
+  } finally {
+    config.onSettledCallback()
   }
 };

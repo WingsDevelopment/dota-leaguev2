@@ -5,7 +5,7 @@ import { ApiCallerConfig } from "../../common/interfaces";
 
 export const apiCallerGetMatchHistory = async ({
   params: { steamId }, config
-}: { params: { steamId: string }, config?: ApiCallerConfig }): Promise<MatchHistory[]> => {
+}: { params: { steamId: string }, config: ApiCallerConfig }): Promise<MatchHistory[]> => {
   try {
     const response = await axios.get(`${getBaseUrl(config?.origin)}/api/match-history-players/show-history`, {
       ...config,
@@ -17,5 +17,7 @@ export const apiCallerGetMatchHistory = async ({
   } catch (error) {
     console.error(`Failed to get match history!`, error);
     throw error;
+  } finally {
+    config.onSettledCallback()
   }
 };

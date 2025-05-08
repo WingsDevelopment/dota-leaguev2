@@ -22,5 +22,7 @@ export const apiCallerisUserLikedOrDisliked = async ({
             type: "error",
         });
         throw error;
+    }finally{
+        config.onSettledCallback()
     }
 };

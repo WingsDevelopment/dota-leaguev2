@@ -8,7 +8,7 @@ import { getBaseUrl } from "@/app/common/constraints";
 export const apiCallerGetPlayers = async ({
   config,
 }: {
-  config?: ApiCallerConfig;
+  config: ApiCallerConfig;
 }): Promise<Vouch[]> => {
   try {
     const response = await axios.get(
@@ -28,5 +28,7 @@ export const apiCallerGetPlayers = async ({
     //   type: "error",
     // });
     // throw error;
+  } finally {
+    config.onSettledCallback()
   }
 };

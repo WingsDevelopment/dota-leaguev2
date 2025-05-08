@@ -11,14 +11,17 @@ export const apiCallerGamesRead = async ({
     config
 }: { config: ApiCallerConfig }): Promise<Game[]> => {
     try {
-        const response = await axios.get(`${getBaseUrl(config?.origin)}/api/games-crud/games-crud-read`, {
-            params: { config }
-        });
+        const response = await axios.get(`${getBaseUrl(config?.origin)}/api/games-crud/games-crud-read`, 
+            config
+        );
         const data = response.data;
         if (!data.success) throw new Error(data.message);
+        config.onSuccessCallback("Succesfully fetched games.")
         return data.data;
     } catch (error) {
-        console.error(`Failed to get games!`, error);
+        config.onErrorCallback("Falied to get the games!")
         throw error;
+    }finally{
+        config.onSettledCallback()
     }
 };

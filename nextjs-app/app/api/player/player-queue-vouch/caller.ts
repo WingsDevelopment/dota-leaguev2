@@ -17,5 +17,7 @@ export const apiCallerQueueVouchPlayer = async (
   } catch (error) {
     Notify({ message: `Failed to vouch player: ${error}`, type: "error" });
     throw error;
+  } finally {
+    config.onSettledCallback()
   }
 };

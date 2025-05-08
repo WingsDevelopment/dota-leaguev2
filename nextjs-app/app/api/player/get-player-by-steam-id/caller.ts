@@ -26,5 +26,7 @@ export const apiCallerGetPlayerBySteamId = async ({
     // });
     console.error(`Failed to get player by steam Id!s`, error);
     throw error;
+  } finally {
+    config.onSettledCallback()
   }
 };

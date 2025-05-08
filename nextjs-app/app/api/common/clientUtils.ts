@@ -1,3 +1,4 @@
+import { Notify } from "@/lib/notification";
 import { ApiCallerConfig } from "./interfaces";
 
 export function getApiClientCallerConfig(): ApiCallerConfig {
@@ -8,5 +9,8 @@ export function getApiClientCallerConfig(): ApiCallerConfig {
       "Content-Type": "application/json",
       Accept: "application/json",
     },
+    onSuccessCallback: (message: string) => Notify({ message, type: "success" }),
+    onErrorCallback: () => Notify({ message: "Failed", type: "error" }),
+    onSettledCallback: () => {},
   };
 }
