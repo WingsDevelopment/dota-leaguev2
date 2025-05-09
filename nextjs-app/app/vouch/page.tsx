@@ -37,10 +37,8 @@ export default function VouchRequest() {
     try {
       await apiCallerCreatePlayers({params:{steam_id: data.steam_id, mmr: data.mmr},config })
       reset();
-      alert("Success, ping admins for approval");
     } catch (error) {
       console.error("failed to vouch.")
-      alert("Failed to vouch.")
     }
   };
 

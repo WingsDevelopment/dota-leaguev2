@@ -47,7 +47,7 @@ export default async function MatchHistory({ params }: MatchHistoryProps) {
       apiCallerGetMatchHistory({ params: { steamId: id }, config }),
       await apiCallerGetPlayerBySteamId({ params: { steam_id: id }, config }),
       discordId ? await apiCallerGetPlayerSteamIdByDiscordId({ params: { discordId }, config }) : null,
-      await apiCallerGetLikesAndDislikesBySteamId({ params: { steam_id: id }, config: { config } }),
+      await apiCallerGetLikesAndDislikesBySteamId({ params: { steam_id: id },  config  }),
     ]);
   const matchHistoryList = matchHistoryRes;
   const playerList = playerRes;
