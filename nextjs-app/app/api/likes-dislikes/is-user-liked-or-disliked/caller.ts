@@ -15,14 +15,15 @@ export const apiCallerisUserLikedOrDisliked = async ({
 
         const data = response.data;
         if (!data.success) throw new Error(data.message);
+        config.onSuccessCallback(
+            `Successfully fetched info if user is liked or disliked.`
+        );
+
         return data.data;
     } catch (error) {
-        Notify({
-            message: `Failed to get info if user is liked or disliked! ${error}`,
-            type: "error",
-        });
+        config.onErrorCallback(`Failed to fetch info if user is liked or disliked! ${error}`);
         throw error;
-    }finally{
+    } finally {
         config.onSettledCallback()
     }
 };

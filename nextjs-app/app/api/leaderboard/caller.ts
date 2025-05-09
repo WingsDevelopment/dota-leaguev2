@@ -15,11 +15,14 @@ export const apiCallerGetLeaderBoard = async ({
 
         const data = response.data;
         if (!data.success) throw new Error(data.message);
+        config.onSuccessCallback(
+            `Successfully fetched leaderboard.`
+        );
         return data.data;
     } catch (error) {
-        console.error(`Failed to get leaderboard!`, error);
+        config.onErrorCallback(`Failed to fetch the leaderboard! ${error}`);
         throw error;
-    }finally{
+    } finally {
         config.onSettledCallback()
     }
 };

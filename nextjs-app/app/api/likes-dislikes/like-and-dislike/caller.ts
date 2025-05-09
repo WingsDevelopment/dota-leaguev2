@@ -15,14 +15,14 @@ export const apiCallerPutLikeOrDislike = async ({
 
         const data = response.data as PrimitiveServiceResponse;
         if (!data.success) throw new Error(data.message);
+        config.onSuccessCallback(
+            `Successfully liked/disliked the user.`
+        );
         return data;
     } catch (error) {
-        Notify({
-            message: `Failed to like or dislike! ${error}`,
-            type: "error",
-        });
+        config.onErrorCallback(`Failed to like or dislike the user! ${error}`);
         throw error;
-    }finally{
+    } finally {
         config.onSettledCallback()
     }
 };

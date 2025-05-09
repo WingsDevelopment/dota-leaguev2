@@ -13,9 +13,12 @@ export const apiCallerGetMatchHistory = async ({
     });
     const data = response.data;
     if (!data.success) throw new Error(data.message);
+    config.onSuccessCallback(
+      `Successfully fetched match history.`
+    );
     return data.data;
   } catch (error) {
-    console.error(`Failed to get match history!`, error);
+    config.onErrorCallback(`Failed to fetch match history! ${error}`);
     throw error;
   } finally {
     config.onSettledCallback()
