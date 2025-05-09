@@ -15,12 +15,12 @@ export const apiCallerGamesUpdateOrCancel = async ({
         }, config);
         const data = response.data;
         if (!data.success) throw new Error(data.message);
+        config.onSuccessCallback(
+            `Successfully canceled the game.`
+        );
         return data.data;
     } catch (error) {
-        Notify({
-            message: `Failed to cancel the game! ${error}`,
-            type: "error",
-        });
+        config.onErrorCallback(`Failed to cancel the game! ${error}`);
         throw error;
     } finally {
         config.onSettledCallback()

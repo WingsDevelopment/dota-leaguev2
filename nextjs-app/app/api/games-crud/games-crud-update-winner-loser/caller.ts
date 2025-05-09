@@ -7,20 +7,23 @@ import { UpdateWinnerLoser } from "@/app/services/gameService/updateWinnerOrLose
 
 
 export const apiCallerGamesDeclareWinnerOrLoser = async ({
-    params:{id, status, team_won},config
-}: { params:UpdateWinnerLoser,config: ApiCallerConfig }): Promise<Player[]> => {
+    params: { id, status, team_won }, config
+}: { params: UpdateWinnerLoser, config: ApiCallerConfig }): Promise<Player[]> => {
     try {
         const response = await axios.put(`${getBaseUrl(config?.origin)}/api/games-crud/games-crud-update-winner-loser`, {
             id, status, team_won
-        },config);
+        }, config);
 
         const data = response.data;
         if (!data.success) throw new Error(data.message);
+        config.onSuccessCallback(
+            `Successfully updated winner/loser.`
+        );
         return data.data;
     } catch (error) {
-        console.error(`Failed to get leaderboard!`, error);
+        config.onErrorCallback(`Failed to update winner/loser! ${error}`);
         throw error;
-    }finally{
+    } finally {
         config.onSettledCallback()
     }
 };

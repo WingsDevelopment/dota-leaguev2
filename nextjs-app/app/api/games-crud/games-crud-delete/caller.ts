@@ -15,11 +15,15 @@ export const apiCallerGamesDelete = async ({
         });
         const data = response.data;
         if (!data.success) throw new Error(data.message);
+        config.onSuccessCallback(
+            `Successfully deleted the game.`
+        );
+
         return data.data;
     } catch (error) {
-        console.error(`Failed to delete the player!`, error);
+        config.onErrorCallback(`Failed to delete the game! ${error}`);
         throw error;
-    }finally{
+    } finally {
         config.onSettledCallback()
     }
 };
