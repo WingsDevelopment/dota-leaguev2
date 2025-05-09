@@ -16,17 +16,13 @@ export const apiCallerGetReports = async ({
     const data = response.data;
 
     if (!data.success) throw new Error(data.message);
-
+    config.onSuccessCallback(
+      `Successfully fetched reports.`
+    );
     return data.data;
   } catch (error) {
-
-    console.error(`Failed to fetch players`, error);
+    config.onErrorCallback(`Failed to fetch the reports! ${error}`);
     throw error;
-    // Notify({
-    //   message: `Failed to like or dislike! ${error}`,
-    //   type: "error",
-    // });
-    // throw error;
   } finally {
     config.onSettledCallback()
   }

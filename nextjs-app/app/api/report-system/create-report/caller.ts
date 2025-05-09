@@ -14,12 +14,12 @@ export const apiCallerCreateReports = async ({
             reportPayload, config);
         const data = response.data as PrimitiveServiceResponse;
         if (!data.success) throw new Error(data.message);
+        config.onSuccessCallback(
+            `Successfully created the report.`
+        );
         return data;
     } catch (error) {
-        Notify({
-            message: `Failed to create the report! ${error}`,
-            type: "error",
-        });
+        config.onErrorCallback(`Failed to create the report! ${error}`);
         throw error;
     } finally {
         config.onSettledCallback()
