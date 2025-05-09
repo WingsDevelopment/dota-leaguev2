@@ -22,12 +22,12 @@ export const apiCallerGetPlayerSteamIdByDiscordId = async (
 
     const data = response.data;
     if (!data.success) throw new Error(data.message);
+    config.onSuccessCallback(
+      `Successfully fetched player's steam id with discord id.`
+    );
     return data.data;
   } catch (error) {
-    Notify({
-      message: `Failed to get player by steam Id!, ${error}`,
-      type: "error",
-    });
+    config.onErrorCallback(`Failed to fetch player's steam id with discord id! ${error}`);
     throw error;
   } finally {
     config.onSettledCallback()

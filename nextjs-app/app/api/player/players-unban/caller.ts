@@ -15,13 +15,12 @@ export const apiCallerUnbanPlayer = async (
 
         const data = response.data as PrimitiveServiceResponse;
         if (!data.success) throw new Error(data.message);
-
+        config.onSuccessCallback(
+            `Successfully unbanned the player.`
+        );
         return data;
     } catch (error) {
-        Notify({
-            message: `Failed to unban the player!, ${error}`,
-            type: "error",
-        });
+        config.onErrorCallback(`Failed to unban the player! ${error}`);
         throw error;
     } finally {
         config.onSettledCallback()

@@ -16,13 +16,12 @@ export const apiCallerDeletePlayerBySteamId = async (
 
     const data = response.data as PrimitiveServiceResponse;
     if (!data.success) throw new Error(data.message);
-
+    config.onSuccessCallback(
+      `Successfully deleted player by steam id.`
+    );
     return data;
   } catch (error) {
-    Notify({
-      message: `Failed to delete player by steam Id!, ${error}`,
-      type: "error",
-    });
+    config.onErrorCallback(`Failed to delete player by steam id! ${error}`);
     throw error;
   } finally {
     config.onSettledCallback()

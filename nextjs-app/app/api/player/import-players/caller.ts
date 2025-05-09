@@ -16,13 +16,12 @@ export const apiCallerImportPlayers = async (
 
     const data = response.data as PrimitiveServiceResponse;
     if (!data.success) throw new Error(data.message);
-
+    config.onSuccessCallback(
+      `Successfully imported players.`
+    );
     return data;
   } catch (error) {
-    Notify({
-      message: `Failed to import the players!, ${error}`,
-      type: "error",
-    });
+    config.onErrorCallback(`Failed to import the players! ${error}`);
     throw error;
   } finally {
     config.onSettledCallback()

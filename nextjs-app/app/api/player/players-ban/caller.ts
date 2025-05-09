@@ -15,13 +15,12 @@ export const apiCallerBanPlayer = async (
 
         const data = response.data as PrimitiveServiceResponse;
         if (!data.success) throw new Error(data.message);
-
+        config.onSuccessCallback(
+            `Successfully banned the player.`
+        );
         return data;
     } catch (error) {
-        Notify({
-            message: `Failed to ban the player!, ${error}`,
-            type: "error",
-        });
+        config.onErrorCallback(`Failed to ban the player! ${error}`);
         throw error;
     } finally {
         config.onSettledCallback()

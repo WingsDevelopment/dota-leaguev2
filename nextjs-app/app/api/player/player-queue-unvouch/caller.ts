@@ -11,9 +11,12 @@ export const apiCallerQueueUnvouchPlayer = async (
     const response = await axios.post("/api/player/player-queue-unvouch", params, config);
     const data = response.data as PrimitiveServiceResponse;
     if (!data.success) throw new Error(data.message);
+    config.onSuccessCallback(
+      `Successfully unvouched player.`
+    );
     return data;
   } catch (error) {
-    Notify({ message: `Failed to unvouch player: ${error}`, type: "error" });
+    config.onErrorCallback(`Failed to unvouch the player! ${error}`);
     throw error;
   } finally {
     config.onSettledCallback()

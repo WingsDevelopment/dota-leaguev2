@@ -13,9 +13,12 @@ export const apiCallerQueueVouchPlayer = async (
       params, config);
     const data = response.data as PrimitiveServiceResponse;
     if (!data.success) throw new Error(data.message);
+    config.onSuccessCallback(
+      `Successfully queue vouched the player.`
+    );
     return data;
   } catch (error) {
-    Notify({ message: `Failed to vouch player: ${error}`, type: "error" });
+    config.onErrorCallback(`Failed to queue vouch the player! ${error}`);
     throw error;
   } finally {
     config.onSettledCallback()

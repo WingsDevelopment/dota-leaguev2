@@ -18,13 +18,12 @@ export const apiCallerGetPlayerBySteamId = async ({
 
     const data = response.data;
     if (!data.success) throw new Error(data.message);
+    config.onSuccessCallback(
+      `Successfully fetched player by steam id.`
+    );
     return data.data;
   } catch (error) {
-    // Notify({
-    //   message: `Failed to get player by steam Id! ${error}`,
-    //   type: "error",
-    // });
-    console.error(`Failed to get player by steam Id!s`, error);
+    config.onErrorCallback(`Failed to get player by steam id! ${error}`);
     throw error;
   } finally {
     config.onSettledCallback()

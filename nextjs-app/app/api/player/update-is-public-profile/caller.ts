@@ -15,13 +15,12 @@ export const apiCallerUpdatePlayerProfileVisibility = async (
 
     const data = response.data as PrimitiveServiceResponse;
     if (!data.success) throw new Error(data.message);
-
+    config.onSuccessCallback(
+      `Successfully updated user's profile visibility.`
+    );
     return data;
   } catch (error) {
-    Notify({
-      message: `Failed to change user profile visibility!, ${error}`,
-      type: "error",
-    });
+    config.onErrorCallback(`Failed to change user's profile visibility! ${error}`);
     throw error;
   } finally {
     config.onSettledCallback()

@@ -14,9 +14,12 @@ export const apiCallerGetPlayers = async ({
       config);
     const data = response.data;
     if (!data.success) throw new Error(data.message);
+    config.onSuccessCallback(
+      `Successfully fetched the players.`
+    );
     return data.data;
   } catch (error) {
-    console.error(`Failed to fetch players`, error);
+    config.onErrorCallback(`Failed to fetch the players! ${error}`);
     throw error;
   } finally {
     config.onSettledCallback()
