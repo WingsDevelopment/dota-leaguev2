@@ -30,10 +30,11 @@ import { apiCallerUnbanPlayer } from "@/app/api/player/players-unban/caller";
 import { Player } from "@/app/services/playerService/getPlayerBySteamId";
 import { apiCallerQueueUnvouchPlayer } from "../../app/api/player/player-queue-unvouch/caller";
 import { apiCallerQueueVouchPlayer } from "../../app/api/player/player-queue-vouch/caller";
-import { apiCallerGetPlayers } from "@/app/api/player/players-read/caller";
 import { getApiClientCallerConfig } from "@/app/api/common/clientUtils";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
+  const config = getApiClientCallerConfig()
   const router = useRouter();
   const [openModal, setOpenModal] = useState<number | "none">("none");
 
@@ -42,14 +43,14 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
     banType: "1l" | "1g" | "bbb" | "1d" | undefined
   ) {
     if (!confirm("Are you sure you want to ban this player?")) return;
-    await apiCallerBanPlayer({ steam_id, banType });
+    await apiCallerBanPlayer({ params: { steam_id, banType }, config });
     router.refresh();
     setOpenModal("none");
   }
 
   async function sendUnbanRequest(steam_id: number) {
     if (!confirm("Are you sure you want to unban this player?")) return;
-    await apiCallerUnbanPlayer({ steam_id });
+    await apiCallerUnbanPlayer({ params: { steam_id }, config });
     router.refresh();
     setOpenModal("none");
   }
@@ -62,7 +63,7 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
       ? "Are you sure you want to remove High MMR vouch from this player?"
       : "Are you sure you want to vouch this player for High MMR?";
     if (!confirm(confirmMsg)) return;
-    await action({ steam_id, vouchLevel: 5 });
+    await action({ params:{steam_id,vouchLevel:5}, config });
     router.refresh();
   }
 
@@ -120,9 +121,10 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
                             isOpen ? setOpenModal(player.steam_id) : setOpenModal("none")
                           }
                         >
-                          <ModalTrigger onClick={() => setOpenModal(player.steam_id)}>
-                            Ban Player
+                          <ModalTrigger className="hidden">
                           </ModalTrigger>
+                          <DialogTitle className="hidden"></DialogTitle>
+                          <Button onClick={() => setOpenModal(player.steam_id)}>Ban Player</Button>
                           <ModalContent>
                             <ModalHeader>Ban Player {player.name}</ModalHeader>
                             <ModalDescription>

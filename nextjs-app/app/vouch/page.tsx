@@ -37,10 +37,8 @@ export default function VouchRequest() {
     try {
       await apiCallerCreatePlayers({params:{steam_id: data.steam_id, mmr: data.mmr},config })
       reset();
-      alert("Success, ping admins for approval");
     } catch (error) {
       console.error("failed to vouch.")
-      alert("Failed to vouch.")
     }
   };
 
@@ -89,9 +87,7 @@ export default function VouchRequest() {
               type="text"
             />
           </CardDescription>
-          {errors.mmr && (
-            <p className="text-red-500 text-sm">{errors.mmr.message}</p>
-          )}
+          {errors.mmr && <p className="text-red-500 text-sm">{errors.mmr.message}</p>}
           <CardDescription>
             <Button type="submit">Register</Button>
           </CardDescription>

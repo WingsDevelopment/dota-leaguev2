@@ -6,7 +6,7 @@ import { ApiCallerConfig } from "../../common/interfaces";
 export const apiCallerGetReports = async ({
   config,
 }: {
-  config?: ApiCallerConfig;
+  config: ApiCallerConfig;
 }): Promise<UserReport[]> => {
   try {
     const response = await axios.get(
@@ -16,10 +16,14 @@ export const apiCallerGetReports = async ({
     const data = response.data;
 
     if (!data.success) throw new Error(data.message);
-
+    config.onSuccessCallback(
+      `Successfully fetched reports.`
+    );
     return data.data;
   } catch (error) {
-    console.error(`Failed to fetch players`, error);
+    config.onErrorCallback(`Failed to fetch the reports! ${error}`);
     throw error;
+  } finally {
+    config.onSettledCallback()
   }
 };

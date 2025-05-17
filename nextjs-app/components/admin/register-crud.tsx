@@ -34,7 +34,7 @@ export default function RegisterCrud({ registerList }: { registerList: Vouch[] }
     if (!confirm(`Are you sure you want to ${requestType} this player?`)) return;
 
     if (requestType === "approve") {
-      apiCallersetApprovePlayers({ registrationId, requestType }).then(() => {
+      apiCallersetApprovePlayers({params:{ registrationId, requestType },config}).then(() => {
         router.refresh();
       });
     } else if (requestType === "decline") {

@@ -4,13 +4,14 @@ import { getDbInstance } from "@/db/utils";
 import { NextResponse } from "next/server";
 import path from "path";
 import sqlite3 from "sqlite3";
+import { getUnauthorizedError } from "../common/functions";
 
 // export const ADMIN_IDS = [1, 2];
 
 // TODO DELETE ASAP/ OR MAKE ADMIN ACTION
 export async function POST() {
   if (!(await isUserAdmin())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return getUnauthorizedError();
   }
   const db = await getDbInstance();
   try {

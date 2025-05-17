@@ -24,6 +24,10 @@ export async function isUserAdmin() {
   const adminIds = (process.env.ADMIN_IDS || "").split(",");
   return adminIds.includes(String((session?.user as ExtendedUser)?.discordId));
 }
-
+export async function isUserLoggedIn() {
+  const session = await auth();
+  const discord_id = (session?.user as ExtendedUser)?.discordId;
+  return discord_id !== undefined && discord_id !== null;;
+}
 export const RADIANT = 0;
 export const DIRE = 1;

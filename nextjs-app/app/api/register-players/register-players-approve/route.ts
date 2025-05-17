@@ -4,13 +4,13 @@ import { isUserAdmin } from "@/app/common/constraints";
 import { auth } from "../../../../auth";
 import { closeDatabase } from "@/db/initDatabase";
 import { setApprovePlayers } from "@/app/services/registerPlayersService/approvePlayers";
+import { getUnauthorizedError } from "../../common/functions";
 
 
 export async function POST(req: NextRequest) {
-  if (!isUserAdmin()) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-  }
-
+    if (!(await isUserAdmin())) {
+      return getUnauthorizedError();
+    }
   const { registrationId, requestType } = await req.json();
   
   const res = await setApprovePlayers({ registrationId, requestType });

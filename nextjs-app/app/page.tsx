@@ -19,6 +19,9 @@ import {
 import Image from "next/image";
 import { Tooltip } from "../components/ui/tooltip";
 import Link from "next/link";
+import { getApiClientCallerConfig } from "./api/common/clientUtils";
+import { apiCallerGetLeaderBoard } from "./api/leaderboard/caller";
+import { getApiServerCallerConfig } from "@/lib/getApiServerCallerConfig";
 
 export const metadata: Metadata = {
   title: "RADEKOMSA LEADERBOARD",
@@ -28,12 +31,10 @@ export const metadata: Metadata = {
 export default async function DashboardPage() {
   const session = await auth();
   const discord_id= session?.user?.id
+  const config= getApiServerCallerConfig()
   // const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
   const baseUrl = "http://127.0.0.1:3000";
-  const res = await fetch(`${baseUrl}/api/leaderboard`, { cache: "no-store" });
-  const data = await res.json();
-  const leaderboard = data.leaderboard || [];
-
+  const leaderboard = await apiCallerGetLeaderBoard({config});
   return (
     <>
       <div className="p-4">
@@ -217,3 +218,7 @@ export default async function DashboardPage() {
     </>
   );
 }
+function fapiCallerGetLeaderBoard() {
+  throw new Error("Function not implemented.");
+}
+

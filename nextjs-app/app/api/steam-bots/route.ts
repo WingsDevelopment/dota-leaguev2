@@ -2,11 +2,12 @@ import { NextResponse } from "next/server";
 import { getDbInstance } from "@/db/utils";
 import { isUserAdmin } from "@/app/common/constraints";
 import { closeDatabase } from "@/db/initDatabase";
+import { getUnauthorizedError } from "../common/functions";
 
 export async function GET() {
   const db = await getDbInstance();
   if (!(await isUserAdmin())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return getUnauthorizedError();
   }
 
   try {
@@ -22,15 +23,18 @@ export async function GET() {
       }
     );
 
-    closeDatabase(db);
+
     return NextResponse.json({ result });
   } catch (error) {
-    closeDatabase(db);
+
     console.error("Error reading bots:", error);
 
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
     );
+  } finally {
+    closeDatabase(db)
   }
+
 }

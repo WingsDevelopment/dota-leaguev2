@@ -16,12 +16,14 @@ export const apiCallersetDeclinePlayers = async ({
     );
     const data = response.data as PrimitiveServiceResponse;
     if (!data.success) throw new Error(data.message);
+    config.onSuccessCallback(
+      `Successfully declined the player.`
+    );
     return data;
   } catch (error) {
-    Notify({
-      message: `Failed to approve the player! ${error}`,
-      type: "error",
-    });
+    config.onErrorCallback(`Failed to decline the player! ${error}`);
     throw error;
+  } finally {
+    config.onSettledCallback()
   }
 };
