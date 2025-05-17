@@ -8,7 +8,7 @@ import { getBaseUrl } from "@/app/common/constraints";
 export const apiCallerGetPlayers = async ({
   config,
 }: {
-  config?: ApiCallerConfig;
+  config: ApiCallerConfig;
 }): Promise<Vouch[]> => {
   try {
     const response = await axios.get(
@@ -18,10 +18,14 @@ export const apiCallerGetPlayers = async ({
     const data = response.data;
 
     if (!data.success) throw new Error(data.message);
-
+    config.onSuccessCallback(
+      `Successfully fetched vouch list.`
+    );
     return data.data;
   } catch (error) {
-    console.error(`Failed to fetch players`, error);
+    config.onErrorCallback(`Failed to fetch the vouch list! ${error}`);
     throw error;
+  } finally {
+    config.onSettledCallback()
   }
 };

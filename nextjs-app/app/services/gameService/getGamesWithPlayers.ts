@@ -1,22 +1,42 @@
 import { closeDatabase } from "../../../db/initDatabase";
 import { getDbInstance } from "../../../db/utils";
+import { getPrimitiveServiceErrorResponse, getSuccessfulServiceResponse } from "../common/functions";
+import { PrimitiveServiceResponse } from "../common/types";
 import { queryPromise } from "../common/utils";
 
 /**
- * Retrieves all games from the database with their players, grouped by team.
+ * Returns games with player names.
+ *
+ * @async
+ * @function getGamesWithPlayers
+ * @returns {Promise<PrimitiveServiceResponse>} A promise that resolves to a primitive service response.
+ *
+ * @example
+ * const response = await deleteGame();
  */
-export async function getGamesWithPlayers(): Promise<any[]> {
+export async function getGamesWithPlayers(): Promise<PrimitiveServiceResponse> {
+  /* ----------------- */
+  /*   Initialization  */
+  /* ----------------- */
   const db = await getDbInstance();
   try {
     // Get all games.
+    /* ------------- */
+    /*   DB Query    */
+    /* ------------- */
     const games: Array<Record<string, any>> = await queryPromise(
       db,
       `SELECT * FROM Game`
     );
 
     if (games.length === 0) {
-      closeDatabase(db);
-      return [];
+      /* ---------------- */
+      /*   Return Data    */
+      /* ---------------- */
+      return getSuccessfulServiceResponse({
+        message: "No games, returning empty array.",
+        data: []
+      });
     }
 
     // Extract game IDs for the IN clause.
@@ -24,6 +44,9 @@ export async function getGamesWithPlayers(): Promise<any[]> {
     const placeholders = gameIds.map(() => "?").join(",");
 
     // Get players for these games, joined with Players.
+    /* ------------- */
+    /*   DB Query    */
+    /* ------------- */
     const gamePlayers = await queryPromise(
       db,
       `SELECT gp.game_id, p.name, gp.team
@@ -55,10 +78,23 @@ export async function getGamesWithPlayers(): Promise<any[]> {
       players: gamePlayersByGame[game.id] || { radiant: [], dire: [] },
     }));
 
-    closeDatabase(db);
-    return gamesWithPlayers;
+    /* ---------------- */
+    /*   Return Data    */
+    /* ---------------- */
+    return getSuccessfulServiceResponse({
+      message: "Fetched games successfully.",
+      data: gamesWithPlayers
+    });
   } catch (error) {
+
+    /* -------- */
+    /*   Error  */
+    /* -------- */
+    return getPrimitiveServiceErrorResponse(error, "Error fetching the games.");
+  } finally {
+    /* -------- */
+    /*  Cleanup */
+    /* -------- */
     closeDatabase(db);
-    throw error;
   }
 }

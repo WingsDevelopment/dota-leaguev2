@@ -7,7 +7,6 @@ export default async function Page() {
     const playerList = await apiCallerGetPlayers({
       config
     });
-    console.log(playerList,"PLAYERLIST")
   return (
     <div className="flex flex-col gap-4">
       <PlayerCrud playerList={playerList} />

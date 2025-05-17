@@ -1,4 +1,5 @@
 "use client";
+import { getApiClientCallerConfig } from "@/app/api/common/clientUtils";
 import { apiCallerPutLikeOrDislike } from "@/app/api/likes-dislikes/like-and-dislike/caller";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -20,15 +21,16 @@ export default function LikesAndDislikes({
     otherPlayerSteamId,
     isUserLiked,
 }: LikesAndDislikes) {
+    const config= getApiClientCallerConfig()
     const router = useRouter()
 
 
     const likeAndDislike = async (type: VoteType) => {
         try {
             apiCallerPutLikeOrDislike({
-                userSteamId,
+                params:{userSteamId,
                 otherPlayerSteamId,
-                type
+                type},config   
             }).then(() => {
                 router.refresh()
             })
@@ -51,16 +53,6 @@ export default function LikesAndDislikes({
         // If isLiked is null or undefined, both buttons should be gray
         return `${baseStyles} bg-gray-500 hover:bg-gray-600`;
     };
-
-    // if (loading) return (
-    //     <div className="relative w-40 h-10">
-    //         {/* Semi-transparent background overlay */}
-    //         <div className="absolute inset-0 bg-gray-900 bg-opacity-50 rounded-lg overflow-hidden flex items-center justify-center">
-    //             {/* Vertical sweeping light effect */}
-    //             <div className="absolute w-full h-full bg-white/20 blur-md animate-[verticalSweep_1.5s_infinite_linear]"></div>
-    //         </div>
-    //     </div>
-    // );
     return (
         <>
             <button

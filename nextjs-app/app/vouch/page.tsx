@@ -19,7 +19,7 @@ interface registerLeague {
   mmr: number;
 }
 export default function VouchRequest() {
-  const config = getApiClientCallerConfig();
+  const config= getApiClientCallerConfig()
   const { data: session } = useSession();
   const {
     handleSubmit,
@@ -33,12 +33,13 @@ export default function VouchRequest() {
   });
 
   const onSubmit = async (data: registerLeague) => {
-    apiCallerCreatePlayers({
-      params: { steam_id: data.steam_id, mmr: data.mmr },
-      config,
-    }).then(() => {
+
+    try {
+      await apiCallerCreatePlayers({params:{steam_id: data.steam_id, mmr: data.mmr},config })
       reset();
-    });
+    } catch (error) {
+      console.error("failed to vouch.")
+    }
   };
 
   if (!session) {
