@@ -60,7 +60,6 @@ export default function ReportSystem({
     };
     try {
       apiCallerCreateReports({params:{reportPayload},config});
-      alert("Player reported successfully");
     } catch (error) {
       console.error("Failed to submit the report", error);
     } finally {
@@ -168,7 +167,5 @@ export default function ReportSystem({
     </>
   );
 }
-function apiCallerCreateReport(reportId: any) {
-  throw new Error("Function not implemented.");
-}
+
 

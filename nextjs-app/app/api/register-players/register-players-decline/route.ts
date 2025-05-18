@@ -4,7 +4,7 @@ import { setDeclinePlayers } from "@/app/services/registerPlayersService/decline
 import { getUnauthorizedError } from "../../common/functions";
 
 export async function POST(req: NextRequest) {
-  if (!isUserAdmin()) {
+  if (!(await isUserAdmin())) {
     return getUnauthorizedError();
   }
   const { registrationId, requestType } = await req.json();
