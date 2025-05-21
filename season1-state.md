@@ -340,28 +340,36 @@ MikSa`13
 143 948
 navucenkoo
 31 32 49.21%
+
 144 948
 captain
 magic2673
 54 58 48.21%
+
 145 948
 w1n
 1 3 25.00%
+
 146 946
 Where's my crown?
 1 3 25.00%
+
 147 939
 Dante™
 0 2 0.00%
+
 148 930
 Stufistafnjak
 34 41 45.33%
+
 149 926
 Crystalflame
 0 3 0.00%
+
 150 922
 GamerCat.
 0 4 0.00%
+
 151 921
 MyrC
 0 3 0.00%
@@ -410,6 +418,7 @@ M41D
 165 723
 Bezveze
 39 51 43.33%
+
 166 666
 sotonski narkoman
 70 87 44.59%
