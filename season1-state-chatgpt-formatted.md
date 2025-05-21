@@ -1,3 +1,5 @@
+# RADEKOMSA SEASON 1 (over)
+
 # Player Rankings
 
 | Rank | MMR  | Name                       | Wins | Losses | Win %   | Achievements |
