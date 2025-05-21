@@ -52,407 +52,291 @@ psajk
 11 1126
 Sarapa
 9 4 69.23%
+
 12 1108
 captain
 Retrox
 24 22 52.17%
+
 13 1107
 captain
 PUNISHER
 14 9 60.87%
+
 14 1103
 Deimos
 6 2 75.00%
+
 15 1088
 shaggy3326
 9 5 64.29%
+
 16 1077
 baldoooo
 8 5 61.54%
+
 17 1074
 captain
 Cupko
 74 71 51.03%
+
 18 1065
 Sosica
 3 0 100.00%
+
 19 1063
 captain
 Lengebaka
 55 46 54.46%
+
 20 1052
 Qleman
 7 5 58.33%
+
 21 1052
 Tokagero
 4 2 66.67%
+
 22 1048
 Manatic
 3 1 75.00%
+
 23 1047
 NGM
 18 14 56.25%
+
 24 1047
 captain
 bEAUTY
 29 26 52.73%
+
 25 1043
 cowboydota
 3 1 75.00%
+
 26 1041
 DibiDus
 10 7 58.82%
+
 27 1040
 CuFa
 14 13 51.85%
+
 28 1039
 Envenom77 / Seyko
 3 1 75.00%
+
 29 1038
 Rayc
 38 33 53.52%
+
 30 1036
 Nikola
 62 65 48.82%
+
 31 1032
 Blurpi994
 4 3 57.14%
+
 32 1028
 Unreal Cojkan
 3 2 60.00%
+
 33 1026
 TheForgottenOne
 1 0 100.00%
+
 34 1024
 Lucky
 1 0 100.00%
+
 35 1024
 captain
 surovi1379
 2 1 66.67%
+
 36 1023
 Shaman🅲🅹e
 1 0 100.00%
+
 37 1019
 orvolll
 3 2 60.00%
+
 38 1017
 sorry
 19 17 52.78%
+
 39 1015
 Crucialx
 0 -1 /
 40 1012
 Palic
 14 14 50.00%
+
 41 1007
 Strašna Žaba
 9 8 52.94%
+
 42 1003
 xndRRR
 2 2 50.00%
+
 43 1002
 Lucky
 8 8 50.00%
+
 44 1001
 captain
 instagram-radekomsa-tiktok
 pi-milionare
 1 1 50.00%
-45 1000
-Mito
-0 0 /
-46 1000
-Glox
-0 0 /
-47 1000
-:)
-0 0 /
-48 1000
-runovican
-0 0 /
-49 1000
-Raale
-0 0 /
-50 1000
-GiveMeHugBaby
-0 0 /
-51 1000
-X Æ A-Xii
-0 0 /
-52 1000
-Arianaz
-0 0 /
-53 1000
-Dzo
-0 0 /
-54 1000
-Mr. Miyagi
-0 0 /
-55 1000
-Laki93
-0 0 /
-56 1000
-S1vi91
-0 0 /
-57 1000
-Mico
-0 0 /
-58 1000
-srdjan
-0 0 /
-59 1000
-surgical
-0 0 /
-60 1000
-Shone
-0 0 /
-61 1000
-Music BOT
-0 0 /
-62 1000
--Skuni!
-0 0 /
-63 1000
-medeni24
-0 0 /
-64 1000
-beba1237
-0 0 /
-65 1000
-Test
-0 0 /
-66 1000
-Nuzzgrumble
-0 0 /
-67 1000
-Antonio
-0 0 /
-68 1000
-Crucialx
-0 0 /
-69 1000
-Aleksandar
-0 0 /
-70 1000
-HomTardy
-0 0 /
-71 1000
-Luciferka
-0 0 /
-72 1000
-Batacic
-0 0 /
-73 1000
-kvo
-0 0 /
-74 1000
-Bula
-0 0 /
-75 1000
-Vladimir
-0 0 /
-76 1000
-DovLa
-0 0 /
-77 1000
-ShallowsoulBL
-0 0 /
-78 1000
-Kikurikukaka1
-0 0 /
-79 1000
-mrestimo
-0 0 /
-80 1000
-amenadiel
-0 0 /
-81 1000
-yugo45koral.
-0 0 /
-82 1000
-decore
-0 0 /
-83 1000
-Legs
-0 0 /
-84 1000
-DonDOTero
-0 0 /
-85 1000
-Djekson
-0 0 /
-86 1000
-Highduk
-0 0 /
-87 1000
-ae_fi
-0 0 /
-88 1000
-merdidot
-0 0 /
-89 1000
-Baka
-0 0 /
-90 1000
-samorakijaibedeleneze6580
-0 0 /
-91 1000
-[m]
-0 0 /
-92 1000
-Pečurka
-0 0 /
-93 1000
-kounz
-0 0 /
-94 1000
-MMR
-0 0 /
-95 1000
-DeckoZaSve
-0 0 /
-96 1000
-Ris98
-0 0 /
-97 1000
-Milos
-0 0 /
-98 1000
-Elfmoon94
-0 0 /
-99 1000
-Nexxus
-0 0 /
-100 1000
-taretare
-0 0 /
-101 1000
-/\
-0 0 /
-102 1000
-Dedajokica
-0 0 /
-103 1000
-zataskano grifovanje
-0 0 /
-104 1000
-tetriesidva
-0 0 /
-105 1000
-ocesdateoderem
-0 0 /
-106 1000
-xivcrew93
-0 0 /
+
+45-106 0 gamova odigranih
+
 107 998
 Mitke
 2 2 50.00%
+
 108 998
 MINIPANI
 28 29 49.12%
+
 109 998
 perkoni
 17 21 44.74%
+
 110 998
 REMA992
 1 1 50.00%
+
 111 997
 Ma Ne
 19 17 52.78%
+
 112 996
 runovican
 34 36 48.57%
+
 113 995
 Mr.F
 1 1 50.00%
+
 114 995
 Prle
 3 3 50.00%
+
 115 995
 ocmenjow
 3 3 50.00%
+
 116 989
 1k1k1k
 4 4 50.00%
+
 117 988
 Brki93⚡✌
 2 2 50.00%
+
 118 986
 OftenJ (Stojcee)
 18 20 47.37%
+
 119 982
 ProdigyKid
 22 21 51.16%
+
 120 980
 Kentra
 0 1 0.00%
+
 121 978
 planko
 0 1 0.00%
+
 122 978
 Eyesburn
 36 39 48.00%
+
 123 978
 Karlo Hubak
 7 8 46.67%
+
 124 978
 libac
 11 13 45.83%
+
 125 978
 gottaloveya
 0 1 0.00%
+
 126 977
 Dendro
 -1 0 /
 127 977
 lkn
 0 1 0.00%
+
 128 977
 PROTOSS
 0 1 0.00%
+
 129 977
 amko1o
 0 1 0.00%
+
 130 976
 ᲼
 0 1 0.00%
+
 131 974
 Lakarije
 14 17 45.16%
+
 132 971
 BorisKralj23
 0 1 0.00%
+
 133 967
 Ghost of Medosevac
 1 2 33.33%
+
 134 966
 Dzoint moga oca
 6 7 46.15%
+
 135 957
 7
 1 2 33.33%
+
 136 952
 Tiodor
 13 16 44.83%
+
 137 952
 igor ubica bre
 0 2 0.00%
+
 138 952
 MakingPlays
 0 2 0.00%
+
 139 951
 zugi33
 0 2 0.00%
+
 140 951
 Ch4mb3r
 6 8 42.86%
+
 141 950
 Samed
 1 3 25.00%
+
 142 950
 MikSa`13
 1 3 25.00%
+
 143 948
 navucenkoo
 31 32 49.21%
@@ -529,5 +413,3 @@ Bezveze
 166 666
 sotonski narkoman
 70 87 44.59%
-Discord
-YouTube
