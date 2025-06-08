@@ -9,9 +9,10 @@ export const apiCallerDeletePlayerBySteamId = async (
   { params: { discordId }, config }: { params: getPlayerByDiscordId, config: ApiCallerConfig }
 ): Promise<PrimitiveServiceResponse> => {
   try {
-    //Needs testing when implemented
-    const response = await axios.post(`${getBaseUrl(config?.origin)}/api/player/delete-by-discord-id`,
-      { params: { discordId } }, config
+    const response = await axios.delete(`${getBaseUrl(config?.origin)}/api/player/delete-by-discord-id`,
+      { ...config,
+        params: { discordId } 
+      }
     );
 
     const data = response.data as PrimitiveServiceResponse;

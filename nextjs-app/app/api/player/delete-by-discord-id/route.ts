@@ -2,9 +2,7 @@ import { deletePlayerByDiscordId } from "@/app/services/playerService/deletePlay
 import { NextResponse } from "next/server";
 
 export async function DELETE(request: Request) {
-  // Parse the URL to get the query parameter:
   const { searchParams } = new URL(request.url);
-  const discordId = searchParams.get("discord_id");
-
+  const discordId = searchParams.get("discordId");
  return NextResponse.json(await deletePlayerByDiscordId({ discordId }))
 }
