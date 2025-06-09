@@ -73,7 +73,6 @@ export async function UpdateWinnerOrLoser({ id, status, team_won }: UpdateWinner
            WHERE gp.game_id = ?`,
             [id]
         );
-        console.log(players, "CALLERRR")
         if (players.length === 0) {
             /* ------------- */
             /*   Rollback    */

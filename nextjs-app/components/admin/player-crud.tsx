@@ -32,6 +32,7 @@ import { apiCallerQueueUnvouchPlayer } from "../../app/api/player/player-queue-u
 import { apiCallerQueueVouchPlayer } from "../../app/api/player/player-queue-vouch/caller";
 import { getApiClientCallerConfig } from "@/app/api/common/clientUtils";
 import { DialogTitle } from "@radix-ui/react-dialog";
+import { apiCallerDeletePlayerBySteamId } from "@/app/api/player/delete-by-discord-id/caller";
 
 export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
   const config = getApiClientCallerConfig()
@@ -63,10 +64,15 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
       ? "Are you sure you want to remove High MMR vouch from this player?"
       : "Are you sure you want to vouch this player for High MMR?";
     if (!confirm(confirmMsg)) return;
-    await action({ params:{steam_id,vouchLevel:5}, config });
+    await action({ params: { steam_id, vouchLevel: 5 }, config });
     router.refresh();
   }
+  async function deletePlayer(discordId: string) {
+    if (!confirm("Are you sure you want to delete this player?")) return;
+    await apiCallerDeletePlayerBySteamId({ params: { discordId }, config })
+    router.refresh()
 
+  }
   return (
     <div>
       <Card>
@@ -95,6 +101,7 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
                   <TableHeaderCell>Ban Player</TableHeaderCell>
                   <TableHeaderCell>Unban Player</TableHeaderCell>
                   <TableHeaderCell>High MMR queue Vouch</TableHeaderCell>
+                  <TableHeaderCell>Delete Player</TableHeaderCell>
                 </tr>
               </TableHeader>
               <TableBody>
@@ -171,6 +178,13 @@ export default function PlayerCrud({ playerList }: { playerList: Player[] }) {
                         <Button onClick={() => handleVouch(player.steam_id, hasVouch)}>
                           {hasVouch ? "Unvouch" : "Vouch"}
                         </Button>
+                      </TableCell>
+                      <TableCell>
+                      <Button
+                        onClick={() => deletePlayer(String(player.discord_id))}
+                      >
+                        Delete Player
+                      </Button>
                       </TableCell>
                     </TableRow>
                   );
