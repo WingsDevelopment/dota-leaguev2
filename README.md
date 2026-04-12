@@ -21,7 +21,7 @@ Welcome to the **Dota 2 League Hosting Platform**, a side project with **100+ ac
 
 - 🏆 Dota League Hosting Platform: `https://www.dota-league-hosting.xyz/`
 - 🥇 Season 1: `https://dota-league.vercel.app/`
-- 🥈 Season 2: `https://radekomsa.site/`
+- 🥈 Season 2: `https://dota2.rs/`
 
 ---
 
@@ -150,8 +150,8 @@ If using a frontend:
 Update **OAuth2 Redirect URLs** in the Discord Developer Portal:
 
 ```
-https://radekomsa.site/api/auth/callback/discord/callback/discord
-https://radekomsa.site/api/auth/callback/discord
+https://dota2.rs/api/auth/callback/discord/callback/discord
+https://dota2.rs/api/auth/callback/discord
 ```
 
 ---

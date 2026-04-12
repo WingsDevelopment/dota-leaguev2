@@ -37,8 +37,8 @@ Your bot should now appear in the server (offline for now).
 - ignore if you dont have website
   update your oauth2 urls.
   add redirect urls in oauth2:
-  https://radekomsa.site/api/auth/callback/discord/callback/discord
-  https://radekomsa.site/api/auth/callback/discord
+  https://dota2.rs/api/auth/callback/discord/callback/discord
+  https://dota2.rs/api/auth/callback/discord
 - end of ignore
 
 go to bot tab:

@@ -48,7 +48,7 @@ services:
     command: bash -c "sleep 5 && npm run start"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.nextjs.rule=Host(`radekomsa.site`)"
+      - "traefik.http.routers.nextjs.rule=Host(`dota2.rs`)"
       - "traefik.http.routers.nextjs.entrypoints=https"
       - "traefik.http.routers.nextjs.tls=true"
       - "traefik.http.routers.nextjs.tls.certresolver=letsencrypt"
